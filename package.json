@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,10 +11,9 @@
     "react": "latest",
     "react-dom": "latest",
     "lucide-react": "latest",
-    "framer-motion": "latest"
-  },
-  "devDependencies": {
+    "framer-motion": "latest",
     "tailwindcss": "latest",
+    "@tailwindcss/postcss": "latest",
     "postcss": "latest",
     "autoprefixer": "latest"
   }
