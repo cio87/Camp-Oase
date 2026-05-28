@@ -45,7 +45,7 @@ export default function CampOaseLandingpage() {
         <div className="relative mx-auto grid max-w-7xl gap-10 px-6 pb-20 pt-32 md:grid-cols-2 md:items-center lg:px-8">
           <div className="absolute left-6 top-6 flex items-center gap-3 rounded-2xl bg-white/70 px-4 py-2 shadow-md backdrop-blur-sm">
             <img
-              src="https://placehold.co/200x200/png"
+              src="/logo.png"
               alt="Camp Oase Logo"
               className="h-14 w-14 rounded-xl object-contain"
             />
