@@ -199,9 +199,18 @@ function CampOaseApp({ admin = false, detail = false }) {
               {product.title}
             </h1>
 
-            <p style={{ fontSize: "20px", lineHeight: "1.7", color: "#666" }}>
-              {product.description}
-            </p>
+            <p
+  style={{
+    fontSize: "18px",
+    lineHeight: "1.9",
+    color: "#5f5f5f",
+    maxWidth: "720px",
+    marginTop: "24px",
+    whiteSpace: "pre-line",
+  }}
+>
+  {product.description}
+</p>
 
             <strong style={{ fontSize: "32px", color: "#556b5d" }}>
               {product.price}
@@ -427,9 +436,19 @@ function CampOaseApp({ admin = false, detail = false }) {
                       {product.title}
                     </h3>
 
-                    <p style={{ color: "#666", lineHeight: "1.5" }}>
-                      {product.description}
-                    </p>
+                    <p
+  style={{
+    color: "#666",
+    lineHeight: "1.6",
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    minHeight: "78px",
+  }}
+>
+  {product.description}
+</p>
 
                     <div style={priceRowStyle}>
                       <strong style={{ fontSize: "22px", color: "#556b5d" }}>
@@ -517,7 +536,8 @@ const productCardStyle = {
 const productImageStyle = {
   width: "100%",
   height: "240px",
-  objectFit: "cover",
+  objectFit: "contain",
+  background: "#f5f1e8",
 };
 
 const priceRowStyle = {
