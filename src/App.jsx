@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link, useParams } from "react-router-dom";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -12,16 +12,18 @@ export default function App() {
     <Routes>
       <Route path="/" element={<CampOaseApp />} />
       <Route path="/admin" element={<CampOaseApp admin />} />
+      <Route path="/produkt/:id" element={<CampOaseApp detail />} />
     </Routes>
   );
 }
 
-function CampOaseApp({ admin = false }) {
+function CampOaseApp({ admin = false, detail = false }) {
   const [products, setProducts] = useState([]);
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const { id } = useParams();
 
   const [newProduct, setNewProduct] = useState({
     title: "",
@@ -164,12 +166,58 @@ function CampOaseApp({ admin = false }) {
     await loadProducts();
   }
 
+  if (detail) {
+    const product = products.find((item) => String(item.id) === id);
+
+    if (!product) {
+      return <div style={pageStyle}>Produkt wird geladen...</div>;
+    }
+
+    return (
+      <div style={siteStyle}>
+        <header style={headerStyle}>
+          <Link to="/" style={{ color: "#556b5d", textDecoration: "none" }}>
+            ← Zurück
+          </Link>
+        </header>
+
+        <section style={{ padding: "60px 40px" }}>
+          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <img
+              src={product.image}
+              alt={product.title}
+              style={{
+                width: "100%",
+                maxHeight: "520px",
+                objectFit: "cover",
+                borderRadius: "32px",
+                boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
+              }}
+            />
+
+            <h1 style={{ fontSize: "48px", color: "#435749" }}>
+              {product.title}
+            </h1>
+
+            <p style={{ fontSize: "20px", lineHeight: "1.7", color: "#666" }}>
+              {product.description}
+            </p>
+
+            <strong style={{ fontSize: "32px", color: "#556b5d" }}>
+              {product.price}
+            </strong>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   if (admin) {
     return (
       <div style={pageStyle}>
-        <a href="/" style={{ color: "#556b5d" }}>
+        <Link to="/" style={{ color: "#556b5d" }}>
           ← Zur Webseite
-        </a>
+        </Link>
 
         <h1 style={{ marginTop: "30px" }}>Camp Oase Admin</h1>
 
@@ -202,7 +250,9 @@ function CampOaseApp({ admin = false }) {
             </button>
 
             <form onSubmit={addProduct} style={formStyle}>
-              <h2>{editingId ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}</h2>
+              <h2>
+                {editingId ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}
+              </h2>
 
               <input
                 placeholder="Produktname"
@@ -330,9 +380,9 @@ function CampOaseApp({ admin = false }) {
           </strong>
         </div>
 
-        <a href="/admin" style={adminButtonStyle}>
+        <Link to="/admin" style={adminButtonStyle}>
           Admin
-        </a>
+        </Link>
       </header>
 
       <section style={heroStyle}>
@@ -360,31 +410,37 @@ function CampOaseApp({ admin = false }) {
 
           <div style={productGridStyle}>
             {products.map((product) => (
-              <article key={product.id} style={productCardStyle}>
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  style={productImageStyle}
-                />
+              <Link
+                key={product.id}
+                to={`/produkt/${product.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <article style={productCardStyle}>
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    style={productImageStyle}
+                  />
 
-                <div style={{ padding: "24px" }}>
-                  <h3 style={{ fontSize: "24px", margin: "0 0 10px" }}>
-                    {product.title}
-                  </h3>
+                  <div style={{ padding: "24px" }}>
+                    <h3 style={{ fontSize: "24px", margin: "0 0 10px" }}>
+                      {product.title}
+                    </h3>
 
-                  <p style={{ color: "#666", lineHeight: "1.5" }}>
-                    {product.description}
-                  </p>
+                    <p style={{ color: "#666", lineHeight: "1.5" }}>
+                      {product.description}
+                    </p>
 
-                  <div style={priceRowStyle}>
-                    <strong style={{ fontSize: "22px", color: "#556b5d" }}>
-                      {product.price}
-                    </strong>
+                    <div style={priceRowStyle}>
+                      <strong style={{ fontSize: "22px", color: "#556b5d" }}>
+                        {product.price}
+                      </strong>
 
-                    <button style={requestButtonStyle}>Anfragen</button>
+                      <button style={requestButtonStyle}>Anfragen</button>
+                    </div>
                   </div>
-                </div>
-              </article>
+                </article>
+              </Link>
             ))}
           </div>
         </div>
