@@ -1,184 +1,548 @@
-import React from "react";
-import { ShoppingBag, Truck, HeartHandshake, Star, Mail, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
 
-const products = [
-  {
-    name: "Camping Organizer",
-    price: "ab 24,90 €",
-    description: "Praktische Aufbewahrung für Wohnwagen, Camper und Vorzelt.",
-    tag: "Bestseller",
-    image: "https://images.unsplash.com/photo-1504851149312-7a075b496cc7?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    name: "Outdoor Küchenhelfer",
-    price: "ab 19,90 €",
-    description: "Kleine Helfer für entspannteres Kochen unterwegs.",
-    tag: "Neu",
-    image: "https://images.unsplash.com/photo-1523987355523-c7b5b0723c6a?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    name: "Deko fürs Camperleben",
-    price: "ab 14,90 €",
-    description: "Liebevolle Details für mehr Gemütlichkeit auf Reisen.",
-    tag: "Beliebt",
-    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
-  },
-];
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
-const productTests = [
-  products.length === 3,
-  products.every((product) => product.name && product.price && product.description && product.image),
-  products.every((product) => product.image.startsWith("https://")),
-];
-
-if (productTests.some((test) => !test)) {
-  console.warn("Camp Oase Produktdaten prüfen: Ein Produkt ist unvollständig.");
-}
-
-export default function CampOaseLandingpage() {
+export default function App() {
   return (
-    <main className="min-h-screen bg-[#f4efe6] text-stone-900">
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#dbe8d3] via-[#f4efe6] to-[#efe2c6]" />
-
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-6 pb-20 pt-32 md:grid-cols-2 md:items-center lg:px-8">
-          <div className="absolute left-6 top-6 flex items-center gap-3 rounded-2xl bg-white/70 px-4 py-2 shadow-md backdrop-blur-sm">
-            <img
-              src="/logo.png"
-              alt="Camp Oase Logo"
-              className="h-14 w-14 rounded-xl object-contain"
-            />
-            <div>
-              <p className="text-xl font-bold text-[#355b46]">Camp Oase</p>
-              <p className="text-sm text-stone-600">Camping • Caravan • Vanlife</p>
-            </div>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <p className="mb-4 inline-flex rounded-full bg-white/70 px-4 py-2 text-sm font-medium shadow-sm">
-              Produkte für Camping, Caravan & Vanlife
-            </p>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
-              Willkommen bei <span className="text-[#7f9b76]">Camp Oase</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-stone-700">
-              Entdecke praktische, schöne und liebevoll ausgewählte Produkte, die dein Campingabenteuer noch entspannter machen.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <a
-                href="#produkte"
-                className="inline-flex items-center rounded-2xl bg-[#7f9b76] px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-[#6f8a67]"
-              >
-                Produkte ansehen <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
-              <a
-                href="#kontakt"
-                className="inline-flex items-center rounded-2xl bg-white px-6 py-3 font-semibold text-[#355b46] shadow-sm transition hover:bg-stone-100"
-              >
-                Anfrage senden
-              </a>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="rounded-[2rem] bg-white p-4 shadow-2xl"
-          >
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem]">
-              <img
-                src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=1400&auto=format&fit=crop"
-                alt="Camping Lifestyle"
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-8 text-left text-white">
-                <p className="mb-2 text-sm uppercase tracking-[0.2em] text-[#dbe8d3]">Camp Oase Collection</p>
-                <h2 className="text-3xl font-bold">Camping neu erleben</h2>
-                <p className="mt-2 max-w-md text-stone-100">
-                  Stilvolle Produkte für Caravan, Wohnmobil und entspannte Abende am Stellplatz.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section id="produkte" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-        <div className="max-w-2xl">
-          <p className="font-semibold text-[#7f9b76]">Produktübersicht</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Ausgewählte Produkte für deine Camp Oase</h2>
-          <p className="mt-4 text-stone-700">
-            Diese Platzhalter können wir später durch deine echten Produkte, Bilder, Preise und Beschreibungen ersetzen.
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {products.map((product) => (
-            <article
-              key={product.name}
-              className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200 transition hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="mb-5 overflow-hidden rounded-2xl">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="aspect-square w-full object-cover transition duration-500 hover:scale-105"
-                />
-              </div>
-              <span className="rounded-full bg-[#dbe8d3] px-3 py-1 text-sm font-medium text-[#355b46]">{product.tag}</span>
-              <h3 className="mt-4 text-xl font-bold">{product.name}</h3>
-              <p className="mt-2 text-stone-600">{product.description}</p>
-              <div className="mt-5 flex items-center justify-between gap-4">
-                <p className="font-bold text-[#7f9b76]">{product.price}</p>
-                <button className="rounded-xl bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-700">
-                  Mehr dazu
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-white py-20">
-        <div className="mx-auto grid max-w-7xl gap-6 px-6 md:grid-cols-3 lg:px-8">
-          <div className="rounded-3xl bg-stone-50 p-6">
-            <Truck className="mb-4 h-8 w-8 text-[#7f9b76]" />
-            <h3 className="text-lg font-bold">Für Camper gedacht</h3>
-            <p className="mt-2 text-stone-600">Produkte, die unterwegs wirklich praktisch sind.</p>
-          </div>
-          <div className="rounded-3xl bg-stone-50 p-6">
-            <HeartHandshake className="mb-4 h-8 w-8 text-[#7f9b76]" />
-            <h3 className="text-lg font-bold">Mit Liebe ausgewählt</h3>
-            <p className="mt-2 text-stone-600">Schöne Dinge, die zum Campinggefühl passen.</p>
-          </div>
-          <div className="rounded-3xl bg-stone-50 p-6">
-            <Star className="mb-4 h-8 w-8 text-[#7f9b76]" />
-            <h3 className="text-lg font-bold">Individuell erweiterbar</h3>
-            <p className="mt-2 text-stone-600">Später mit Shop, Galerie oder Anfrageformular ausbaubar.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="kontakt" className="mx-auto max-w-4xl px-6 py-20 text-center lg:px-8">
-        <Mail className="mx-auto mb-5 h-10 w-10 text-[#7f9b76]" />
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Interesse an einem Produkt?</h2>
-        <p className="mt-4 text-stone-700">
-          Schreib uns einfach eine Nachricht. Hier kann später ein Kontaktformular, WhatsApp-Link oder Shop-Button eingefügt werden.
-        </p>
-        <a
-          href="mailto:info@camp-oase.de"
-          className="mt-8 inline-flex items-center rounded-2xl bg-[#7f9b76] px-6 py-3 font-semibold text-white shadow-lg hover:bg-[#6f8a67]"
-        >
-          Kontakt aufnehmen
-        </a>
-      </section>
-    </main>
+    <Routes>
+      <Route path="/" element={<CampOaseApp />} />
+      <Route path="/admin" element={<CampOaseApp admin />} />
+    </Routes>
   );
 }
+
+function CampOaseApp({ admin = false }) {
+  const [products, setProducts] = useState([]);
+  const [session, setSession] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [editingId, setEditingId] = useState(null);
+
+  const [newProduct, setNewProduct] = useState({
+    title: "",
+    description: "",
+    price: "",
+    image: "",
+    file: null,
+  });
+
+  useEffect(() => {
+    loadProducts();
+
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function loadProducts() {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (error) console.log(error);
+    else setProducts(data || []);
+  }
+
+  async function login(e) {
+    e.preventDefault();
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) alert("Login fehlgeschlagen: " + error.message);
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+  }
+
+  async function addProduct(e) {
+    e.preventDefault();
+
+    let imageUrl = newProduct.image;
+
+    if (newProduct.file) {
+      const cleanFileName = newProduct.file.name
+        .toLowerCase()
+        .replaceAll("ä", "ae")
+        .replaceAll("ö", "oe")
+        .replaceAll("ü", "ue")
+        .replaceAll("ß", "ss")
+        .replace(/[^a-z0-9.-]/g, "-");
+
+      const fileName = `${Date.now()}-${cleanFileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("products")
+        .upload(fileName, newProduct.file);
+
+      if (uploadError) {
+        alert("Bild-Upload fehlgeschlagen: " + uploadError.message);
+        return;
+      }
+
+      imageUrl = supabase.storage.from("products").getPublicUrl(fileName).data
+        .publicUrl;
+    }
+
+    if (!imageUrl) {
+      alert("Bitte ein Bild auswählen");
+      return;
+    }
+
+    let error;
+
+    if (editingId) {
+      const response = await supabase
+        .from("products")
+        .update({
+          title: newProduct.title,
+          description: newProduct.description,
+          price: newProduct.price,
+          image: imageUrl,
+        })
+        .eq("id", editingId);
+
+      error = response.error;
+    } else {
+      const response = await supabase.from("products").insert([
+        {
+          title: newProduct.title,
+          description: newProduct.description,
+          price: newProduct.price,
+          image: imageUrl,
+        },
+      ]);
+
+      error = response.error;
+    }
+
+    if (error) {
+      alert("Produkt konnte nicht gespeichert werden: " + error.message);
+      return;
+    }
+
+    setNewProduct({
+      title: "",
+      description: "",
+      price: "",
+      image: "",
+      file: null,
+    });
+
+    setEditingId(null);
+    await loadProducts();
+  }
+
+  async function deleteProduct(id) {
+    const ok = confirm("Produkt wirklich löschen?");
+    if (!ok) return;
+
+    const { error } = await supabase.from("products").delete().eq("id", id);
+
+    if (error) {
+      alert("Produkt konnte nicht gelöscht werden: " + error.message);
+      return;
+    }
+
+    await loadProducts();
+  }
+
+  if (admin) {
+    return (
+      <div style={pageStyle}>
+        <a href="/" style={{ color: "#556b5d" }}>
+          ← Zur Webseite
+        </a>
+
+        <h1 style={{ marginTop: "30px" }}>Camp Oase Admin</h1>
+
+        {!session ? (
+          <form onSubmit={login} style={formStyle}>
+            <h2>Einloggen</h2>
+
+            <input
+              type="email"
+              placeholder="E-Mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={inputStyle}
+            />
+
+            <input
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+            />
+
+            <button style={buttonStyle}>Einloggen</button>
+          </form>
+        ) : (
+          <>
+            <button onClick={logout} style={buttonStyle}>
+              Ausloggen
+            </button>
+
+            <form onSubmit={addProduct} style={formStyle}>
+              <h2>{editingId ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}</h2>
+
+              <input
+                placeholder="Produktname"
+                value={newProduct.title}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, title: e.target.value })
+                }
+                style={inputStyle}
+              />
+
+              <textarea
+                placeholder="Beschreibung"
+                value={newProduct.description}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    description: e.target.value,
+                  })
+                }
+                style={{ ...inputStyle, minHeight: "120px" }}
+              />
+
+              <input
+                placeholder="Preis z.B. 14,99 €"
+                value={newProduct.price}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, price: e.target.value })
+                }
+                style={inputStyle}
+              />
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    file: e.target.files[0],
+                  })
+                }
+                style={inputStyle}
+              />
+
+              <button style={buttonStyle}>
+                {editingId ? "Änderungen speichern" : "Produkt speichern"}
+              </button>
+
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingId(null);
+                    setNewProduct({
+                      title: "",
+                      description: "",
+                      price: "",
+                      image: "",
+                      file: null,
+                    });
+                  }}
+                  style={{
+                    ...buttonStyle,
+                    background: "#9b4d4d",
+                    marginLeft: "10px",
+                  }}
+                >
+                  Abbrechen
+                </button>
+              )}
+            </form>
+
+            <h2 style={{ marginTop: "50px" }}>Produkte verwalten</h2>
+
+            <div style={{ display: "grid", gap: "16px", marginTop: "20px" }}>
+              {products.map((product) => (
+                <div key={product.id} style={adminProductStyle}>
+                  <div>
+                    <strong>{product.title}</strong>
+                    <p style={{ margin: "6px 0", color: "#666" }}>
+                      {product.price}
+                    </p>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                      onClick={() => {
+                        setEditingId(product.id);
+                        setNewProduct({
+                          title: product.title,
+                          description: product.description,
+                          price: product.price,
+                          image: product.image,
+                          file: null,
+                        });
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      style={editButtonStyle}
+                    >
+                      Bearbeiten
+                    </button>
+
+                    <button
+                      onClick={() => deleteProduct(product.id)}
+                      style={deleteButtonStyle}
+                    >
+                      Löschen
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div style={siteStyle}>
+      <header style={headerStyle}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
+          <strong style={{ fontSize: "24px", color: "#556b5d" }}>
+            Camp Oase
+          </strong>
+        </div>
+
+        <a href="/admin" style={adminButtonStyle}>
+          Admin
+        </a>
+      </header>
+
+      <section style={heroStyle}>
+        <p style={badgeStyle}>Camping • Caravan • Handmade</p>
+
+        <h1 style={{ fontSize: "64px", margin: "0", color: "#435749" }}>
+          Willkommen bei Camp Oase
+        </h1>
+
+        <p style={heroTextStyle}>
+          Liebevoll gestaltete Camping-Produkte, Deko und Zubehör für dein
+          persönliches Zuhause auf Rädern.
+        </p>
+      </section>
+
+      <section style={{ padding: "60px 40px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <p style={{ color: "#7f9b76", fontWeight: "bold" }}>
+            Produktübersicht
+          </p>
+
+          <h2 style={{ fontSize: "38px", marginTop: "8px" }}>
+            Unsere Produkte
+          </h2>
+
+          <div style={productGridStyle}>
+            {products.map((product) => (
+              <article key={product.id} style={productCardStyle}>
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  style={productImageStyle}
+                />
+
+                <div style={{ padding: "24px" }}>
+                  <h3 style={{ fontSize: "24px", margin: "0 0 10px" }}>
+                    {product.title}
+                  </h3>
+
+                  <p style={{ color: "#666", lineHeight: "1.5" }}>
+                    {product.description}
+                  </p>
+
+                  <div style={priceRowStyle}>
+                    <strong style={{ fontSize: "22px", color: "#556b5d" }}>
+                      {product.price}
+                    </strong>
+
+                    <button style={requestButtonStyle}>Anfragen</button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+const siteStyle = {
+  background: "#f5f1e8",
+  minHeight: "100vh",
+  fontFamily: "Arial, sans-serif",
+  color: "#2f3e34",
+};
+
+const pageStyle = {
+  ...siteStyle,
+  padding: "40px",
+};
+
+const headerStyle = {
+  padding: "24px 40px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  background: "rgba(255,255,255,0.65)",
+  backdropFilter: "blur(10px)",
+};
+
+const logoStyle = {
+  width: "52px",
+  height: "52px",
+  borderRadius: "50%",
+  objectFit: "cover",
+};
+
+const heroStyle = {
+  padding: "90px 30px",
+  textAlign: "center",
+  background: "linear-gradient(135deg, #dfe8df, #f5f1e8, #efe2c6)",
+};
+
+const badgeStyle = {
+  display: "inline-block",
+  background: "white",
+  padding: "8px 16px",
+  borderRadius: "999px",
+  color: "#556b5d",
+  marginBottom: "20px",
+};
+
+const heroTextStyle = {
+  fontSize: "20px",
+  maxWidth: "700px",
+  margin: "24px auto 0",
+  color: "#6b756d",
+  lineHeight: "1.6",
+};
+
+const productGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  gap: "28px",
+  marginTop: "32px",
+};
+
+const productCardStyle = {
+  background: "white",
+  borderRadius: "28px",
+  overflow: "hidden",
+  boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
+};
+
+const productImageStyle = {
+  width: "100%",
+  height: "240px",
+  objectFit: "cover",
+};
+
+const priceRowStyle = {
+  marginTop: "22px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const formStyle = {
+  maxWidth: "700px",
+  background: "white",
+  padding: "30px",
+  borderRadius: "24px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+  marginTop: "30px",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "14px",
+  marginTop: "12px",
+  marginBottom: "12px",
+  borderRadius: "14px",
+  border: "1px solid #ddd",
+  fontSize: "16px",
+  boxSizing: "border-box",
+};
+
+const buttonStyle = {
+  background: "#556b5d",
+  color: "white",
+  border: "none",
+  padding: "12px 18px",
+  borderRadius: "14px",
+  cursor: "pointer",
+  fontSize: "16px",
+};
+
+const adminButtonStyle = {
+  background: "#556b5d",
+  color: "white",
+  padding: "10px 18px",
+  borderRadius: "999px",
+  textDecoration: "none",
+  fontSize: "14px",
+};
+
+const requestButtonStyle = {
+  background: "#2f3e34",
+  color: "white",
+  border: "none",
+  padding: "10px 16px",
+  borderRadius: "14px",
+  cursor: "pointer",
+};
+
+const deleteButtonStyle = {
+  background: "#9b4d4d",
+  color: "white",
+  border: "none",
+  padding: "10px 14px",
+  borderRadius: "12px",
+  cursor: "pointer",
+};
+
+const editButtonStyle = {
+  background: "#d9c7a2",
+  color: "#2f3e34",
+  border: "none",
+  padding: "10px 14px",
+  borderRadius: "12px",
+  cursor: "pointer",
+};
+
+const adminProductStyle = {
+  background: "white",
+  padding: "18px",
+  borderRadius: "18px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+};
