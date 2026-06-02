@@ -19,6 +19,9 @@ export default function App() {
 
 function CampOaseApp({ admin = false, detail = false }) {
   const [products, setProducts] = useState([]);
+  const [inquiries, setInquiries] = useState([]);
+  const [adminTab, setAdminTab] = useState("products");
+
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,17 +36,33 @@ function CampOaseApp({ admin = false, detail = false }) {
     file: null,
   });
 
+  const [inquiryProduct, setInquiryProduct] = useState(null);
+  const [inquiryForm, setInquiryForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [inquiryStatus, setInquiryStatus] = useState("");
+
   useEffect(() => {
     loadProducts();
 
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
+
+      if (data.session) {
+        loadInquiries();
+      }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+
+      if (session) {
+        loadInquiries();
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -59,6 +78,20 @@ function CampOaseApp({ admin = false, detail = false }) {
     else setProducts(data || []);
   }
 
+  async function loadInquiries() {
+    const { data, error } = await supabase
+      .from("inquiries")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    setInquiries(data || []);
+  }
+
   async function login(e) {
     e.preventDefault();
 
@@ -68,10 +101,13 @@ function CampOaseApp({ admin = false, detail = false }) {
     });
 
     if (error) alert("Login fehlgeschlagen: " + error.message);
+    else await loadInquiries();
   }
 
   async function logout() {
     await supabase.auth.signOut();
+    setInquiries([]);
+    setAdminTab("products");
   }
 
   async function addProduct(e) {
@@ -166,6 +202,75 @@ function CampOaseApp({ admin = false, detail = false }) {
     await loadProducts();
   }
 
+async function deleteInquiry(id) {
+  const ok = confirm("Anfrage wirklich löschen?");
+  if (!ok) return;
+
+  const { error } = await supabase.from("inquiries").delete().eq("id", id);
+
+  if (error) {
+    alert("Anfrage konnte nicht gelöscht werden: " + error.message);
+    return;
+  }
+
+  await loadInquiries();
+}
+
+  function openInquiry(product) {
+    setInquiryProduct(product);
+    setInquiryStatus("");
+    setInquiryForm({
+      name: "",
+      email: "",
+      message: `Hallo Camp Oase,
+
+ich interessiere mich für folgendes Produkt:
+
+${product.title}
+Preis: ${product.price}
+
+Meine Frage dazu:
+`,
+    });
+  }
+
+  function closeInquiry() {
+    setInquiryProduct(null);
+    setInquiryStatus("");
+    setInquiryForm({
+      name: "",
+      email: "",
+      message: "",
+    });
+  }
+
+  async function submitInquiry(e) {
+    e.preventDefault();
+
+    if (!inquiryProduct) return;
+
+    const { error } = await supabase.from("inquiries").insert([
+      {
+        product_title: inquiryProduct.title,
+        name: inquiryForm.name,
+        email: inquiryForm.email,
+        message: inquiryForm.message,
+      },
+    ]);
+
+    if (error) {
+      setInquiryStatus("Die Anfrage konnte leider nicht gesendet werden.");
+      console.log(error);
+      return;
+    }
+
+    setInquiryStatus("Danke! Deine Anfrage wurde erfolgreich gesendet.");
+
+    setTimeout(() => {
+      closeInquiry();
+    }, 1800);
+  }
+
   if (detail) {
     const product = products.find((item) => String(item.id) === id);
 
@@ -174,50 +279,80 @@ function CampOaseApp({ admin = false, detail = false }) {
     }
 
     return (
-      <div style={siteStyle}>
-        <header style={headerStyle}>
-          <Link to="/" style={{ color: "#556b5d", textDecoration: "none" }}>
-            ← Zurück
-          </Link>
-        </header>
+      <>
+        <div style={siteStyle}>
+          <header style={headerStyle}>
+            <Link to="/" style={{ color: "#556b5d", textDecoration: "none" }}>
+              ← Zurück
+            </Link>
+          </header>
 
-        <section style={{ padding: "60px 40px" }}>
-          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-            <img
-              src={product.image}
-              alt={product.title}
-              style={{
-                width: "100%",
-                maxHeight: "520px",
-                objectFit: "cover",
-                borderRadius: "32px",
-                boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
-              }}
-            />
+          <section style={{ padding: "60px 40px" }}>
+            <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+              <img
+                src={product.image}
+                alt={product.title}
+                style={{
+                  width: "100%",
+                  maxHeight: "520px",
+                  objectFit: "contain",
+                  background: "#f5f1e8",
+                  borderRadius: "32px",
+                  boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
+                }}
+              />
 
-            <h1 style={{ fontSize: "48px", color: "#435749" }}>
-              {product.title}
-            </h1>
+              <h1 style={{ fontSize: "48px", color: "#435749" }}>
+                {product.title}
+              </h1>
 
-            <p
-  style={{
-    fontSize: "18px",
-    lineHeight: "1.9",
-    color: "#5f5f5f",
-    maxWidth: "720px",
-    marginTop: "24px",
-    whiteSpace: "pre-line",
-  }}
->
-  {product.description}
-</p>
+              <p
+                style={{
+                  fontSize: "18px",
+                  lineHeight: "1.9",
+                  color: "#5f5f5f",
+                  maxWidth: "720px",
+                  marginTop: "24px",
+                  whiteSpace: "pre-line",
+                }}
+              >
+                {product.description}
+              </p>
 
-            <strong style={{ fontSize: "32px", color: "#556b5d" }}>
-              {product.price}
-            </strong>
-          </div>
-        </section>
-      </div>
+              <div style={{ marginTop: "28px" }}>
+                <strong style={{ fontSize: "32px", color: "#556b5d" }}>
+                  {product.price}
+                </strong>
+
+                <br />
+
+                <button
+                  onClick={() => openInquiry(product)}
+                  style={{
+                    ...requestButtonStyle,
+                    marginTop: "24px",
+                    fontSize: "16px",
+                    padding: "14px 22px",
+                  }}
+                >
+                  Anfrage senden
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {inquiryProduct && (
+          <InquiryModal
+            product={inquiryProduct}
+            form={inquiryForm}
+            setForm={setInquiryForm}
+            status={inquiryStatus}
+            onClose={closeInquiry}
+            onSubmit={submitInquiry}
+          />
+        )}
+      </>
     );
   }
 
@@ -258,121 +393,241 @@ function CampOaseApp({ admin = false, detail = false }) {
               Ausloggen
             </button>
 
-            <form onSubmit={addProduct} style={formStyle}>
-              <h2>
-                {editingId ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}
-              </h2>
-
-              <input
-                placeholder="Produktname"
-                value={newProduct.title}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, title: e.target.value })
-                }
-                style={inputStyle}
-              />
-
-              <textarea
-                placeholder="Beschreibung"
-                value={newProduct.description}
-                onChange={(e) =>
-                  setNewProduct({
-                    ...newProduct,
-                    description: e.target.value,
-                  })
-                }
-                style={{ ...inputStyle, minHeight: "120px" }}
-              />
-
-              <input
-                placeholder="Preis z.B. 14,99 €"
-                value={newProduct.price}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, price: e.target.value })
-                }
-                style={inputStyle}
-              />
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setNewProduct({
-                    ...newProduct,
-                    file: e.target.files[0],
-                  })
-                }
-                style={inputStyle}
-              />
-
-              <button style={buttonStyle}>
-                {editingId ? "Änderungen speichern" : "Produkt speichern"}
+            <div style={adminTabsStyle}>
+              <button
+                type="button"
+                onClick={() => setAdminTab("products")}
+                style={{
+                  ...adminTabButtonStyle,
+                  ...(adminTab === "products" ? adminTabActiveStyle : {}),
+                }}
+              >
+                Produkte
               </button>
 
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingId(null);
-                    setNewProduct({
-                      title: "",
-                      description: "",
-                      price: "",
-                      image: "",
-                      file: null,
-                    });
-                  }}
-                  style={{
-                    ...buttonStyle,
-                    background: "#9b4d4d",
-                    marginLeft: "10px",
-                  }}
-                >
-                  Abbrechen
-                </button>
-              )}
-            </form>
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminTab("inquiries");
+                  loadInquiries();
+                }}
+                style={{
+                  ...adminTabButtonStyle,
+                  ...(adminTab === "inquiries" ? adminTabActiveStyle : {}),
+                }}
+              >
+                Anfragen{" "}
+                {inquiries.length > 0 && (
+                  <span style={inquiryBadgeStyle}>{inquiries.length}</span>
+                )}
+              </button>
+            </div>
 
-            <h2 style={{ marginTop: "50px" }}>Produkte verwalten</h2>
+            {adminTab === "products" && (
+              <>
+                <form onSubmit={addProduct} style={formStyle}>
+                  <h2>
+                    {editingId
+                      ? "Produkt bearbeiten"
+                      : "Neues Produkt hinzufügen"}
+                  </h2>
 
-            <div style={{ display: "grid", gap: "16px", marginTop: "20px" }}>
-              {products.map((product) => (
-                <div key={product.id} style={adminProductStyle}>
-                  <div>
-                    <strong>{product.title}</strong>
-                    <p style={{ margin: "6px 0", color: "#666" }}>
-                      {product.price}
-                    </p>
-                  </div>
+                  <input
+                    placeholder="Produktname"
+                    value={newProduct.title}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, title: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
 
-                  <div style={{ display: "flex", gap: "10px" }}>
+                  <textarea
+                    placeholder="Beschreibung"
+                    value={newProduct.description}
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        description: e.target.value,
+                      })
+                    }
+                    style={{ ...inputStyle, minHeight: "120px" }}
+                  />
+
+                  <input
+                    placeholder="Preis z.B. 14,99 €"
+                    value={newProduct.price}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, price: e.target.value })
+                    }
+                    style={inputStyle}
+                  />
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setNewProduct({
+                        ...newProduct,
+                        file: e.target.files[0],
+                      })
+                    }
+                    style={inputStyle}
+                  />
+
+                  <button style={buttonStyle}>
+                    {editingId ? "Änderungen speichern" : "Produkt speichern"}
+                  </button>
+
+                  {editingId && (
                     <button
+                      type="button"
                       onClick={() => {
-                        setEditingId(product.id);
+                        setEditingId(null);
                         setNewProduct({
-                          title: product.title,
-                          description: product.description,
-                          price: product.price,
-                          image: product.image,
+                          title: "",
+                          description: "",
+                          price: "",
+                          image: "",
                           file: null,
                         });
-                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      style={editButtonStyle}
+                      style={{
+                        ...buttonStyle,
+                        background: "#9b4d4d",
+                        marginLeft: "10px",
+                      }}
                     >
-                      Bearbeiten
+                      Abbrechen
                     </button>
+                  )}
+                </form>
 
-                    <button
-                      onClick={() => deleteProduct(product.id)}
-                      style={deleteButtonStyle}
-                    >
-                      Löschen
-                    </button>
-                  </div>
+                <h2 style={{ marginTop: "50px" }}>Produkte verwalten</h2>
+
+                <div
+                  style={{ display: "grid", gap: "16px", marginTop: "20px" }}
+                >
+                  {products.map((product) => (
+                    <div key={product.id} style={adminProductStyle}>
+                      <div>
+                        <strong>{product.title}</strong>
+                        <p style={{ margin: "6px 0", color: "#666" }}>
+                          {product.price}
+                        </p>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <button
+                          onClick={() => {
+                            setEditingId(product.id);
+                            setNewProduct({
+                              title: product.title,
+                              description: product.description,
+                              price: product.price,
+                              image: product.image,
+                              file: null,
+                            });
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          style={editButtonStyle}
+                        >
+                          Bearbeiten
+                        </button>
+
+                        <button
+                          onClick={() => deleteProduct(product.id)}
+                          style={deleteButtonStyle}
+                        >
+                          Löschen
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
+
+            {adminTab === "inquiries" && (
+              <>
+                <h2 style={{ marginTop: "40px" }}>Kundenanfragen</h2>
+
+                {inquiries.length === 0 ? (
+                  <div style={emptyBoxStyle}>
+                    Noch keine Anfragen vorhanden.
+                  </div>
+                ) : (
+                  <div
+                    style={{ display: "grid", gap: "16px", marginTop: "20px" }}
+                  >
+                    {inquiries.map((inquiry) => (
+                      <div key={inquiry.id} style={inquiryCardStyle}>
+                        <div>
+                          <p style={inquiryMetaStyle}>
+                            {inquiry.created_at
+                              ? new Date(inquiry.created_at).toLocaleString(
+                                  "de-DE"
+                                )
+                              : "Kein Datum"}
+                          </p>
+
+                          <h3 style={{ margin: "0 0 8px", color: "#435749" }}>
+                            {inquiry.product_title}
+                          </h3>
+
+                          <p style={{ margin: "4px 0" }}>
+                            <strong>Name:</strong> {inquiry.name}
+                          </p>
+
+                          <p style={{ margin: "4px 0" }}>
+                            <strong>E-Mail:</strong>{" "}
+                            <a
+                              href={`mailto:${inquiry.email}`}
+                              style={{ color: "#556b5d" }}
+                            >
+                              {inquiry.email}
+                            </a>
+                          </p>
+
+                          <p style={inquiryMessageStyle}>
+                            {inquiry.message}
+                          </p>
+<div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginTop: "16px",
+    flexWrap: "wrap",
+  }}
+>
+  <a
+    href={`mailto:${inquiry.email}?subject=${encodeURIComponent(
+      `Antwort zu deiner Anfrage: ${inquiry.product_title}`
+    )}&body=${encodeURIComponent(
+      `Hallo ${inquiry.name},
+
+vielen Dank für deine Anfrage zu "${inquiry.product_title}".
+
+`
+    )}`}
+    style={{ ...editButtonStyle, textDecoration: "none" }}
+  >
+    Antworten
+  </a>
+
+  <button
+    onClick={() => deleteInquiry(inquiry.id)}
+    style={deleteButtonStyle}
+  >
+    Löschen
+  </button>
+</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
       </div>
@@ -380,97 +635,178 @@ function CampOaseApp({ admin = false, detail = false }) {
   }
 
   return (
-    <div style={siteStyle}>
-      <header style={headerStyle}>
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
-          <strong style={{ fontSize: "26px", color: "#556b5d" }}>
-            Camp Oase
-          </strong>
-        </div>
+    <>
+      <div style={siteStyle}>
+        <header style={headerStyle}>
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
+            <strong style={{ fontSize: "26px", color: "#556b5d" }}>
+              Camp Oase
+            </strong>
+          </div>
 
-        <Link to="/admin" style={adminButtonStyle}>
-          Admin
-        </Link>
-      </header>
+          <Link to="/admin" style={adminButtonStyle}>
+            Admin
+          </Link>
+        </header>
 
-      <section style={heroStyle}>
-        <p style={badgeStyle}>Camping • Caravan • Handmade</p>
+        <section style={heroStyle}>
+          <p style={badgeStyle}>Camping • Caravan • Handmade</p>
 
-        <h1
-  style={{
-    fontSize: "clamp(36px, 8vw, 64px)",
-    margin: "0",
-    color: "#435749",
-    lineHeight: "1.1",
-  }}
->
-  Willkommen bei Camp Oase
-</h1>
+          <h1
+            style={{
+              fontSize: "clamp(36px, 8vw, 64px)",
+              margin: "0",
+              color: "#435749",
+              lineHeight: "1.1",
+            }}
+          >
+            Willkommen bei Camp Oase
+          </h1>
 
-        <p style={heroTextStyle}>
-          Liebevoll gestaltete Camping-Produkte, Deko und Zubehör für dein
-          persönliches Zuhause auf Rädern.
-        </p>
-      </section>
-
-      <section style={{ padding: "60px 40px" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <p style={{ color: "#7f9b76", fontWeight: "bold" }}>
-            Produktübersicht
+          <p style={heroTextStyle}>
+            Liebevoll gestaltete Camping-Produkte, Deko und Zubehör für dein
+            persönliches Zuhause auf Rädern.
           </p>
+        </section>
 
-          <h2 style={{ fontSize: "38px", marginTop: "8px" }}>
-            Unsere Produkte
-          </h2>
+        <section style={{ padding: "60px 40px" }}>
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <p style={{ color: "#7f9b76", fontWeight: "bold" }}>
+              Produktübersicht
+            </p>
 
-          <div style={productGridStyle}>
-            {products.map((product) => (
-              <Link
-                key={product.id}
-                to={`/produkt/${product.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <article style={productCardStyle}>
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    style={productImageStyle}
-                  />
+            <h2 style={{ fontSize: "38px", marginTop: "8px" }}>
+              Unsere Produkte
+            </h2>
 
-                  <div style={{ padding: "24px" }}>
-                    <h3 style={{ fontSize: "24px", margin: "0 0 10px" }}>
-                      {product.title}
-                    </h3>
+            <div style={productGridStyle}>
+              {products.map((product) => (
+                <article key={product.id} style={productCardStyle}>
+                  <Link
+                    to={`/produkt/${product.id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                      style={productImageStyle}
+                    />
 
-                    <p
-  style={{
-    color: "#666",
-    lineHeight: "1.6",
-    display: "-webkit-box",
-    WebkitLineClamp: 3,
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
-    minHeight: "78px",
-  }}
->
-  {product.description}
-</p>
+                    <div style={{ padding: "24px 24px 0" }}>
+                      <h3 style={{ fontSize: "24px", margin: "0 0 10px" }}>
+                        {product.title}
+                      </h3>
 
+                      <p
+                        style={{
+                          color: "#666",
+                          lineHeight: "1.6",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          minHeight: "78px",
+                        }}
+                      >
+                        {product.description}
+                      </p>
+                    </div>
+                  </Link>
+
+                  <div style={{ padding: "0 24px 24px" }}>
                     <div style={priceRowStyle}>
                       <strong style={{ fontSize: "22px", color: "#556b5d" }}>
                         {product.price}
                       </strong>
 
-                      <button style={requestButtonStyle}>Anfragen</button>
+                      <button
+                        type="button"
+                        style={requestButtonStyle}
+                        onClick={() => openInquiry(product)}
+                      >
+                        Anfragen
+                      </button>
                     </div>
                   </div>
                 </article>
-              </Link>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
+
+      {inquiryProduct && (
+        <InquiryModal
+          product={inquiryProduct}
+          form={inquiryForm}
+          setForm={setInquiryForm}
+          status={inquiryStatus}
+          onClose={closeInquiry}
+          onSubmit={submitInquiry}
+        />
+      )}
+    </>
+  );
+}
+
+function InquiryModal({ product, form, setForm, status, onClose, onSubmit }) {
+  return (
+    <div style={modalOverlayStyle}>
+      <div style={modalStyle}>
+        <button onClick={onClose} style={modalCloseButtonStyle}>
+          ×
+        </button>
+
+        <h2 style={{ marginTop: 0, color: "#435749" }}>Produkt anfragen</h2>
+
+        <p style={{ color: "#666", lineHeight: "1.6" }}>
+          Du interessierst dich für:
+          <br />
+          <strong style={{ color: "#556b5d" }}>{product.title}</strong>
+        </p>
+
+        <form onSubmit={onSubmit}>
+          <input
+            required
+            placeholder="Dein Name"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            style={inputStyle}
+          />
+
+          <input
+            required
+            type="email"
+            placeholder="Deine E-Mail-Adresse"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            style={inputStyle}
+          />
+
+          <textarea
+            required
+            placeholder="Deine Nachricht"
+            value={form.message}
+            onChange={(e) => setForm({ ...form, message: e.target.value })}
+            style={{ ...inputStyle, minHeight: "160px" }}
+          />
+
+          <button style={buttonStyle}>Anfrage absenden</button>
+
+          {status && (
+            <p
+              style={{
+                marginTop: "16px",
+                color: "#556b5d",
+                fontWeight: "bold",
+              }}
+            >
+              {status}
+            </p>
+          )}
+        </form>
+      </div>
     </div>
   );
 }
@@ -528,7 +864,7 @@ const heroTextStyle = {
 
 const productGridStyle = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
   gap: "28px",
   marginTop: "32px",
 };
@@ -628,4 +964,103 @@ const adminProductStyle = {
   justifyContent: "space-between",
   alignItems: "center",
   boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+};
+
+const adminTabsStyle = {
+  display: "flex",
+  gap: "12px",
+  marginTop: "32px",
+  marginBottom: "10px",
+  flexWrap: "wrap",
+};
+
+const adminTabButtonStyle = {
+  background: "white",
+  color: "#556b5d",
+  border: "1px solid #d6d3cc",
+  padding: "12px 18px",
+  borderRadius: "999px",
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: "bold",
+};
+
+const adminTabActiveStyle = {
+  background: "#556b5d",
+  color: "white",
+  border: "1px solid #556b5d",
+};
+
+const inquiryBadgeStyle = {
+  background: "#d9c7a2",
+  color: "#2f3e34",
+  padding: "2px 8px",
+  borderRadius: "999px",
+  marginLeft: "6px",
+  fontSize: "13px",
+};
+
+const inquiryCardStyle = {
+  background: "white",
+  padding: "22px",
+  borderRadius: "20px",
+  boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+};
+
+const inquiryMetaStyle = {
+  color: "#888",
+  fontSize: "14px",
+  margin: "0 0 8px",
+};
+
+const inquiryMessageStyle = {
+  marginTop: "16px",
+  padding: "16px",
+  background: "#f5f1e8",
+  borderRadius: "14px",
+  color: "#444",
+  whiteSpace: "pre-line",
+  lineHeight: "1.6",
+};
+
+const emptyBoxStyle = {
+  background: "white",
+  padding: "24px",
+  borderRadius: "18px",
+  boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+  color: "#666",
+};
+
+const modalOverlayStyle = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.45)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "20px",
+  zIndex: 9999,
+};
+
+const modalStyle = {
+  position: "relative",
+  width: "100%",
+  maxWidth: "560px",
+  maxHeight: "90vh",
+  overflowY: "auto",
+  background: "#fff",
+  borderRadius: "28px",
+  padding: "32px",
+  boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+};
+
+const modalCloseButtonStyle = {
+  position: "absolute",
+  right: "18px",
+  top: "14px",
+  border: "none",
+  background: "transparent",
+  fontSize: "34px",
+  cursor: "pointer",
+  color: "#556b5d",
 };
