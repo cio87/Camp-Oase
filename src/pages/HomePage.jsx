@@ -123,11 +123,7 @@ export default function HomePage() {
 
             <div style={productGridStyle}>
               {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onInquiry={openInquiry}
-                />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>

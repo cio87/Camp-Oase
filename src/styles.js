@@ -85,10 +85,13 @@ export const productGridStyle = {
 };
 
 export const productCardStyle = {
+  display: "block",
   background: "white",
   borderRadius: "28px",
   overflow: "hidden",
   boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
+  cursor: "pointer",
+  transition: "transform 180ms ease, box-shadow 180ms ease",
 };
 
 export const productImageStyle = {
@@ -125,6 +128,13 @@ export const priceRowStyle = {
 export const productPriceStyle = {
   fontSize: "clamp(20px, 5vw, 22px)",
   color: "#556b5d",
+};
+
+export const productCardHintStyle = {
+  color: "#7f9b76",
+  fontSize: "14px",
+  fontWeight: "bold",
+  letterSpacing: "0.01em",
 };
 
 export const detailSectionStyle = {
