@@ -20,10 +20,13 @@ import {
   detailRequestButtonStyle,
   detailSectionStyle,
   detailTitleStyle,
+  extraChoiceCardStyle,
   extrasPreviewBoxStyle,
   headerStyle,
+  inputStyle,
   pageStyle,
   siteStyle,
+  totalBoxStyle,
 } from "../styles";
 
 export default function ProductDetailPage() {
@@ -32,11 +35,18 @@ export default function ProductDetailPage() {
   const [inquiryForm, setInquiryForm] = useState(getEmptyInquiryForm());
   const [inquiryStatus, setInquiryStatus] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
+  const [selectedDetailExtras, setSelectedDetailExtras] = useState({});
+  const [inquiryExtrasLocked, setInquiryExtrasLocked] = useState(false);
+  const [inquiryMode, setInquiryMode] = useState("question");
   const { id } = useParams();
 
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    setSelectedDetailExtras({});
+  }, [id]);
 
   async function loadProducts() {
     const { data, error } = await supabase
@@ -48,11 +58,19 @@ export default function ProductDetailPage() {
     else setProducts(data || []);
   }
 
-  function openInquiry(product) {
+  function openInquiry(
+    product,
+    selectedExtras = {},
+    lockExtras = false,
+    mode = "question"
+  ) {
     setInquiryProduct(product);
     setInquiryStatus("");
+    setInquiryExtrasLocked(lockExtras);
+    setInquiryMode(mode);
     setInquiryForm({
       ...getEmptyInquiryForm(),
+      selectedExtras,
       message:
         "Hallo Camp Oase,\n\nich interessiere mich für folgendes Produkt:\n\n" +
         product.title +
@@ -67,6 +85,37 @@ export default function ProductDetailPage() {
     setInquiryStatus("");
     setInquiryForm(getEmptyInquiryForm());
     setInquirySending(false);
+    setInquiryExtrasLocked(false);
+    setInquiryMode("question");
+  }
+
+  function toggleDetailExtra(index, checked) {
+    setSelectedDetailExtras({
+      ...selectedDetailExtras,
+      [index]: {
+        ...(selectedDetailExtras[index] || {}),
+        selected: checked,
+      },
+    });
+  }
+
+  function updateDetailExtraNote(index, note) {
+    setSelectedDetailExtras({
+      ...selectedDetailExtras,
+      [index]: {
+        ...(selectedDetailExtras[index] || {}),
+        selected: true,
+        note,
+      },
+    });
+  }
+
+  function openInquiryWithSelection(product) {
+    openInquiry(product, selectedDetailExtras, true, "selection");
+  }
+
+  function openProductQuestion(product) {
+    openInquiry(product, {}, false, "question");
   }
 
   async function submitInquiry(e) {
@@ -77,19 +126,25 @@ export default function ProductDetailPage() {
     setInquirySending(true);
     setInquiryStatus("");
 
-    const selectedExtras = buildSelectedExtras(inquiryProduct, inquiryForm);
-    const estimatedTotal = calculateEstimatedTotal(inquiryProduct, inquiryForm);
+    const inquiryPayload = {
+      product_title: inquiryProduct.title,
+      name: inquiryForm.name,
+      email: inquiryForm.email,
+      message: inquiryForm.message,
+    };
 
-    const { error } = await supabase.from("inquiries").insert([
-      {
-        product_title: inquiryProduct.title,
-        name: inquiryForm.name,
-        email: inquiryForm.email,
-        message: inquiryForm.message,
-        selected_extras: selectedExtras,
-        estimated_total: estimatedTotal,
-      },
-    ]);
+    if (inquiryMode === "selection") {
+      inquiryPayload.selected_extras = buildSelectedExtras(
+        inquiryProduct,
+        inquiryForm
+      );
+      inquiryPayload.estimated_total = calculateEstimatedTotal(
+        inquiryProduct,
+        inquiryForm
+      );
+    }
+
+    const { error } = await supabase.from("inquiries").insert([inquiryPayload]);
 
     setInquirySending(false);
 
@@ -108,6 +163,12 @@ export default function ProductDetailPage() {
 
   const product = products.find((item) => String(item.id) === id);
   const productExtras = getProductExtras(product);
+  const detailEstimatedTotal = product
+    ? calculateEstimatedTotal(product, { selectedExtras: selectedDetailExtras })
+    : "";
+  const hasSelectedDetailExtras = Object.values(selectedDetailExtras).some(
+    (extra) => extra?.selected
+  );
 
   if (!product) {
     return <div style={pageStyle}>Produkt wird geladen...</div>;
@@ -137,20 +198,60 @@ export default function ProductDetailPage() {
                 </strong>
 
                 <div style={{ marginTop: "12px", display: "grid", gap: "10px" }}>
-                  {productExtras.map((extra, index) => (
-                    <div key={extra.name + "-" + index} style={detailExtraLineStyle}>
-                      <span>
-                        <strong>{extra.name}</strong>
-                        {extra.description && (
-                          <small style={detailExtraDescriptionStyle}>
-                            {extra.description}
-                          </small>
-                        )}
-                      </span>
+                  {productExtras.map((extra, index) => {
+                    const isSelected =
+                      selectedDetailExtras[index]?.selected || false;
 
-                      <span style={detailExtraPriceStyle}>+{formatEuro(extra.price)}</span>
-                    </div>
-                  ))}
+                    return (
+                      <div key={extra.name + "-" + index} style={extraChoiceCardStyle}>
+                        <label
+                          style={{
+                            ...detailExtraLineStyle,
+                            alignItems: "flex-start",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <span style={{ display: "flex", gap: "10px" }}>
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) =>
+                                toggleDetailExtra(index, e.target.checked)
+                              }
+                            />
+                            <span>
+                              <strong>{extra.name}</strong>
+                              {extra.description && (
+                                <small style={detailExtraDescriptionStyle}>
+                                  {extra.description}
+                                </small>
+                              )}
+                            </span>
+                          </span>
+
+                          <span style={detailExtraPriceStyle}>
+                            +{formatEuro(extra.price)}
+                          </span>
+                        </label>
+
+                        {isSelected && (
+                          <input
+                            placeholder="Hinweis zum Extra"
+                            value={selectedDetailExtras[index]?.note || ""}
+                            onChange={(e) =>
+                              updateDetailExtraNote(index, e.target.value)
+                            }
+                            style={inputStyle}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div style={totalBoxStyle}>
+                  Voraussichtlicher Gesamtpreis:{" "}
+                  <strong>{detailEstimatedTotal}</strong>
                 </div>
               </div>
             )}
@@ -160,8 +261,30 @@ export default function ProductDetailPage() {
 
               <br />
 
-              <button onClick={() => openInquiry(product)} style={detailRequestButtonStyle}>
-                Anfrage senden
+              {productExtras.length > 0 && (
+                <button
+                  onClick={() => openInquiryWithSelection(product)}
+                  disabled={!hasSelectedDetailExtras}
+                  style={{
+                    ...detailRequestButtonStyle,
+                    opacity: hasSelectedDetailExtras ? 1 : 0.65,
+                    cursor: hasSelectedDetailExtras ? "pointer" : "not-allowed",
+                  }}
+                >
+                  Auswahl anfragen
+                </button>
+              )}
+
+              <button
+                onClick={() => openProductQuestion(product)}
+                style={{
+                  ...detailRequestButtonStyle,
+                  marginLeft: productExtras.length > 0 ? "12px" : 0,
+                  background: "#d9c7a2",
+                  color: "#2f3e34",
+                }}
+              >
+                Frage zum Produkt stellen
               </button>
             </div>
           </div>
@@ -179,6 +302,11 @@ export default function ProductDetailPage() {
           sending={inquirySending}
           onClose={closeInquiry}
           onSubmit={submitInquiry}
+          extrasLocked={inquiryExtrasLocked}
+          inquiryMode={inquiryMode}
+          submitButtonText={
+            inquiryMode === "selection" ? "Auswahl anfragen" : "Frage absenden"
+          }
         />
       )}
     </>

@@ -3,11 +3,7 @@ import { supabase } from "../supabaseClient";
 import InquiryModal from "../components/InquiryModal";
 import ProductCard from "../components/ProductCard";
 import SiteFooter from "../components/SiteFooter";
-import {
-  buildSelectedExtras,
-  calculateEstimatedTotal,
-  getEmptyInquiryForm,
-} from "../utils/price";
+import { getEmptyInquiryForm } from "../utils/price";
 import {
   badgeStyle,
   brandTextStyle,
@@ -72,17 +68,12 @@ export default function HomePage() {
     setInquirySending(true);
     setInquiryStatus("");
 
-    const selectedExtras = buildSelectedExtras(inquiryProduct, inquiryForm);
-    const estimatedTotal = calculateEstimatedTotal(inquiryProduct, inquiryForm);
-
     const { error } = await supabase.from("inquiries").insert([
       {
         product_title: inquiryProduct.title,
         name: inquiryForm.name,
         email: inquiryForm.email,
         message: inquiryForm.message,
-        selected_extras: selectedExtras,
-        estimated_total: estimatedTotal,
       },
     ]);
 
@@ -154,6 +145,8 @@ export default function HomePage() {
           sending={inquirySending}
           onClose={closeInquiry}
           onSubmit={submitInquiry}
+          inquiryMode="question"
+          submitButtonText="Frage absenden"
         />
       )}
     </>

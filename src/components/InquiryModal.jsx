@@ -8,7 +8,6 @@ import {
   errorBoxStyle,
   extraChoiceCardStyle,
   extraDescriptionStyle,
-  extraOptionStyle,
   extrasBoxStyle,
   fullButtonStyle,
   inputStyle,
@@ -37,37 +36,20 @@ export default function InquiryModal({
   sending,
   onClose,
   onSubmit,
+  extrasLocked = false,
+  inquiryMode = "question",
+  submitButtonText = "Frage absenden",
 }) {
   const customExtras = getProductExtras(product);
-  const extrasEnabled = customExtras.length > 0;
+  const showSelectedExtrasSummary = inquiryMode === "selection" && extrasLocked;
   const estimatedTotal = calculateEstimatedTotal(product, form);
-
-  function toggleExtra(index, checked) {
-    setForm({
-      ...form,
-      selectedExtras: {
-        ...(form.selectedExtras || {}),
-        [index]: {
-          ...(form.selectedExtras?.[index] || {}),
-          selected: checked,
-        },
-      },
-    });
-  }
-
-  function updateExtraNote(index, note) {
-    setForm({
-      ...form,
-      selectedExtras: {
-        ...(form.selectedExtras || {}),
-        [index]: {
-          ...(form.selectedExtras?.[index] || {}),
-          selected: true,
-          note,
-        },
-      },
-    });
-  }
+  const selectedItems = customExtras
+    .map((extra, index) => ({
+      ...extra,
+      note: form.selectedExtras?.[index]?.note || "",
+      selected: form.selectedExtras?.[index]?.selected || false,
+    }))
+    .filter((extra) => extra.selected);
 
   return (
     <div style={modalOverlayStyle}>
@@ -97,44 +79,27 @@ export default function InquiryModal({
         </div>
 
         <form onSubmit={onSubmit}>
-          {extrasEnabled && (
+          {showSelectedExtrasSummary && selectedItems.length > 0 && (
             <div style={extrasBoxStyle}>
               <h3 style={{ marginTop: 0, color: "#435749" }}>
-                Extras auswählen
+                Ausgewählte Extras
               </h3>
 
-              {customExtras.map((extra, index) => {
-                const isSelected =
-                  form.selectedExtras?.[index]?.selected || false;
+              {selectedItems.map((extra, index) => (
+                <div key={extra.name + "-" + index} style={extraChoiceCardStyle}>
+                  <strong>
+                    {extra.name} +{formatEuro(extra.price)}
+                  </strong>
 
-                return (
-                  <div key={`${extra.name}-${index}`} style={extraChoiceCardStyle}>
-                    <label style={extraOptionStyle}>
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => toggleExtra(index, e.target.checked)}
-                      />
-                      <span>
-                        {extra.name} +{formatEuro(extra.price)}
-                      </span>
-                    </label>
+                  {extra.description && (
+                    <p style={extraDescriptionStyle}>{extra.description}</p>
+                  )}
 
-                    {extra.description && (
-                      <p style={extraDescriptionStyle}>{extra.description}</p>
-                    )}
-
-                    {isSelected && (
-                      <input
-                        placeholder="Hinweis oder Wunsch zu diesem Extra"
-                        value={form.selectedExtras?.[index]?.note || ""}
-                        onChange={(e) => updateExtraNote(index, e.target.value)}
-                        style={inputStyle}
-                      />
-                    )}
-                  </div>
-                );
-              })}
+                  {extra.note && (
+                    <p style={extraDescriptionStyle}>Hinweis: {extra.note}</p>
+                  )}
+                </div>
+              ))}
 
               <div style={totalBoxStyle}>
                 Voraussichtlicher Gesamtpreis: <strong>{estimatedTotal}</strong>
@@ -175,7 +140,7 @@ export default function InquiryModal({
           </p>
 
           <button disabled={sending} style={sending ? disabledButtonStyle : fullButtonStyle}>
-            {sending ? "Wird gesendet..." : "Anfrage absenden"}
+            {sending ? "Wird gesendet..." : submitButtonText}
           </button>
 
           {status === "success" && (
@@ -195,4 +160,3 @@ export default function InquiryModal({
     </div>
   );
 }
-
