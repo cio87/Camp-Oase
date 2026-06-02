@@ -289,53 +289,26 @@ Meine Frage dazu:
             </Link>
           </header>
 
-          <section style={{ padding: "60px 40px" }}>
+          <section style={detailSectionStyle}>
             <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
               <img
                 src={product.image}
                 alt={product.title}
-                style={{
-                  width: "100%",
-                  maxHeight: "520px",
-                  objectFit: "contain",
-                  background: "#f5f1e8",
-                  borderRadius: "32px",
-                  boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
-                }}
+                style={detailImageStyle}
               />
 
-              <h1 style={{ fontSize: "48px", color: "#435749" }}>
-                {product.title}
-              </h1>
+              <h1 style={detailTitleStyle}>{product.title}</h1>
 
-              <p
-                style={{
-                  fontSize: "18px",
-                  lineHeight: "1.9",
-                  color: "#5f5f5f",
-                  maxWidth: "720px",
-                  marginTop: "24px",
-                  whiteSpace: "pre-line",
-                }}
-              >
-                {product.description}
-              </p>
+              <p style={detailDescriptionStyle}>{product.description}</p>
 
               <div style={{ marginTop: "28px" }}>
-                <strong style={{ fontSize: "32px", color: "#556b5d" }}>
-                  {product.price}
-                </strong>
+                <strong style={detailPriceStyle}>{product.price}</strong>
 
                 <br />
 
                 <button
                   onClick={() => openInquiry(product)}
-                  style={{
-                    ...requestButtonStyle,
-                    marginTop: "24px",
-                    fontSize: "16px",
-                    padding: "14px 22px",
-                  }}
+                  style={detailRequestButtonStyle}
                 >
                   Anfrage senden
                 </button>
@@ -367,7 +340,7 @@ Meine Frage dazu:
           ← Zur Webseite
         </Link>
 
-        <h1 style={{ marginTop: "30px" }}>Camp Oase Admin</h1>
+        <h1 style={adminTitleStyle}>Camp Oase Admin</h1>
 
         {!session ? (
           <form onSubmit={login} style={formStyle}>
@@ -520,7 +493,7 @@ Meine Frage dazu:
                         </p>
                       </div>
 
-                      <div style={{ display: "flex", gap: "10px" }}>
+                      <div style={adminActionRowStyle}>
                         <button
                           onClick={() => {
                             setEditingId(product.id);
@@ -594,14 +567,7 @@ Meine Frage dazu:
 
                           <p style={inquiryMessageStyle}>{inquiry.message}</p>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              marginTop: "16px",
-                              flexWrap: "wrap",
-                            }}
-                          >
+                          <div style={adminActionRowStyle}>
                             <a
                               href={`mailto:${inquiry.email}?subject=${encodeURIComponent(
                                 `Antwort zu deiner Anfrage: ${inquiry.product_title}`
@@ -612,7 +578,10 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
 
 `
                               )}`}
-                              style={{ ...editButtonStyle, textDecoration: "none" }}
+                              style={{
+                                ...editButtonStyle,
+                                textDecoration: "none",
+                              }}
                             >
                               Antworten
                             </a>
@@ -643,25 +612,14 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
         <header style={headerStyle}>
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
             <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
-            <strong style={{ fontSize: "26px", color: "#556b5d" }}>
-              Camp Oase
-            </strong>
+            <strong style={brandTextStyle}>Camp Oase</strong>
           </div>
         </header>
 
         <section style={heroStyle}>
           <p style={badgeStyle}>Camping • Caravan • Handmade</p>
 
-          <h1
-            style={{
-              fontSize: "clamp(36px, 8vw, 64px)",
-              margin: "0",
-              color: "#435749",
-              lineHeight: "1.1",
-            }}
-          >
-            Willkommen bei Camp Oase
-          </h1>
+          <h1 style={heroTitleStyle}>Willkommen bei Camp Oase</h1>
 
           <p style={heroTextStyle}>
             Liebevoll gestaltete Camping-Produkte, Deko und Zubehör für dein
@@ -669,15 +627,13 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
           </p>
         </section>
 
-        <section style={{ padding: "60px 40px" }}>
+        <section style={sectionStyle}>
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
             <p style={{ color: "#7f9b76", fontWeight: "bold" }}>
               Produktübersicht
             </p>
 
-            <h2 style={{ fontSize: "38px", marginTop: "8px" }}>
-              Unsere Produkte
-            </h2>
+            <h2 style={sectionTitleStyle}>Unsere Produkte</h2>
 
             <div style={productGridStyle}>
               {products.map((product) => (
@@ -693,21 +649,9 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
                     />
 
                     <div style={{ padding: "24px 24px 0" }}>
-                      <h3 style={{ fontSize: "24px", margin: "0 0 10px" }}>
-                        {product.title}
-                      </h3>
+                      <h3 style={productTitleStyle}>{product.title}</h3>
 
-                      <p
-                        style={{
-                          color: "#666",
-                          lineHeight: "1.6",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                          minHeight: "78px",
-                        }}
-                      >
+                      <p style={productPreviewTextStyle}>
                         {product.description}
                       </p>
                     </div>
@@ -715,7 +659,7 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
 
                   <div style={{ padding: "0 24px 24px" }}>
                     <div style={priceRowStyle}>
-                      <strong style={{ fontSize: "22px", color: "#556b5d" }}>
+                      <strong style={productPriceStyle}>
                         {product.price}
                       </strong>
 
@@ -823,20 +767,18 @@ function LegalPage({ type }) {
         </Link>
       </header>
 
-      <section style={{ padding: "60px 40px" }}>
+      <section style={sectionStyle}>
         <div style={legalContentStyle}>
-          <h1 style={{ color: "#435749", fontSize: "42px" }}>
+          <h1 style={legalTitleStyle}>
             {isImpressum ? "Impressum" : "Datenschutzerklärung"}
           </h1>
 
           {isImpressum ? (
             <>
-              <p>
-                Dies ist ein Platzhalter für dein späteres Impressum.
-              </p>
+              <p>Dies ist ein Platzhalter für dein späteres Impressum.</p>
               <p>
                 Hier kommen später Angaben wie Name, Anschrift, Kontakt,
-                Verantwortliche Person und weitere gesetzlich erforderliche
+                verantwortliche Person und weitere gesetzlich erforderliche
                 Informationen hinein.
               </p>
               <p>
@@ -903,11 +845,11 @@ const siteStyle = {
 
 const pageStyle = {
   ...siteStyle,
-  padding: "40px",
+  padding: "clamp(24px, 5vw, 40px)",
 };
 
 const headerStyle = {
-  padding: "20px max(24px, calc((100vw - 1200px) / 2))",
+  padding: "clamp(14px, 3vw, 20px) max(18px, calc((100vw - 1200px) / 2))",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -916,14 +858,19 @@ const headerStyle = {
 };
 
 const logoStyle = {
-  width: "64px",
-  height: "64px",
+  width: "clamp(52px, 10vw, 64px)",
+  height: "clamp(52px, 10vw, 64px)",
   borderRadius: "50%",
   objectFit: "cover",
 };
 
+const brandTextStyle = {
+  fontSize: "clamp(22px, 5vw, 26px)",
+  color: "#556b5d",
+};
+
 const heroStyle = {
-  padding: "clamp(50px, 8vw, 90px) 20px",
+  padding: "clamp(46px, 8vw, 90px) 20px",
   textAlign: "center",
   background: "linear-gradient(135deg, #dfe8df, #f5f1e8, #efe2c6)",
 };
@@ -935,6 +882,14 @@ const badgeStyle = {
   borderRadius: "999px",
   color: "#556b5d",
   marginBottom: "20px",
+  fontSize: "clamp(13px, 3vw, 16px)",
+};
+
+const heroTitleStyle = {
+  fontSize: "clamp(34px, 8vw, 64px)",
+  margin: "0",
+  color: "#435749",
+  lineHeight: "1.08",
 };
 
 const heroTextStyle = {
@@ -943,6 +898,15 @@ const heroTextStyle = {
   margin: "24px auto 0",
   color: "#6b756d",
   lineHeight: "1.6",
+};
+
+const sectionStyle = {
+  padding: "clamp(36px, 6vw, 60px) clamp(18px, 5vw, 40px)",
+};
+
+const sectionTitleStyle = {
+  fontSize: "clamp(28px, 7vw, 38px)",
+  marginTop: "8px",
 };
 
 const productGridStyle = {
@@ -961,9 +925,24 @@ const productCardStyle = {
 
 const productImageStyle = {
   width: "100%",
-  height: "240px",
+  height: "clamp(200px, 55vw, 240px)",
   objectFit: "contain",
   background: "#f5f1e8",
+};
+
+const productTitleStyle = {
+  fontSize: "clamp(21px, 5vw, 24px)",
+  margin: "0 0 10px",
+};
+
+const productPreviewTextStyle = {
+  color: "#666",
+  lineHeight: "1.6",
+  display: "-webkit-box",
+  WebkitLineClamp: 3,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  minHeight: "78px",
 };
 
 const priceRowStyle = {
@@ -971,12 +950,63 @@ const priceRowStyle = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
+  gap: "14px",
+  flexWrap: "wrap",
+};
+
+const productPriceStyle = {
+  fontSize: "clamp(20px, 5vw, 22px)",
+  color: "#556b5d",
+};
+
+const detailSectionStyle = {
+  padding: "clamp(32px, 6vw, 60px) clamp(18px, 5vw, 40px)",
+};
+
+const detailImageStyle = {
+  width: "100%",
+  maxHeight: "min(520px, 70vh)",
+  objectFit: "contain",
+  background: "#f5f1e8",
+  borderRadius: "clamp(20px, 5vw, 32px)",
+  boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
+};
+
+const detailTitleStyle = {
+  fontSize: "clamp(32px, 8vw, 48px)",
+  color: "#435749",
+  lineHeight: "1.1",
+};
+
+const detailDescriptionStyle = {
+  fontSize: "clamp(16px, 4vw, 18px)",
+  lineHeight: "1.9",
+  color: "#5f5f5f",
+  maxWidth: "720px",
+  marginTop: "24px",
+  whiteSpace: "pre-line",
+};
+
+const detailPriceStyle = {
+  fontSize: "clamp(26px, 7vw, 32px)",
+  color: "#556b5d",
+};
+
+const detailRequestButtonStyle = {
+  background: "#2f3e34",
+  color: "white",
+  border: "none",
+  borderRadius: "14px",
+  cursor: "pointer",
+  marginTop: "24px",
+  fontSize: "16px",
+  padding: "14px 22px",
 };
 
 const formStyle = {
   maxWidth: "700px",
   background: "white",
-  padding: "30px",
+  padding: "clamp(22px, 5vw, 30px)",
   borderRadius: "24px",
   boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
   marginTop: "30px",
@@ -1030,6 +1060,12 @@ const editButtonStyle = {
   cursor: "pointer",
 };
 
+const adminTitleStyle = {
+  marginTop: "30px",
+  fontSize: "clamp(30px, 8vw, 42px)",
+  color: "#435749",
+};
+
 const adminProductStyle = {
   background: "white",
   padding: "18px",
@@ -1037,7 +1073,16 @@ const adminProductStyle = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
+  gap: "16px",
+  flexWrap: "wrap",
   boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+};
+
+const adminActionRowStyle = {
+  display: "flex",
+  gap: "10px",
+  marginTop: "16px",
+  flexWrap: "wrap",
 };
 
 const adminTabsStyle = {
@@ -1076,7 +1121,7 @@ const inquiryBadgeStyle = {
 
 const inquiryCardStyle = {
   background: "white",
-  padding: "22px",
+  padding: "clamp(18px, 5vw, 22px)",
   borderRadius: "20px",
   boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
 };
@@ -1112,7 +1157,7 @@ const modalOverlayStyle = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  padding: "20px",
+  padding: "16px",
   zIndex: 9999,
 };
 
@@ -1123,8 +1168,8 @@ const modalStyle = {
   maxHeight: "90vh",
   overflowY: "auto",
   background: "#fff",
-  borderRadius: "28px",
-  padding: "32px",
+  borderRadius: "clamp(20px, 5vw, 28px)",
+  padding: "clamp(22px, 5vw, 32px)",
   boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
 };
 
@@ -1144,6 +1189,7 @@ const footerStyle = {
   textAlign: "center",
   color: "#7f8f82",
   fontSize: "13px",
+  lineHeight: "2",
 };
 
 const footerDotStyle = {
@@ -1167,9 +1213,14 @@ const legalContentStyle = {
   maxWidth: "820px",
   margin: "0 auto",
   background: "white",
-  padding: "36px",
+  padding: "clamp(24px, 5vw, 36px)",
   borderRadius: "24px",
   boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
   lineHeight: "1.8",
   color: "#555",
+};
+
+const legalTitleStyle = {
+  color: "#435749",
+  fontSize: "clamp(32px, 8vw, 42px)",
 };
