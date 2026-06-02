@@ -415,6 +415,7 @@ Meine Frage dazu:
 
     return (
       <div style={pageStyle}>
+        <div style={adminShellStyle}>
         <Link to="/" style={{ color: "#556b5d" }}>
           ← Zur Webseite
         </Link>
@@ -740,9 +741,7 @@ Meine Frage dazu:
                     Noch keine Anfragen vorhanden.
                   </div>
                 ) : (
-                  <div
-                    style={{ display: "grid", gap: "16px", marginTop: "20px" }}
-                  >
+                  <div style={inquiryListStyle}>
                     {filteredInquiries.map((inquiry) => {
                       const selectedItems = Array.isArray(
                         inquiry.selected_extras?.items
@@ -761,40 +760,47 @@ Meine Frage dazu:
                           }}
                         >
                           <div>
-                            <p style={inquiryMetaStyle}>
-                              {inquiry.created_at
-                                ? new Date(inquiry.created_at).toLocaleString(
-                                    "de-DE"
-                                  )
-                                : "Kein Datum"}
-                            </p>
+                            <div style={inquiryHeaderStyle}>
+                              <div>
+                                <h3 style={inquiryTitleStyle}>
+                                  {inquiry.product_title}
+                                </h3>
 
-                            <h3 style={{ margin: "0 0 8px", color: "#435749" }}>
-                              {inquiry.product_title}
-                            </h3>
+                                <p style={inquiryMetaStyle}>
+                                  {inquiry.created_at
+                                    ? new Date(inquiry.created_at).toLocaleString(
+                                        "de-DE"
+                                      )
+                                    : "Kein Datum"}
+                                </p>
+                              </div>
 
-                            <span
-                              style={{
-                                ...statusBadgeStyle,
-                                ...(isDone ? statusBadgeDoneStyle : {}),
-                              }}
-                            >
-                              {isDone ? "Erledigt" : "Offen"}
-                            </span>
-
-                            <p style={{ margin: "4px 0" }}>
-                              <strong>Name:</strong> {inquiry.name}
-                            </p>
-
-                            <p style={{ margin: "4px 0" }}>
-                              <strong>E-Mail:</strong>{" "}
-                              <a
-                                href={`mailto:${inquiry.email}`}
-                                style={{ color: "#556b5d" }}
+                              <span
+                                style={{
+                                  ...statusBadgeStyle,
+                                  ...(isDone ? statusBadgeDoneStyle : {}),
+                                }}
                               >
-                                {inquiry.email}
-                              </a>
-                            </p>
+                                {isDone ? "Erledigt" : "Offen"}
+                              </span>
+                            </div>
+
+                            <div style={inquiryInfoGridStyle}>
+                              <div style={inquiryInfoBoxStyle}>
+                                <span style={inquiryInfoLabelStyle}>Name</span>
+                                <strong>{inquiry.name}</strong>
+                              </div>
+
+                              <div style={inquiryInfoBoxStyle}>
+                                <span style={inquiryInfoLabelStyle}>E-Mail</span>
+                                <a
+                                  href={`mailto:${inquiry.email}`}
+                                  style={{ color: "#556b5d" }}
+                                >
+                                  {inquiry.email}
+                                </a>
+                              </div>
+                            </div>
 
                             {inquiry.estimated_total && (
                               <p style={adminTotalStyle}>
@@ -823,7 +829,7 @@ Meine Frage dazu:
 
                             <p style={inquiryMessageStyle}>{inquiry.message}</p>
 
-                            <div style={adminActionRowStyle}>
+                            <div style={inquiryActionRowStyle}>
                               <a
                                 href={`mailto:${inquiry.email}?subject=${encodeURIComponent(
                                   `Antwort zu deiner Anfrage: ${inquiry.product_title}`
@@ -835,7 +841,7 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
 `
                                 )}`}
                                 style={{
-                                  ...editButtonStyle,
+                                  ...compactEditButtonStyle,
                                   textDecoration: "none",
                                 }}
                               >
@@ -863,7 +869,7 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
 
                               <button
                                 onClick={() => deleteInquiry(inquiry.id)}
-                                style={deleteButtonStyle}
+                                style={compactDeleteButtonStyle}
                               >
                                 Löschen
                               </button>
@@ -878,6 +884,7 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
             )}
           </>
         )}
+        </div>
       </div>
     );
   }
@@ -1326,6 +1333,12 @@ const pageStyle = {
   padding: "clamp(24px, 5vw, 40px)",
 };
 
+const adminShellStyle = {
+  width: "100%",
+  maxWidth: "1120px",
+  margin: "0 auto",
+};
+
 const headerStyle = {
   padding: "clamp(14px, 3vw, 20px) max(18px, calc((100vw - 1200px) / 2))",
   display: "flex",
@@ -1512,12 +1525,14 @@ const detailExtraPriceStyle = {
 };
 
 const formStyle = {
+  width: "100%",
   maxWidth: "700px",
   background: "white",
   padding: "clamp(22px, 5vw, 30px)",
   borderRadius: "24px",
   boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-  marginTop: "30px",
+  margin: "30px auto 0",
+  boxSizing: "border-box",
 };
 
 const inputStyle = {
@@ -1593,24 +1608,41 @@ const completeInquiryButtonStyle = {
   background: "#556b5d",
   color: "white",
   border: "none",
-  padding: "10px 14px",
-  borderRadius: "12px",
+  padding: "8px 12px",
+  borderRadius: "10px",
   cursor: "pointer",
+  fontSize: "14px",
 };
 
 const reopenInquiryButtonStyle = {
   background: "#eef3ea",
   color: "#435749",
   border: "1px solid #cfd8cf",
-  padding: "10px 14px",
-  borderRadius: "12px",
+  padding: "8px 12px",
+  borderRadius: "10px",
   cursor: "pointer",
+  fontSize: "14px",
+};
+
+const compactEditButtonStyle = {
+  ...editButtonStyle,
+  padding: "8px 12px",
+  borderRadius: "10px",
+  fontSize: "14px",
+};
+
+const compactDeleteButtonStyle = {
+  ...deleteButtonStyle,
+  padding: "8px 12px",
+  borderRadius: "10px",
+  fontSize: "14px",
 };
 
 const adminTitleStyle = {
   marginTop: "30px",
   fontSize: "clamp(30px, 8vw, 42px)",
   color: "#435749",
+  textAlign: "center",
 };
 
 const adminProductStyle = {
@@ -1634,6 +1666,7 @@ const adminActionRowStyle = {
 
 const adminTabsStyle = {
   display: "flex",
+  justifyContent: "center",
   gap: "12px",
   marginTop: "32px",
   marginBottom: "10px",
@@ -1658,27 +1691,32 @@ const adminTabActiveStyle = {
 };
 
 const statusFilterRowStyle = {
+  width: "fit-content",
   display: "flex",
-  gap: "10px",
-  marginTop: "14px",
+  gap: "4px",
+  margin: "14px auto 0",
+  padding: "4px",
+  borderRadius: "999px",
+  background: "rgba(255,255,255,0.68)",
+  border: "1px solid #e3ded4",
   flexWrap: "wrap",
 };
 
 const statusFilterButtonStyle = {
-  background: "white",
+  background: "transparent",
   color: "#556b5d",
-  border: "1px solid #d6d3cc",
-  padding: "9px 14px",
+  border: "none",
+  padding: "8px 12px",
   borderRadius: "999px",
   cursor: "pointer",
-  fontSize: "14px",
+  fontSize: "13px",
   fontWeight: "bold",
 };
 
 const statusFilterActiveStyle = {
-  background: "#d9c7a2",
+  background: "white",
   color: "#2f3e34",
-  border: "1px solid #d9c7a2",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
 };
 
 const inquiryBadgeStyle = {
@@ -1692,8 +1730,8 @@ const inquiryBadgeStyle = {
 
 const inquiryCardStyle = {
   background: "white",
-  padding: "clamp(18px, 5vw, 22px)",
-  borderRadius: "20px",
+  padding: "clamp(16px, 4vw, 20px)",
+  borderRadius: "16px",
   boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
 };
 
@@ -1702,14 +1740,62 @@ const inquiryCardDoneStyle = {
   background: "#fbfaf6",
 };
 
+const inquiryListStyle = {
+  width: "100%",
+  display: "grid",
+  gap: "12px",
+  margin: "16px auto 0",
+  maxWidth: "920px",
+};
+
+const inquiryHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: "14px",
+  flexWrap: "wrap",
+};
+
+const inquiryTitleStyle = {
+  margin: 0,
+  color: "#435749",
+  fontSize: "clamp(18px, 4vw, 22px)",
+  lineHeight: "1.25",
+};
+
+const inquiryInfoGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: "10px",
+  marginTop: "14px",
+};
+
+const inquiryInfoBoxStyle = {
+  background: "#fbfaf6",
+  border: "1px solid #eee7da",
+  borderRadius: "12px",
+  padding: "10px 12px",
+  lineHeight: "1.4",
+  overflowWrap: "anywhere",
+};
+
+const inquiryInfoLabelStyle = {
+  display: "block",
+  marginBottom: "3px",
+  color: "#888",
+  fontSize: "12px",
+  fontWeight: "bold",
+  textTransform: "uppercase",
+  letterSpacing: "0.03em",
+};
+
 const statusBadgeStyle = {
   display: "inline-block",
-  marginBottom: "12px",
-  padding: "5px 10px",
+  padding: "5px 9px",
   borderRadius: "999px",
   background: "#eef3ea",
   color: "#435749",
-  fontSize: "13px",
+  fontSize: "12px",
   fontWeight: "bold",
 };
 
@@ -1720,21 +1806,32 @@ const statusBadgeDoneStyle = {
 
 const inquiryMetaStyle = {
   color: "#888",
-  fontSize: "14px",
-  margin: "0 0 8px",
+  fontSize: "13px",
+  margin: "5px 0 0",
 };
 
 const inquiryMessageStyle = {
-  marginTop: "16px",
-  padding: "16px",
+  marginTop: "12px",
+  padding: "12px 14px",
   background: "#f5f1e8",
-  borderRadius: "14px",
+  borderRadius: "12px",
   color: "#444",
   whiteSpace: "pre-line",
-  lineHeight: "1.6",
+  lineHeight: "1.5",
+  fontSize: "14px",
+};
+
+const inquiryActionRowStyle = {
+  display: "flex",
+  gap: "8px",
+  marginTop: "14px",
+  flexWrap: "wrap",
+  alignItems: "center",
 };
 
 const emptyBoxStyle = {
+  maxWidth: "920px",
+  margin: "20px auto 0",
   background: "white",
   padding: "24px",
   borderRadius: "18px",
