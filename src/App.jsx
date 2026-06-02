@@ -384,7 +384,7 @@ function CampOaseApp({ admin = false, detail = false }) {
       <header style={headerStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
-          <strong style={{ fontSize: "24px", color: "#556b5d" }}>
+          <strong style={{ fontSize: "26px", color: "#556b5d" }}>
             Camp Oase
           </strong>
         </div>
@@ -397,9 +397,16 @@ function CampOaseApp({ admin = false, detail = false }) {
       <section style={heroStyle}>
         <p style={badgeStyle}>Camping • Caravan • Handmade</p>
 
-        <h1 style={{ fontSize: "64px", margin: "0", color: "#435749" }}>
-          Willkommen bei Camp Oase
-        </h1>
+        <h1
+  style={{
+    fontSize: "clamp(36px, 8vw, 64px)",
+    margin: "0",
+    color: "#435749",
+    lineHeight: "1.1",
+  }}
+>
+  Willkommen bei Camp Oase
+</h1>
 
         <p style={heroTextStyle}>
           Liebevoll gestaltete Camping-Produkte, Deko und Zubehör für dein
@@ -481,23 +488,23 @@ const pageStyle = {
 };
 
 const headerStyle = {
-  padding: "24px 40px",
+  padding: "20px max(24px, calc((100vw - 1200px) / 2))",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  background: "rgba(255,255,255,0.65)",
+  background: "rgba(255,255,255,0.75)",
   backdropFilter: "blur(10px)",
 };
 
 const logoStyle = {
-  width: "52px",
-  height: "52px",
+  width: "64px",
+  height: "64px",
   borderRadius: "50%",
   objectFit: "cover",
 };
 
 const heroStyle = {
-  padding: "90px 30px",
+  padding: "clamp(50px, 8vw, 90px) 20px",
   textAlign: "center",
   background: "linear-gradient(135deg, #dfe8df, #f5f1e8, #efe2c6)",
 };
@@ -512,7 +519,7 @@ const badgeStyle = {
 };
 
 const heroTextStyle = {
-  fontSize: "20px",
+  fontSize: "clamp(16px, 4vw, 20px)",
   maxWidth: "700px",
   margin: "24px auto 0",
   color: "#6b756d",
