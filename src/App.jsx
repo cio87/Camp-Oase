@@ -23,6 +23,7 @@ function CampOaseApp({ admin = false, detail = false }) {
   const [products, setProducts] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [adminTab, setAdminTab] = useState("products");
+  const [inquiryStatusFilter, setInquiryStatusFilter] = useState("all");
 
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
@@ -242,6 +243,20 @@ function CampOaseApp({ admin = false, detail = false }) {
     await loadInquiries();
   }
 
+  async function updateInquiryStatus(id, status) {
+    const { error } = await supabase
+      .from("inquiries")
+      .update({ status })
+      .eq("id", id);
+
+    if (error) {
+      alert("Status konnte nicht aktualisiert werden: " + error.message);
+      return;
+    }
+
+    await loadInquiries();
+  }
+
   function openInquiry(product) {
     setInquiryProduct(product);
     setInquiryStatus("");
@@ -393,6 +408,11 @@ Meine Frage dazu:
   }
 
   if (admin) {
+    const filteredInquiries = inquiries.filter((inquiry) => {
+      if (inquiryStatusFilter === "all") return true;
+      return (inquiry.status || "offen") === inquiryStatusFilter;
+    });
+
     return (
       <div style={pageStyle}>
         <Link to="/" style={{ color: "#556b5d" }}>
@@ -693,7 +713,29 @@ Meine Frage dazu:
               <>
                 <h2 style={{ marginTop: "40px" }}>Kundenanfragen</h2>
 
-                {inquiries.length === 0 ? (
+                <div style={statusFilterRowStyle}>
+                  {[
+                    { value: "all", label: "Alle" },
+                    { value: "offen", label: "Offen" },
+                    { value: "erledigt", label: "Erledigt" },
+                  ].map((filter) => (
+                    <button
+                      key={filter.value}
+                      type="button"
+                      onClick={() => setInquiryStatusFilter(filter.value)}
+                      style={{
+                        ...statusFilterButtonStyle,
+                        ...(inquiryStatusFilter === filter.value
+                          ? statusFilterActiveStyle
+                          : {}),
+                      }}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+
+                {filteredInquiries.length === 0 ? (
                   <div style={emptyBoxStyle}>
                     Noch keine Anfragen vorhanden.
                   </div>
@@ -701,15 +743,23 @@ Meine Frage dazu:
                   <div
                     style={{ display: "grid", gap: "16px", marginTop: "20px" }}
                   >
-                    {inquiries.map((inquiry) => {
+                    {filteredInquiries.map((inquiry) => {
                       const selectedItems = Array.isArray(
                         inquiry.selected_extras?.items
                       )
                         ? inquiry.selected_extras.items
                         : [];
+                      const inquiryStatus = inquiry.status || "offen";
+                      const isDone = inquiryStatus === "erledigt";
 
                       return (
-                        <div key={inquiry.id} style={inquiryCardStyle}>
+                        <div
+                          key={inquiry.id}
+                          style={{
+                            ...inquiryCardStyle,
+                            ...(isDone ? inquiryCardDoneStyle : {}),
+                          }}
+                        >
                           <div>
                             <p style={inquiryMetaStyle}>
                               {inquiry.created_at
@@ -722,6 +772,15 @@ Meine Frage dazu:
                             <h3 style={{ margin: "0 0 8px", color: "#435749" }}>
                               {inquiry.product_title}
                             </h3>
+
+                            <span
+                              style={{
+                                ...statusBadgeStyle,
+                                ...(isDone ? statusBadgeDoneStyle : {}),
+                              }}
+                            >
+                              {isDone ? "Erledigt" : "Offen"}
+                            </span>
 
                             <p style={{ margin: "4px 0" }}>
                               <strong>Name:</strong> {inquiry.name}
@@ -782,6 +841,25 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
                               >
                                 Antworten
                               </a>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateInquiryStatus(
+                                    inquiry.id,
+                                    isDone ? "offen" : "erledigt"
+                                  )
+                                }
+                                style={
+                                  isDone
+                                    ? reopenInquiryButtonStyle
+                                    : completeInquiryButtonStyle
+                                }
+                              >
+                                {isDone
+                                  ? "Wieder öffnen"
+                                  : "Als erledigt markieren"}
+                              </button>
 
                               <button
                                 onClick={() => deleteInquiry(inquiry.id)}
@@ -1511,6 +1589,24 @@ const editButtonStyle = {
   cursor: "pointer",
 };
 
+const completeInquiryButtonStyle = {
+  background: "#556b5d",
+  color: "white",
+  border: "none",
+  padding: "10px 14px",
+  borderRadius: "12px",
+  cursor: "pointer",
+};
+
+const reopenInquiryButtonStyle = {
+  background: "#eef3ea",
+  color: "#435749",
+  border: "1px solid #cfd8cf",
+  padding: "10px 14px",
+  borderRadius: "12px",
+  cursor: "pointer",
+};
+
 const adminTitleStyle = {
   marginTop: "30px",
   fontSize: "clamp(30px, 8vw, 42px)",
@@ -1561,6 +1657,30 @@ const adminTabActiveStyle = {
   border: "1px solid #556b5d",
 };
 
+const statusFilterRowStyle = {
+  display: "flex",
+  gap: "10px",
+  marginTop: "14px",
+  flexWrap: "wrap",
+};
+
+const statusFilterButtonStyle = {
+  background: "white",
+  color: "#556b5d",
+  border: "1px solid #d6d3cc",
+  padding: "9px 14px",
+  borderRadius: "999px",
+  cursor: "pointer",
+  fontSize: "14px",
+  fontWeight: "bold",
+};
+
+const statusFilterActiveStyle = {
+  background: "#d9c7a2",
+  color: "#2f3e34",
+  border: "1px solid #d9c7a2",
+};
+
 const inquiryBadgeStyle = {
   background: "#d9c7a2",
   color: "#2f3e34",
@@ -1575,6 +1695,27 @@ const inquiryCardStyle = {
   padding: "clamp(18px, 5vw, 22px)",
   borderRadius: "20px",
   boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+};
+
+const inquiryCardDoneStyle = {
+  opacity: 0.72,
+  background: "#fbfaf6",
+};
+
+const statusBadgeStyle = {
+  display: "inline-block",
+  marginBottom: "12px",
+  padding: "5px 10px",
+  borderRadius: "999px",
+  background: "#eef3ea",
+  color: "#435749",
+  fontSize: "13px",
+  fontWeight: "bold",
+};
+
+const statusBadgeDoneStyle = {
+  background: "#eee9df",
+  color: "#777",
 };
 
 const inquiryMetaStyle = {
