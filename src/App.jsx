@@ -30,29 +30,9 @@ function CampOaseApp({ admin = false, detail = false }) {
   const [editingId, setEditingId] = useState(null);
   const { id } = useParams();
 
-  const [newProduct, setNewProduct] = useState({
-    title: "",
-    description: "",
-    price: "",
-    image: "",
-    file: null,
-    extras_enabled: false,
-    personalization_price: "0",
-    keyband_price: "0",
-    nfc_price: "0",
-  });
-
+  const [newProduct, setNewProduct] = useState(getEmptyProduct());
   const [inquiryProduct, setInquiryProduct] = useState(null);
-  const [inquiryForm, setInquiryForm] = useState({
-    name: "",
-    email: "",
-    message: "",
-    personalization: false,
-    personalizationText: "",
-    keyband: false,
-    nfc: false,
-    nfcTarget: "",
-  });
+  const [inquiryForm, setInquiryForm] = useState(getEmptyInquiryForm());
   const [inquiryStatus, setInquiryStatus] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
 
@@ -156,15 +136,21 @@ function CampOaseApp({ admin = false, detail = false }) {
       return;
     }
 
+    const cleanedExtras = (newProduct.custom_extras || [])
+      .filter((extra) => String(extra.name || "").trim())
+      .map((extra) => ({
+        name: String(extra.name || "").trim(),
+        description: String(extra.description || "").trim(),
+        price: Number(extra.price || 0),
+      }));
+
     const productPayload = {
       title: newProduct.title,
       description: newProduct.description,
       price: newProduct.price,
       image: imageUrl,
-      extras_enabled: newProduct.extras_enabled,
-      personalization_price: Number(newProduct.personalization_price || 0),
-      keyband_price: Number(newProduct.keyband_price || 0),
-      nfc_price: Number(newProduct.nfc_price || 0),
+      extras_enabled: newProduct.extras_enabled && cleanedExtras.length > 0,
+      custom_extras: cleanedExtras,
     };
 
     let error;
@@ -178,7 +164,6 @@ function CampOaseApp({ admin = false, detail = false }) {
       error = response.error;
     } else {
       const response = await supabase.from("products").insert([productPayload]);
-
       error = response.error;
     }
 
@@ -192,19 +177,41 @@ function CampOaseApp({ admin = false, detail = false }) {
   }
 
   function resetProductForm() {
-    setNewProduct({
-      title: "",
-      description: "",
-      price: "",
-      image: "",
-      file: null,
-      extras_enabled: false,
-      personalization_price: "0",
-      keyband_price: "0",
-      nfc_price: "0",
-    });
-
+    setNewProduct(getEmptyProduct());
     setEditingId(null);
+  }
+
+  function addCustomExtra() {
+    setNewProduct({
+      ...newProduct,
+      custom_extras: [
+        ...(newProduct.custom_extras || []),
+        { name: "", description: "", price: "0" },
+      ],
+    });
+  }
+
+  function updateCustomExtra(index, field, value) {
+    const updatedExtras = [...(newProduct.custom_extras || [])];
+    updatedExtras[index] = {
+      ...updatedExtras[index],
+      [field]: value,
+    };
+
+    setNewProduct({
+      ...newProduct,
+      custom_extras: updatedExtras,
+    });
+  }
+
+  function removeCustomExtra(index) {
+    const updatedExtras = [...(newProduct.custom_extras || [])];
+    updatedExtras.splice(index, 1);
+
+    setNewProduct({
+      ...newProduct,
+      custom_extras: updatedExtras,
+    });
   }
 
   async function deleteProduct(id) {
@@ -239,8 +246,7 @@ function CampOaseApp({ admin = false, detail = false }) {
     setInquiryProduct(product);
     setInquiryStatus("");
     setInquiryForm({
-      name: "",
-      email: "",
+      ...getEmptyInquiryForm(),
       message: `Hallo Camp Oase,
 
 ich interessiere mich für folgendes Produkt:
@@ -250,28 +256,13 @@ Preis: ${product.price}
 
 Meine Frage dazu:
 `,
-      personalization: false,
-      personalizationText: "",
-      keyband: false,
-      nfc: false,
-      nfcTarget: "",
     });
   }
 
   function closeInquiry() {
     setInquiryProduct(null);
     setInquiryStatus("");
-    setInquiryForm({
-      name: "",
-      email: "",
-      message: "",
-      personalization: false,
-      personalizationText: "",
-      keyband: false,
-      nfc: false,
-      nfcTarget: "",
-    });
-    setInquiryStatus("");
+    setInquiryForm(getEmptyInquiryForm());
     setInquirySending(false);
   }
 
@@ -314,6 +305,7 @@ Meine Frage dazu:
 
   if (detail) {
     const product = products.find((item) => String(item.id) === id);
+    const productExtras = getProductExtras(product);
 
     if (!product) {
       return <div style={pageStyle}>Produkt wird geladen...</div>;
@@ -340,15 +332,30 @@ Meine Frage dazu:
 
               <p style={detailDescriptionStyle}>{product.description}</p>
 
-              {product.extras_enabled && (
+              {productExtras.length > 0 && (
                 <div style={extrasPreviewBoxStyle}>
                   <strong style={{ color: "#435749" }}>
                     Für dieses Produkt sind Extras möglich:
                   </strong>
-                  <p style={{ margin: "10px 0 0", color: "#666" }}>
-                    Personalisierung, handgemachtes Schlüsselband oder NFC-Chip
-                    können im Anfrageformular ausgewählt werden.
-                  </p>
+
+                  <div style={{ marginTop: "12px", display: "grid", gap: "10px" }}>
+                    {productExtras.map((extra, index) => (
+                      <div key={`${extra.name}-${index}`} style={detailExtraLineStyle}>
+                        <span>
+                          <strong>{extra.name}</strong>
+                          {extra.description && (
+                            <small style={detailExtraDescriptionStyle}>
+                              {extra.description}
+                            </small>
+                          )}
+                        </span>
+
+                        <span style={detailExtraPriceStyle}>
+                          +{formatEuro(extra.price)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -521,77 +528,75 @@ Meine Frage dazu:
                     {newProduct.extras_enabled && (
                       <>
                         <p style={adminHintStyle}>
-                          Trage hier die Aufpreise ein. Wenn ein Extra nichts
-                          kosten soll, einfach 0 eintragen.
+                          Lege hier frei fest, welche Extras dieses Produkt haben
+                          kann. Name, Beschreibung und Aufpreis sind pro Extra
+                          komplett anpassbar.
                         </p>
 
-                        <div style={extraPriceFieldStyle}>
-                          <label style={adminExtraLabelStyle}>
-                            Personalisierung
-                          </label>
-                          <small style={adminExtraHelpStyle}>
-                            Aufpreis für Wunschname, Wunschtext oder
-                            individuelle Beschriftung.
-                          </small>
-                          <input
-                            type="number"
-                            step="0.01"
-                            placeholder="z. B. 2.00"
-                            value={newProduct.personalization_price}
-                            onChange={(e) =>
-                              setNewProduct({
-                                ...newProduct,
-                                personalization_price: e.target.value,
-                              })
-                            }
-                            style={inputStyle}
-                          />
+                        <div style={{ display: "grid", gap: "14px" }}>
+                          {(newProduct.custom_extras || []).map((extra, index) => (
+                            <div key={index} style={customExtraCardStyle}>
+                              <div style={customExtraHeaderStyle}>
+                                <strong>Extra {index + 1}</strong>
+                                <button
+                                  type="button"
+                                  onClick={() => removeCustomExtra(index)}
+                                  style={smallDeleteButtonStyle}
+                                >
+                                  Entfernen
+                                </button>
+                              </div>
+
+                              <label style={adminExtraLabelStyle}>Name</label>
+                              <input
+                                placeholder="z. B. Versiegelung, NFC, Logo-Druck"
+                                value={extra.name}
+                                onChange={(e) =>
+                                  updateCustomExtra(index, "name", e.target.value)
+                                }
+                                style={inputStyle}
+                              />
+
+                              <label style={adminExtraLabelStyle}>
+                                Beschreibung
+                              </label>
+                              <textarea
+                                placeholder="Kurze Erklärung, was dieses Extra bedeutet."
+                                value={extra.description}
+                                onChange={(e) =>
+                                  updateCustomExtra(
+                                    index,
+                                    "description",
+                                    e.target.value
+                                  )
+                                }
+                                style={{ ...inputStyle, minHeight: "80px" }}
+                              />
+
+                              <label style={adminExtraLabelStyle}>
+                                Aufpreis
+                              </label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                placeholder="z. B. 3.50"
+                                value={extra.price}
+                                onChange={(e) =>
+                                  updateCustomExtra(index, "price", e.target.value)
+                                }
+                                style={inputStyle}
+                              />
+                            </div>
+                          ))}
                         </div>
 
-                        <div style={extraPriceFieldStyle}>
-                          <label style={adminExtraLabelStyle}>
-                            Handgemachtes Schlüsselband
-                          </label>
-                          <small style={adminExtraHelpStyle}>
-                            Aufpreis, wenn ein passendes handgemachtes
-                            Schlüsselband dazu soll.
-                          </small>
-                          <input
-                            type="number"
-                            step="0.01"
-                            placeholder="z. B. 4.00"
-                            value={newProduct.keyband_price}
-                            onChange={(e) =>
-                              setNewProduct({
-                                ...newProduct,
-                                keyband_price: e.target.value,
-                              })
-                            }
-                            style={inputStyle}
-                          />
-                        </div>
-
-                        <div style={extraPriceFieldStyle}>
-                          <label style={adminExtraLabelStyle}>NFC-Chip</label>
-                          <small style={adminExtraHelpStyle}>
-                            Aufpreis für integrierten NFC-Chip, z. B. für
-                            Linktree, Instagram, Webseite oder digitale
-                            Kontaktkarte.
-                          </small>
-                          <input
-                            type="number"
-                            step="0.01"
-                            placeholder="z. B. 5.00"
-                            value={newProduct.nfc_price}
-                            onChange={(e) =>
-                              setNewProduct({
-                                ...newProduct,
-                                nfc_price: e.target.value,
-                              })
-                            }
-                            style={inputStyle}
-                          />
-                        </div>
+                        <button
+                          type="button"
+                          onClick={addCustomExtra}
+                          style={secondaryButtonStyle}
+                        >
+                          + Extra hinzufügen
+                        </button>
                       </>
                     )}
                   </div>
@@ -620,56 +625,66 @@ Meine Frage dazu:
                 <div
                   style={{ display: "grid", gap: "16px", marginTop: "20px" }}
                 >
-                  {products.map((product) => (
-                    <div key={product.id} style={adminProductStyle}>
-                      <div>
-                        <strong>{product.title}</strong>
-                        <p style={{ margin: "6px 0", color: "#666" }}>
-                          {product.price}
-                        </p>
+                  {products.map((product) => {
+                    const extras = getProductExtras(product);
 
-                        {product.extras_enabled && (
-                          <p style={adminProductExtrasInfoStyle}>
-                            Extras aktiv · Personalisierung +
-                            {formatEuro(product.personalization_price)} · Band +
-                            {formatEuro(product.keyband_price)} · NFC +
-                            {formatEuro(product.nfc_price)}
+                    return (
+                      <div key={product.id} style={adminProductStyle}>
+                        <div>
+                          <strong>{product.title}</strong>
+                          <p style={{ margin: "6px 0", color: "#666" }}>
+                            {product.price}
                           </p>
-                        )}
-                      </div>
 
-                      <div style={adminActionRowStyle}>
-                        <button
-                          onClick={() => {
-                            setEditingId(product.id);
-                            setNewProduct({
-                              title: product.title,
-                              description: product.description,
-                              price: product.price,
-                              image: product.image,
-                              file: null,
-                              extras_enabled: Boolean(product.extras_enabled),
-                              personalization_price:
-                                product.personalization_price ?? "0",
-                              keyband_price: product.keyband_price ?? "0",
-                              nfc_price: product.nfc_price ?? "0",
-                            });
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                          style={editButtonStyle}
-                        >
-                          Bearbeiten
-                        </button>
+                          {extras.length > 0 && (
+                            <p style={adminProductExtrasInfoStyle}>
+                              Extras aktiv ·{" "}
+                              {extras
+                                .map(
+                                  (extra) =>
+                                    `${extra.name} +${formatEuro(extra.price)}`
+                                )
+                                .join(" · ")}
+                            </p>
+                          )}
+                        </div>
 
-                        <button
-                          onClick={() => deleteProduct(product.id)}
-                          style={deleteButtonStyle}
-                        >
-                          Löschen
-                        </button>
+                        <div style={adminActionRowStyle}>
+                          <button
+                            onClick={() => {
+                              setEditingId(product.id);
+                              setNewProduct({
+                                title: product.title,
+                                description: product.description,
+                                price: product.price,
+                                image: product.image,
+                                file: null,
+                                extras_enabled: Boolean(product.extras_enabled),
+                                custom_extras: getProductExtras(product).map(
+                                  (extra) => ({
+                                    name: extra.name || "",
+                                    description: extra.description || "",
+                                    price: String(extra.price ?? "0"),
+                                  })
+                                ),
+                              });
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            style={editButtonStyle}
+                          >
+                            Bearbeiten
+                          </button>
+
+                          <button
+                            onClick={() => deleteProduct(product.id)}
+                            style={deleteButtonStyle}
+                          >
+                            Löschen
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             )}
@@ -686,106 +701,99 @@ Meine Frage dazu:
                   <div
                     style={{ display: "grid", gap: "16px", marginTop: "20px" }}
                   >
-                    {inquiries.map((inquiry) => (
-                      <div key={inquiry.id} style={inquiryCardStyle}>
-                        <div>
-                          <p style={inquiryMetaStyle}>
-                            {inquiry.created_at
-                              ? new Date(inquiry.created_at).toLocaleString(
-                                  "de-DE"
-                                )
-                              : "Kein Datum"}
-                          </p>
+                    {inquiries.map((inquiry) => {
+                      const selectedItems = Array.isArray(
+                        inquiry.selected_extras?.items
+                      )
+                        ? inquiry.selected_extras.items
+                        : [];
 
-                          <h3 style={{ margin: "0 0 8px", color: "#435749" }}>
-                            {inquiry.product_title}
-                          </h3>
-
-                          <p style={{ margin: "4px 0" }}>
-                            <strong>Name:</strong> {inquiry.name}
-                          </p>
-
-                          <p style={{ margin: "4px 0" }}>
-                            <strong>E-Mail:</strong>{" "}
-                            <a
-                              href={`mailto:${inquiry.email}`}
-                              style={{ color: "#556b5d" }}
-                            >
-                              {inquiry.email}
-                            </a>
-                          </p>
-
-                          {inquiry.estimated_total && (
-                            <p style={adminTotalStyle}>
-                              Geschätzter Gesamtpreis:{" "}
-                              <strong>{inquiry.estimated_total}</strong>
+                      return (
+                        <div key={inquiry.id} style={inquiryCardStyle}>
+                          <div>
+                            <p style={inquiryMetaStyle}>
+                              {inquiry.created_at
+                                ? new Date(inquiry.created_at).toLocaleString(
+                                    "de-DE"
+                                  )
+                                : "Kein Datum"}
                             </p>
-                          )}
 
-                          {inquiry.selected_extras &&
-                            Object.keys(inquiry.selected_extras).length > 0 && (
+                            <h3 style={{ margin: "0 0 8px", color: "#435749" }}>
+                              {inquiry.product_title}
+                            </h3>
+
+                            <p style={{ margin: "4px 0" }}>
+                              <strong>Name:</strong> {inquiry.name}
+                            </p>
+
+                            <p style={{ margin: "4px 0" }}>
+                              <strong>E-Mail:</strong>{" "}
+                              <a
+                                href={`mailto:${inquiry.email}`}
+                                style={{ color: "#556b5d" }}
+                              >
+                                {inquiry.email}
+                              </a>
+                            </p>
+
+                            {inquiry.estimated_total && (
+                              <p style={adminTotalStyle}>
+                                Geschätzter Gesamtpreis:{" "}
+                                <strong>{inquiry.estimated_total}</strong>
+                              </p>
+                            )}
+
+                            {selectedItems.length > 0 && (
                               <div style={adminSelectedExtrasStyle}>
                                 <strong>Ausgewählte Extras:</strong>
 
-                                {inquiry.selected_extras.personalization && (
-                                  <p>
-                                    Personalisierung: Ja (
-                                    {inquiry.selected_extras.personalizationText ||
-                                      "ohne Wunschtext"}
-                                    ) · +
-                                    {inquiry.selected_extras.personalizationPrice}
+                                {selectedItems.map((extra, index) => (
+                                  <p key={`${extra.name}-${index}`}>
+                                    {extra.name} · +{formatEuro(extra.price)}
+                                    {extra.note && (
+                                      <>
+                                        <br />
+                                        <small>Hinweis: {extra.note}</small>
+                                      </>
+                                    )}
                                   </p>
-                                )}
-
-                                {inquiry.selected_extras.keyband && (
-                                  <p>
-                                    Handgemachtes Schlüsselband: Ja · +
-                                    {inquiry.selected_extras.keybandPrice}
-                                  </p>
-                                )}
-
-                                {inquiry.selected_extras.nfc && (
-                                  <p>
-                                    NFC-Chip: Ja (
-                                    {inquiry.selected_extras.nfcTarget ||
-                                      "ohne Zielangabe"}
-                                    ) · +{inquiry.selected_extras.nfcPrice}
-                                  </p>
-                                )}
+                                ))}
                               </div>
                             )}
 
-                          <p style={inquiryMessageStyle}>{inquiry.message}</p>
+                            <p style={inquiryMessageStyle}>{inquiry.message}</p>
 
-                          <div style={adminActionRowStyle}>
-                            <a
-                              href={`mailto:${inquiry.email}?subject=${encodeURIComponent(
-                                `Antwort zu deiner Anfrage: ${inquiry.product_title}`
-                              )}&body=${encodeURIComponent(
-                                `Hallo ${inquiry.name},
+                            <div style={adminActionRowStyle}>
+                              <a
+                                href={`mailto:${inquiry.email}?subject=${encodeURIComponent(
+                                  `Antwort zu deiner Anfrage: ${inquiry.product_title}`
+                                )}&body=${encodeURIComponent(
+                                  `Hallo ${inquiry.name},
 
 vielen Dank für deine Anfrage zu "${inquiry.product_title}".
 
 `
-                              )}`}
-                              style={{
-                                ...editButtonStyle,
-                                textDecoration: "none",
-                              }}
-                            >
-                              Antworten
-                            </a>
+                                )}`}
+                                style={{
+                                  ...editButtonStyle,
+                                  textDecoration: "none",
+                                }}
+                              >
+                                Antworten
+                              </a>
 
-                            <button
-                              onClick={() => deleteInquiry(inquiry.id)}
-                              style={deleteButtonStyle}
-                            >
-                              Löschen
-                            </button>
+                              <button
+                                onClick={() => deleteInquiry(inquiry.id)}
+                                style={deleteButtonStyle}
+                              >
+                                Löschen
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </>
@@ -895,8 +903,36 @@ function InquiryModal({
   onClose,
   onSubmit,
 }) {
-  const extrasEnabled = Boolean(product.extras_enabled);
+  const customExtras = getProductExtras(product);
+  const extrasEnabled = customExtras.length > 0;
   const estimatedTotal = calculateEstimatedTotal(product, form);
+
+  function toggleExtra(index, checked) {
+    setForm({
+      ...form,
+      selectedExtras: {
+        ...(form.selectedExtras || {}),
+        [index]: {
+          ...(form.selectedExtras?.[index] || {}),
+          selected: checked,
+        },
+      },
+    });
+  }
+
+  function updateExtraNote(index, note) {
+    setForm({
+      ...form,
+      selectedExtras: {
+        ...(form.selectedExtras || {}),
+        [index]: {
+          ...(form.selectedExtras?.[index] || {}),
+          selected: true,
+          note,
+        },
+      },
+    });
+  }
 
   return (
     <div style={modalOverlayStyle}>
@@ -932,80 +968,38 @@ function InquiryModal({
                 Extras auswählen
               </h3>
 
-              <label style={extraOptionStyle}>
-                <input
-                  type="checkbox"
-                  checked={form.personalization}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      personalization: e.target.checked,
-                    })
-                  }
-                />
-                <span>
-                  Personalisierung +{formatEuro(product.personalization_price)}
-                </span>
-              </label>
+              {customExtras.map((extra, index) => {
+                const isSelected =
+                  form.selectedExtras?.[index]?.selected || false;
 
-              {form.personalization && (
-                <input
-                  placeholder="Wunschtext / Name"
-                  value={form.personalizationText}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      personalizationText: e.target.value,
-                    })
-                  }
-                  style={inputStyle}
-                />
-              )}
+                return (
+                  <div key={`${extra.name}-${index}`} style={extraChoiceCardStyle}>
+                    <label style={extraOptionStyle}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => toggleExtra(index, e.target.checked)}
+                      />
+                      <span>
+                        {extra.name} +{formatEuro(extra.price)}
+                      </span>
+                    </label>
 
-              <label style={extraOptionStyle}>
-                <input
-                  type="checkbox"
-                  checked={form.keyband}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      keyband: e.target.checked,
-                    })
-                  }
-                />
-                <span>
-                  Handgemachtes Schlüsselband +
-                  {formatEuro(product.keyband_price)}
-                </span>
-              </label>
+                    {extra.description && (
+                      <p style={extraDescriptionStyle}>{extra.description}</p>
+                    )}
 
-              <label style={extraOptionStyle}>
-                <input
-                  type="checkbox"
-                  checked={form.nfc}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nfc: e.target.checked,
-                    })
-                  }
-                />
-                <span>NFC-Chip +{formatEuro(product.nfc_price)}</span>
-              </label>
-
-              {form.nfc && (
-                <input
-                  placeholder="NFC-Ziel z.B. Instagram, Webseite, Linktree"
-                  value={form.nfcTarget}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      nfcTarget: e.target.value,
-                    })
-                  }
-                  style={inputStyle}
-                />
-              )}
+                    {isSelected && (
+                      <input
+                        placeholder="Hinweis oder Wunsch zu diesem Extra"
+                        value={form.selectedExtras?.[index]?.note || ""}
+                        onChange={(e) => updateExtraNote(index, e.target.value)}
+                        style={inputStyle}
+                      />
+                    )}
+                  </div>
+                );
+              })}
 
               <div style={totalBoxStyle}>
                 Voraussichtlicher Gesamtpreis:{" "}
@@ -1151,6 +1145,41 @@ function SiteFooter() {
   );
 }
 
+function getEmptyProduct() {
+  return {
+    title: "",
+    description: "",
+    price: "",
+    image: "",
+    file: null,
+    extras_enabled: false,
+    custom_extras: [],
+  };
+}
+
+function getEmptyInquiryForm() {
+  return {
+    name: "",
+    email: "",
+    message: "",
+    selectedExtras: {},
+  };
+}
+
+function getProductExtras(product) {
+  if (!product || !product.extras_enabled || !Array.isArray(product.custom_extras)) {
+    return [];
+  }
+
+  return product.custom_extras
+    .filter((extra) => String(extra.name || "").trim())
+    .map((extra) => ({
+      name: String(extra.name || "").trim(),
+      description: String(extra.description || "").trim(),
+      price: Number(extra.price || 0),
+    }));
+}
+
 function parsePrice(value) {
   if (value === null || value === undefined) return 0;
 
@@ -1175,34 +1204,36 @@ function formatEuro(value) {
 
 function calculateEstimatedTotal(product, form) {
   const basePrice = parsePrice(product.price);
+  const customExtras = getProductExtras(product);
   let total = basePrice;
 
-  if (product.extras_enabled) {
-    if (form.personalization) total += Number(product.personalization_price || 0);
-    if (form.keyband) total += Number(product.keyband_price || 0);
-    if (form.nfc) total += Number(product.nfc_price || 0);
-  }
+  customExtras.forEach((extra, index) => {
+    if (form.selectedExtras?.[index]?.selected) {
+      total += Number(extra.price || 0);
+    }
+  });
 
   return formatEuro(total);
 }
 
 function buildSelectedExtras(product, form) {
-  if (!product.extras_enabled) return {};
+  const customExtras = getProductExtras(product);
 
-  return {
-    personalization: form.personalization,
-    personalizationText: form.personalization ? form.personalizationText : "",
-    personalizationPrice: form.personalization
-      ? formatEuro(product.personalization_price)
-      : formatEuro(0),
+  const items = customExtras
+    .map((extra, index) => ({
+      ...extra,
+      note: form.selectedExtras?.[index]?.note || "",
+      selected: form.selectedExtras?.[index]?.selected || false,
+    }))
+    .filter((extra) => extra.selected)
+    .map((extra) => ({
+      name: extra.name,
+      description: extra.description,
+      price: Number(extra.price || 0),
+      note: extra.note,
+    }));
 
-    keyband: form.keyband,
-    keybandPrice: form.keyband ? formatEuro(product.keyband_price) : formatEuro(0),
-
-    nfc: form.nfc,
-    nfcTarget: form.nfc ? form.nfcTarget : "",
-    nfcPrice: form.nfc ? formatEuro(product.nfc_price) : formatEuro(0),
-  };
+  return { items };
 }
 
 const siteStyle = {
@@ -1380,6 +1411,28 @@ const extrasPreviewBoxStyle = {
   boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
 };
 
+const detailExtraLineStyle = {
+  background: "#f5f1e8",
+  borderRadius: "14px",
+  padding: "12px",
+  display: "flex",
+  justifyContent: "space-between",
+  gap: "12px",
+  flexWrap: "wrap",
+};
+
+const detailExtraDescriptionStyle = {
+  display: "block",
+  color: "#666",
+  marginTop: "4px",
+  lineHeight: "1.4",
+};
+
+const detailExtraPriceStyle = {
+  color: "#556b5d",
+  fontWeight: "bold",
+};
+
 const formStyle = {
   maxWidth: "700px",
   background: "white",
@@ -1410,6 +1463,17 @@ const buttonStyle = {
   fontSize: "16px",
 };
 
+const secondaryButtonStyle = {
+  background: "white",
+  color: "#556b5d",
+  border: "1px solid #cfd8cf",
+  padding: "12px 18px",
+  borderRadius: "14px",
+  cursor: "pointer",
+  fontSize: "15px",
+  marginTop: "14px",
+};
+
 const requestButtonStyle = {
   background: "#2f3e34",
   color: "white",
@@ -1426,6 +1490,16 @@ const deleteButtonStyle = {
   padding: "10px 14px",
   borderRadius: "12px",
   cursor: "pointer",
+};
+
+const smallDeleteButtonStyle = {
+  background: "#9b4d4d",
+  color: "white",
+  border: "none",
+  padding: "8px 10px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontSize: "13px",
 };
 
 const editButtonStyle = {
@@ -1534,25 +1608,26 @@ const adminExtrasBoxStyle = {
   margin: "16px 0",
 };
 
-const extraPriceFieldStyle = {
+const customExtraCardStyle = {
   background: "white",
   borderRadius: "16px",
   padding: "14px",
-  marginTop: "12px",
+};
+
+const customExtraHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "12px",
+  marginBottom: "10px",
 };
 
 const adminExtraLabelStyle = {
   display: "block",
   color: "#435749",
   fontWeight: "bold",
-  marginBottom: "4px",
-};
-
-const adminExtraHelpStyle = {
-  display: "block",
-  color: "#777",
-  lineHeight: "1.4",
-  marginBottom: "8px",
+  marginTop: "10px",
+  marginBottom: "-4px",
 };
 
 const checkboxRowStyle = {
@@ -1697,13 +1772,27 @@ const extrasBoxStyle = {
   marginBottom: "20px",
 };
 
+const extraChoiceCardStyle = {
+  background: "white",
+  borderRadius: "16px",
+  padding: "14px",
+  marginTop: "12px",
+};
+
 const extraOptionStyle = {
   display: "flex",
   gap: "10px",
   alignItems: "center",
-  margin: "12px 0",
+  margin: "0",
   color: "#435749",
   fontWeight: "bold",
+};
+
+const extraDescriptionStyle = {
+  color: "#666",
+  fontSize: "14px",
+  lineHeight: "1.5",
+  margin: "8px 0 0 26px",
 };
 
 const totalBoxStyle = {
