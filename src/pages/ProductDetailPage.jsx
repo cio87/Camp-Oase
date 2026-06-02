@@ -11,6 +11,7 @@ import {
   getProductExtras,
 } from "../utils/price";
 import {
+  detailActionRowStyle,
   detailDescriptionStyle,
   detailExtraDescriptionStyle,
   detailExtraLineStyle,
@@ -259,33 +260,34 @@ export default function ProductDetailPage() {
             <div style={{ marginTop: "28px" }}>
               <strong style={detailPriceStyle}>{product.price}</strong>
 
-              <br />
+              <div style={detailActionRowStyle}>
+                {productExtras.length > 0 && (
+                  <button
+                    onClick={() => openInquiryWithSelection(product)}
+                    disabled={!hasSelectedDetailExtras}
+                    style={{
+                      ...detailRequestButtonStyle,
+                      opacity: hasSelectedDetailExtras ? 1 : 0.65,
+                      cursor: hasSelectedDetailExtras
+                        ? "pointer"
+                        : "not-allowed",
+                    }}
+                  >
+                    Auswahl anfragen
+                  </button>
+                )}
 
-              {productExtras.length > 0 && (
                 <button
-                  onClick={() => openInquiryWithSelection(product)}
-                  disabled={!hasSelectedDetailExtras}
+                  onClick={() => openProductQuestion(product)}
                   style={{
                     ...detailRequestButtonStyle,
-                    opacity: hasSelectedDetailExtras ? 1 : 0.65,
-                    cursor: hasSelectedDetailExtras ? "pointer" : "not-allowed",
+                    background: "#d9c7a2",
+                    color: "#2f3e34",
                   }}
                 >
-                  Auswahl anfragen
+                  Frage zum Produkt stellen
                 </button>
-              )}
-
-              <button
-                onClick={() => openProductQuestion(product)}
-                style={{
-                  ...detailRequestButtonStyle,
-                  marginLeft: productExtras.length > 0 ? "12px" : 0,
-                  background: "#d9c7a2",
-                  color: "#2f3e34",
-                }}
-              >
-                Frage zum Produkt stellen
-              </button>
+              </div>
             </div>
           </div>
         </section>

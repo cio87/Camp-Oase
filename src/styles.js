@@ -170,13 +170,20 @@ export const detailPriceStyle = {
   color: "#556b5d",
 };
 
+export const detailActionRowStyle = {
+  display: "flex",
+  gap: "12px",
+  flexWrap: "wrap",
+  marginTop: "24px",
+};
+
 export const detailRequestButtonStyle = {
   background: "#2f3e34",
   color: "white",
   border: "none",
   borderRadius: "14px",
   cursor: "pointer",
-  marginTop: "24px",
+  flex: "1 1 220px",
   fontSize: "16px",
   padding: "14px 22px",
 };
