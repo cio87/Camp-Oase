@@ -36,6 +36,10 @@ function CampOaseApp({ admin = false, detail = false }) {
     price: "",
     image: "",
     file: null,
+    extras_enabled: false,
+    personalization_price: "0",
+    keyband_price: "0",
+    nfc_price: "0",
   });
 
   const [inquiryProduct, setInquiryProduct] = useState(null);
@@ -43,8 +47,14 @@ function CampOaseApp({ admin = false, detail = false }) {
     name: "",
     email: "",
     message: "",
+    personalization: false,
+    personalizationText: "",
+    keyband: false,
+    nfc: false,
+    nfcTarget: "",
   });
   const [inquiryStatus, setInquiryStatus] = useState("");
+  const [inquirySending, setInquirySending] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -146,29 +156,28 @@ function CampOaseApp({ admin = false, detail = false }) {
       return;
     }
 
+    const productPayload = {
+      title: newProduct.title,
+      description: newProduct.description,
+      price: newProduct.price,
+      image: imageUrl,
+      extras_enabled: newProduct.extras_enabled,
+      personalization_price: Number(newProduct.personalization_price || 0),
+      keyband_price: Number(newProduct.keyband_price || 0),
+      nfc_price: Number(newProduct.nfc_price || 0),
+    };
+
     let error;
 
     if (editingId) {
       const response = await supabase
         .from("products")
-        .update({
-          title: newProduct.title,
-          description: newProduct.description,
-          price: newProduct.price,
-          image: imageUrl,
-        })
+        .update(productPayload)
         .eq("id", editingId);
 
       error = response.error;
     } else {
-      const response = await supabase.from("products").insert([
-        {
-          title: newProduct.title,
-          description: newProduct.description,
-          price: newProduct.price,
-          image: imageUrl,
-        },
-      ]);
+      const response = await supabase.from("products").insert([productPayload]);
 
       error = response.error;
     }
@@ -178,16 +187,24 @@ function CampOaseApp({ admin = false, detail = false }) {
       return;
     }
 
+    resetProductForm();
+    await loadProducts();
+  }
+
+  function resetProductForm() {
     setNewProduct({
       title: "",
       description: "",
       price: "",
       image: "",
       file: null,
+      extras_enabled: false,
+      personalization_price: "0",
+      keyband_price: "0",
+      nfc_price: "0",
     });
 
     setEditingId(null);
-    await loadProducts();
   }
 
   async function deleteProduct(id) {
@@ -233,6 +250,11 @@ Preis: ${product.price}
 
 Meine Frage dazu:
 `,
+      personalization: false,
+      personalizationText: "",
+      keyband: false,
+      nfc: false,
+      nfcTarget: "",
     });
   }
 
@@ -243,7 +265,14 @@ Meine Frage dazu:
       name: "",
       email: "",
       message: "",
+      personalization: false,
+      personalizationText: "",
+      keyband: false,
+      nfc: false,
+      nfcTarget: "",
     });
+    setInquiryStatus("");
+    setInquirySending(false);
   }
 
   async function submitInquiry(e) {
@@ -251,26 +280,36 @@ Meine Frage dazu:
 
     if (!inquiryProduct) return;
 
+    setInquirySending(true);
+    setInquiryStatus("");
+
+    const selectedExtras = buildSelectedExtras(inquiryProduct, inquiryForm);
+    const estimatedTotal = calculateEstimatedTotal(inquiryProduct, inquiryForm);
+
     const { error } = await supabase.from("inquiries").insert([
       {
         product_title: inquiryProduct.title,
         name: inquiryForm.name,
         email: inquiryForm.email,
         message: inquiryForm.message,
+        selected_extras: selectedExtras,
+        estimated_total: estimatedTotal,
       },
     ]);
 
+    setInquirySending(false);
+
     if (error) {
-      setInquiryStatus("Die Anfrage konnte leider nicht gesendet werden.");
+      setInquiryStatus("error");
       console.log(error);
       return;
     }
 
-    setInquiryStatus("Danke! Deine Anfrage wurde erfolgreich gesendet.");
+    setInquiryStatus("success");
 
     setTimeout(() => {
       closeInquiry();
-    }, 1800);
+    }, 2200);
   }
 
   if (detail) {
@@ -301,6 +340,18 @@ Meine Frage dazu:
 
               <p style={detailDescriptionStyle}>{product.description}</p>
 
+              {product.extras_enabled && (
+                <div style={extrasPreviewBoxStyle}>
+                  <strong style={{ color: "#435749" }}>
+                    Für dieses Produkt sind Extras möglich:
+                  </strong>
+                  <p style={{ margin: "10px 0 0", color: "#666" }}>
+                    Personalisierung, handgemachtes Schlüsselband oder NFC-Chip
+                    können im Anfrageformular ausgewählt werden.
+                  </p>
+                </div>
+              )}
+
               <div style={{ marginTop: "28px" }}>
                 <strong style={detailPriceStyle}>{product.price}</strong>
 
@@ -325,6 +376,7 @@ Meine Frage dazu:
             form={inquiryForm}
             setForm={setInquiryForm}
             status={inquiryStatus}
+            sending={inquirySending}
             onClose={closeInquiry}
             onSubmit={submitInquiry}
           />
@@ -451,6 +503,99 @@ Meine Frage dazu:
                     style={inputStyle}
                   />
 
+                  <div style={adminExtrasBoxStyle}>
+                    <label style={checkboxRowStyle}>
+                      <input
+                        type="checkbox"
+                        checked={newProduct.extras_enabled}
+                        onChange={(e) =>
+                          setNewProduct({
+                            ...newProduct,
+                            extras_enabled: e.target.checked,
+                          })
+                        }
+                      />
+                      Extras für dieses Produkt aktivieren
+                    </label>
+
+                    {newProduct.extras_enabled && (
+                      <>
+                        <p style={adminHintStyle}>
+                          Trage hier die Aufpreise ein. Wenn ein Extra nichts
+                          kosten soll, einfach 0 eintragen.
+                        </p>
+
+                        <div style={extraPriceFieldStyle}>
+                          <label style={adminExtraLabelStyle}>
+                            Personalisierung
+                          </label>
+                          <small style={adminExtraHelpStyle}>
+                            Aufpreis für Wunschname, Wunschtext oder
+                            individuelle Beschriftung.
+                          </small>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="z. B. 2.00"
+                            value={newProduct.personalization_price}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                personalization_price: e.target.value,
+                              })
+                            }
+                            style={inputStyle}
+                          />
+                        </div>
+
+                        <div style={extraPriceFieldStyle}>
+                          <label style={adminExtraLabelStyle}>
+                            Handgemachtes Schlüsselband
+                          </label>
+                          <small style={adminExtraHelpStyle}>
+                            Aufpreis, wenn ein passendes handgemachtes
+                            Schlüsselband dazu soll.
+                          </small>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="z. B. 4.00"
+                            value={newProduct.keyband_price}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                keyband_price: e.target.value,
+                              })
+                            }
+                            style={inputStyle}
+                          />
+                        </div>
+
+                        <div style={extraPriceFieldStyle}>
+                          <label style={adminExtraLabelStyle}>NFC-Chip</label>
+                          <small style={adminExtraHelpStyle}>
+                            Aufpreis für integrierten NFC-Chip, z. B. für
+                            Linktree, Instagram, Webseite oder digitale
+                            Kontaktkarte.
+                          </small>
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="z. B. 5.00"
+                            value={newProduct.nfc_price}
+                            onChange={(e) =>
+                              setNewProduct({
+                                ...newProduct,
+                                nfc_price: e.target.value,
+                              })
+                            }
+                            style={inputStyle}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
                   <button style={buttonStyle}>
                     {editingId ? "Änderungen speichern" : "Produkt speichern"}
                   </button>
@@ -458,16 +603,7 @@ Meine Frage dazu:
                   {editingId && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setEditingId(null);
-                        setNewProduct({
-                          title: "",
-                          description: "",
-                          price: "",
-                          image: "",
-                          file: null,
-                        });
-                      }}
+                      onClick={resetProductForm}
                       style={{
                         ...buttonStyle,
                         background: "#9b4d4d",
@@ -491,6 +627,15 @@ Meine Frage dazu:
                         <p style={{ margin: "6px 0", color: "#666" }}>
                           {product.price}
                         </p>
+
+                        {product.extras_enabled && (
+                          <p style={adminProductExtrasInfoStyle}>
+                            Extras aktiv · Personalisierung +
+                            {formatEuro(product.personalization_price)} · Band +
+                            {formatEuro(product.keyband_price)} · NFC +
+                            {formatEuro(product.nfc_price)}
+                          </p>
+                        )}
                       </div>
 
                       <div style={adminActionRowStyle}>
@@ -503,6 +648,11 @@ Meine Frage dazu:
                               price: product.price,
                               image: product.image,
                               file: null,
+                              extras_enabled: Boolean(product.extras_enabled),
+                              personalization_price:
+                                product.personalization_price ?? "0",
+                              keyband_price: product.keyband_price ?? "0",
+                              nfc_price: product.nfc_price ?? "0",
                             });
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
@@ -564,6 +714,46 @@ Meine Frage dazu:
                               {inquiry.email}
                             </a>
                           </p>
+
+                          {inquiry.estimated_total && (
+                            <p style={adminTotalStyle}>
+                              Geschätzter Gesamtpreis:{" "}
+                              <strong>{inquiry.estimated_total}</strong>
+                            </p>
+                          )}
+
+                          {inquiry.selected_extras &&
+                            Object.keys(inquiry.selected_extras).length > 0 && (
+                              <div style={adminSelectedExtrasStyle}>
+                                <strong>Ausgewählte Extras:</strong>
+
+                                {inquiry.selected_extras.personalization && (
+                                  <p>
+                                    Personalisierung: Ja (
+                                    {inquiry.selected_extras.personalizationText ||
+                                      "ohne Wunschtext"}
+                                    ) · +
+                                    {inquiry.selected_extras.personalizationPrice}
+                                  </p>
+                                )}
+
+                                {inquiry.selected_extras.keyband && (
+                                  <p>
+                                    Handgemachtes Schlüsselband: Ja · +
+                                    {inquiry.selected_extras.keybandPrice}
+                                  </p>
+                                )}
+
+                                {inquiry.selected_extras.nfc && (
+                                  <p>
+                                    NFC-Chip: Ja (
+                                    {inquiry.selected_extras.nfcTarget ||
+                                      "ohne Zielangabe"}
+                                    ) · +{inquiry.selected_extras.nfcPrice}
+                                  </p>
+                                )}
+                              </div>
+                            )}
 
                           <p style={inquiryMessageStyle}>{inquiry.message}</p>
 
@@ -687,6 +877,7 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
           form={inquiryForm}
           setForm={setInquiryForm}
           status={inquiryStatus}
+          sending={inquirySending}
           onClose={closeInquiry}
           onSubmit={submitInquiry}
         />
@@ -695,7 +886,18 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
   );
 }
 
-function InquiryModal({ product, form, setForm, status, onClose, onSubmit }) {
+function InquiryModal({
+  product,
+  form,
+  setForm,
+  status,
+  sending,
+  onClose,
+  onSubmit,
+}) {
+  const extrasEnabled = Boolean(product.extras_enabled);
+  const estimatedTotal = calculateEstimatedTotal(product, form);
+
   return (
     <div style={modalOverlayStyle}>
       <div style={modalStyle}>
@@ -703,52 +905,165 @@ function InquiryModal({ product, form, setForm, status, onClose, onSubmit }) {
           ×
         </button>
 
-        <h2 style={{ marginTop: 0, color: "#435749" }}>Produkt anfragen</h2>
+        <div style={modalHeaderStyle}>
+          <span style={modalBadgeStyle}>Anfrage</span>
 
-        <p style={{ color: "#666", lineHeight: "1.6" }}>
-          Du interessierst dich für:
-          <br />
-          <strong style={{ color: "#556b5d" }}>{product.title}</strong>
-        </p>
+          <h2 style={modalTitleStyle}>Produkt unverbindlich anfragen</h2>
+
+          <p style={modalIntroStyle}>
+            Schreib uns kurz, was du wissen möchtest. Wir melden uns so schnell
+            wie möglich bei dir zurück.
+          </p>
+        </div>
+
+        <div style={modalProductBoxStyle}>
+          <div>
+            <span style={modalProductLabelStyle}>Ausgewähltes Produkt</span>
+            <strong style={modalProductTitleStyle}>{product.title}</strong>
+          </div>
+
+          <span style={modalProductPriceStyle}>{product.price}</span>
+        </div>
 
         <form onSubmit={onSubmit}>
+          {extrasEnabled && (
+            <div style={extrasBoxStyle}>
+              <h3 style={{ marginTop: 0, color: "#435749" }}>
+                Extras auswählen
+              </h3>
+
+              <label style={extraOptionStyle}>
+                <input
+                  type="checkbox"
+                  checked={form.personalization}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      personalization: e.target.checked,
+                    })
+                  }
+                />
+                <span>
+                  Personalisierung +{formatEuro(product.personalization_price)}
+                </span>
+              </label>
+
+              {form.personalization && (
+                <input
+                  placeholder="Wunschtext / Name"
+                  value={form.personalizationText}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      personalizationText: e.target.value,
+                    })
+                  }
+                  style={inputStyle}
+                />
+              )}
+
+              <label style={extraOptionStyle}>
+                <input
+                  type="checkbox"
+                  checked={form.keyband}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      keyband: e.target.checked,
+                    })
+                  }
+                />
+                <span>
+                  Handgemachtes Schlüsselband +
+                  {formatEuro(product.keyband_price)}
+                </span>
+              </label>
+
+              <label style={extraOptionStyle}>
+                <input
+                  type="checkbox"
+                  checked={form.nfc}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      nfc: e.target.checked,
+                    })
+                  }
+                />
+                <span>NFC-Chip +{formatEuro(product.nfc_price)}</span>
+              </label>
+
+              {form.nfc && (
+                <input
+                  placeholder="NFC-Ziel z.B. Instagram, Webseite, Linktree"
+                  value={form.nfcTarget}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      nfcTarget: e.target.value,
+                    })
+                  }
+                  style={inputStyle}
+                />
+              )}
+
+              <div style={totalBoxStyle}>
+                Voraussichtlicher Gesamtpreis:{" "}
+                <strong>{estimatedTotal}</strong>
+              </div>
+            </div>
+          )}
+
+          <label style={labelStyle}>Dein Name</label>
           <input
             required
-            placeholder="Dein Name"
+            placeholder="z. B. Max Mustermann"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             style={inputStyle}
           />
 
+          <label style={labelStyle}>Deine E-Mail-Adresse</label>
           <input
             required
             type="email"
-            placeholder="Deine E-Mail-Adresse"
+            placeholder="z. B. max@mail.de"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             style={inputStyle}
           />
 
+          <label style={labelStyle}>Deine Nachricht</label>
           <textarea
             required
-            placeholder="Deine Nachricht"
+            placeholder="Was möchtest du wissen?"
             value={form.message}
             onChange={(e) => setForm({ ...form, message: e.target.value })}
-            style={{ ...inputStyle, minHeight: "160px" }}
+            style={{ ...inputStyle, minHeight: "170px", lineHeight: "1.6" }}
           />
 
-          <button style={buttonStyle}>Anfrage absenden</button>
+          <p style={privacyHintStyle}>
+            Deine Anfrage wird nur zur Bearbeitung deiner Nachricht gespeichert.
+          </p>
 
-          {status && (
-            <p
-              style={{
-                marginTop: "16px",
-                color: "#556b5d",
-                fontWeight: "bold",
-              }}
-            >
-              {status}
-            </p>
+          <button
+            disabled={sending}
+            style={sending ? disabledButtonStyle : fullButtonStyle}
+          >
+            {sending ? "Wird gesendet..." : "Anfrage absenden"}
+          </button>
+
+          {status === "success" && (
+            <div style={successBoxStyle}>
+              Danke! Deine Anfrage wurde erfolgreich gesendet.
+            </div>
+          )}
+
+          {status === "error" && (
+            <div style={errorBoxStyle}>
+              Die Anfrage konnte leider nicht gesendet werden. Bitte versuche es
+              erneut.
+            </div>
           )}
         </form>
       </div>
@@ -834,6 +1149,60 @@ function SiteFooter() {
       </Link>
     </footer>
   );
+}
+
+function parsePrice(value) {
+  if (value === null || value === undefined) return 0;
+
+  const normalized = String(value)
+    .replace("€", "")
+    .replace(/\s/g, "")
+    .replace(",", ".");
+
+  const number = Number(normalized);
+
+  return Number.isNaN(number) ? 0 : number;
+}
+
+function formatEuro(value) {
+  const number = Number(value || 0);
+
+  return number.toLocaleString("de-DE", {
+    style: "currency",
+    currency: "EUR",
+  });
+}
+
+function calculateEstimatedTotal(product, form) {
+  const basePrice = parsePrice(product.price);
+  let total = basePrice;
+
+  if (product.extras_enabled) {
+    if (form.personalization) total += Number(product.personalization_price || 0);
+    if (form.keyband) total += Number(product.keyband_price || 0);
+    if (form.nfc) total += Number(product.nfc_price || 0);
+  }
+
+  return formatEuro(total);
+}
+
+function buildSelectedExtras(product, form) {
+  if (!product.extras_enabled) return {};
+
+  return {
+    personalization: form.personalization,
+    personalizationText: form.personalization ? form.personalizationText : "",
+    personalizationPrice: form.personalization
+      ? formatEuro(product.personalization_price)
+      : formatEuro(0),
+
+    keyband: form.keyband,
+    keybandPrice: form.keyband ? formatEuro(product.keyband_price) : formatEuro(0),
+
+    nfc: form.nfc,
+    nfcTarget: form.nfc ? form.nfcTarget : "",
+    nfcPrice: form.nfc ? formatEuro(product.nfc_price) : formatEuro(0),
+  };
 }
 
 const siteStyle = {
@@ -1003,6 +1372,14 @@ const detailRequestButtonStyle = {
   padding: "14px 22px",
 };
 
+const extrasPreviewBoxStyle = {
+  marginTop: "26px",
+  background: "white",
+  padding: "18px",
+  borderRadius: "18px",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+};
+
 const formStyle = {
   maxWidth: "700px",
   background: "white",
@@ -1150,6 +1527,73 @@ const emptyBoxStyle = {
   color: "#666",
 };
 
+const adminExtrasBoxStyle = {
+  background: "#f5f1e8",
+  borderRadius: "18px",
+  padding: "18px",
+  margin: "16px 0",
+};
+
+const extraPriceFieldStyle = {
+  background: "white",
+  borderRadius: "16px",
+  padding: "14px",
+  marginTop: "12px",
+};
+
+const adminExtraLabelStyle = {
+  display: "block",
+  color: "#435749",
+  fontWeight: "bold",
+  marginBottom: "4px",
+};
+
+const adminExtraHelpStyle = {
+  display: "block",
+  color: "#777",
+  lineHeight: "1.4",
+  marginBottom: "8px",
+};
+
+const checkboxRowStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  color: "#435749",
+  fontWeight: "bold",
+};
+
+const adminHintStyle = {
+  color: "#667",
+  fontSize: "14px",
+  lineHeight: "1.5",
+};
+
+const adminProductExtrasInfoStyle = {
+  margin: "8px 0 0",
+  color: "#7f8f82",
+  fontSize: "14px",
+  lineHeight: "1.5",
+};
+
+const adminTotalStyle = {
+  marginTop: "14px",
+  color: "#435749",
+  background: "#eef3ea",
+  display: "inline-block",
+  padding: "8px 12px",
+  borderRadius: "999px",
+};
+
+const adminSelectedExtrasStyle = {
+  marginTop: "14px",
+  padding: "14px",
+  borderRadius: "14px",
+  background: "#f5f1e8",
+  color: "#444",
+  lineHeight: "1.6",
+};
+
 const modalOverlayStyle = {
   position: "fixed",
   inset: 0,
@@ -1182,6 +1626,140 @@ const modalCloseButtonStyle = {
   fontSize: "34px",
   cursor: "pointer",
   color: "#556b5d",
+};
+
+const modalHeaderStyle = {
+  marginBottom: "22px",
+};
+
+const modalBadgeStyle = {
+  display: "inline-block",
+  background: "#f5f1e8",
+  color: "#556b5d",
+  padding: "7px 13px",
+  borderRadius: "999px",
+  fontSize: "13px",
+  fontWeight: "bold",
+  marginBottom: "14px",
+};
+
+const modalTitleStyle = {
+  margin: "0",
+  color: "#435749",
+  fontSize: "clamp(26px, 6vw, 34px)",
+  lineHeight: "1.15",
+};
+
+const modalIntroStyle = {
+  color: "#6b756d",
+  lineHeight: "1.6",
+  marginTop: "12px",
+};
+
+const modalProductBoxStyle = {
+  background: "linear-gradient(135deg, #f5f1e8, #eef3ea)",
+  border: "1px solid #e2ded3",
+  borderRadius: "20px",
+  padding: "18px",
+  marginBottom: "22px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "16px",
+  flexWrap: "wrap",
+};
+
+const modalProductLabelStyle = {
+  display: "block",
+  fontSize: "13px",
+  color: "#7f8f82",
+  marginBottom: "5px",
+};
+
+const modalProductTitleStyle = {
+  color: "#435749",
+  fontSize: "18px",
+};
+
+const modalProductPriceStyle = {
+  background: "white",
+  color: "#556b5d",
+  padding: "8px 12px",
+  borderRadius: "999px",
+  fontWeight: "bold",
+};
+
+const extrasBoxStyle = {
+  background: "#f5f1e8",
+  border: "1px solid #e2ded3",
+  borderRadius: "20px",
+  padding: "18px",
+  marginBottom: "20px",
+};
+
+const extraOptionStyle = {
+  display: "flex",
+  gap: "10px",
+  alignItems: "center",
+  margin: "12px 0",
+  color: "#435749",
+  fontWeight: "bold",
+};
+
+const totalBoxStyle = {
+  marginTop: "16px",
+  background: "white",
+  color: "#435749",
+  padding: "12px 14px",
+  borderRadius: "14px",
+};
+
+const labelStyle = {
+  display: "block",
+  color: "#435749",
+  fontWeight: "bold",
+  marginTop: "14px",
+  marginBottom: "-4px",
+};
+
+const privacyHintStyle = {
+  fontSize: "13px",
+  color: "#7f8f82",
+  lineHeight: "1.5",
+  marginTop: "4px",
+};
+
+const fullButtonStyle = {
+  ...buttonStyle,
+  width: "100%",
+  marginTop: "14px",
+  padding: "14px 18px",
+};
+
+const disabledButtonStyle = {
+  ...fullButtonStyle,
+  opacity: 0.65,
+  cursor: "not-allowed",
+};
+
+const successBoxStyle = {
+  marginTop: "16px",
+  background: "#eef5ee",
+  color: "#435749",
+  border: "1px solid #cddfcd",
+  padding: "14px",
+  borderRadius: "14px",
+  fontWeight: "bold",
+};
+
+const errorBoxStyle = {
+  marginTop: "16px",
+  background: "#f8eeee",
+  color: "#8a3d3d",
+  border: "1px solid #e2bcbc",
+  padding: "14px",
+  borderRadius: "14px",
+  fontWeight: "bold",
 };
 
 const footerStyle = {
