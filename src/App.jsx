@@ -13,6 +13,8 @@ export default function App() {
       <Route path="/" element={<CampOaseApp />} />
       <Route path="/admin" element={<CampOaseApp admin />} />
       <Route path="/produkt/:id" element={<CampOaseApp detail />} />
+      <Route path="/impressum" element={<LegalPage type="impressum" />} />
+      <Route path="/datenschutz" element={<LegalPage type="datenschutz" />} />
     </Routes>
   );
 }
@@ -202,19 +204,19 @@ function CampOaseApp({ admin = false, detail = false }) {
     await loadProducts();
   }
 
-async function deleteInquiry(id) {
-  const ok = confirm("Anfrage wirklich löschen?");
-  if (!ok) return;
+  async function deleteInquiry(id) {
+    const ok = confirm("Anfrage wirklich löschen?");
+    if (!ok) return;
 
-  const { error } = await supabase.from("inquiries").delete().eq("id", id);
+    const { error } = await supabase.from("inquiries").delete().eq("id", id);
 
-  if (error) {
-    alert("Anfrage konnte nicht gelöscht werden: " + error.message);
-    return;
+    if (error) {
+      alert("Anfrage konnte nicht gelöscht werden: " + error.message);
+      return;
+    }
+
+    await loadInquiries();
   }
-
-  await loadInquiries();
-}
 
   function openInquiry(product) {
     setInquiryProduct(product);
@@ -340,6 +342,8 @@ Meine Frage dazu:
               </div>
             </div>
           </section>
+
+          <SiteFooter />
         </div>
 
         {inquiryProduct && (
@@ -588,39 +592,38 @@ Meine Frage dazu:
                             </a>
                           </p>
 
-                          <p style={inquiryMessageStyle}>
-                            {inquiry.message}
-                          </p>
-<div
-  style={{
-    display: "flex",
-    gap: "10px",
-    marginTop: "16px",
-    flexWrap: "wrap",
-  }}
->
-  <a
-    href={`mailto:${inquiry.email}?subject=${encodeURIComponent(
-      `Antwort zu deiner Anfrage: ${inquiry.product_title}`
-    )}&body=${encodeURIComponent(
-      `Hallo ${inquiry.name},
+                          <p style={inquiryMessageStyle}>{inquiry.message}</p>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              marginTop: "16px",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <a
+                              href={`mailto:${inquiry.email}?subject=${encodeURIComponent(
+                                `Antwort zu deiner Anfrage: ${inquiry.product_title}`
+                              )}&body=${encodeURIComponent(
+                                `Hallo ${inquiry.name},
 
 vielen Dank für deine Anfrage zu "${inquiry.product_title}".
 
 `
-    )}`}
-    style={{ ...editButtonStyle, textDecoration: "none" }}
-  >
-    Antworten
-  </a>
+                              )}`}
+                              style={{ ...editButtonStyle, textDecoration: "none" }}
+                            >
+                              Antworten
+                            </a>
 
-  <button
-    onClick={() => deleteInquiry(inquiry.id)}
-    style={deleteButtonStyle}
-  >
-    Löschen
-  </button>
-</div>
+                            <button
+                              onClick={() => deleteInquiry(inquiry.id)}
+                              style={deleteButtonStyle}
+                            >
+                              Löschen
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -644,10 +647,6 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
               Camp Oase
             </strong>
           </div>
-
-          <Link to="/admin" style={adminButtonStyle}>
-            Admin
-          </Link>
         </header>
 
         <section style={heroStyle}>
@@ -734,6 +733,8 @@ vielen Dank für deine Anfrage zu "${inquiry.product_title}".
             </div>
           </div>
         </section>
+
+        <SiteFooter />
       </div>
 
       {inquiryProduct && (
@@ -808,6 +809,88 @@ function InquiryModal({ product, form, setForm, status, onClose, onSubmit }) {
         </form>
       </div>
     </div>
+  );
+}
+
+function LegalPage({ type }) {
+  const isImpressum = type === "impressum";
+
+  return (
+    <div style={siteStyle}>
+      <header style={headerStyle}>
+        <Link to="/" style={{ color: "#556b5d", textDecoration: "none" }}>
+          ← Zur Startseite
+        </Link>
+      </header>
+
+      <section style={{ padding: "60px 40px" }}>
+        <div style={legalContentStyle}>
+          <h1 style={{ color: "#435749", fontSize: "42px" }}>
+            {isImpressum ? "Impressum" : "Datenschutzerklärung"}
+          </h1>
+
+          {isImpressum ? (
+            <>
+              <p>
+                Dies ist ein Platzhalter für dein späteres Impressum.
+              </p>
+              <p>
+                Hier kommen später Angaben wie Name, Anschrift, Kontakt,
+                Verantwortliche Person und weitere gesetzlich erforderliche
+                Informationen hinein.
+              </p>
+              <p>
+                Bitte vor Veröffentlichung rechtlich prüfen und vollständig
+                ausfüllen.
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                Dies ist ein Platzhalter für deine spätere Datenschutzerklärung.
+              </p>
+              <p>
+                Hier erklären wir später, welche personenbezogenen Daten über
+                das Anfrageformular verarbeitet werden, wofür sie genutzt werden
+                und welche Rechte Besucher haben.
+              </p>
+              <p>
+                Bitte vor Veröffentlichung rechtlich prüfen und vollständig
+                ausfüllen.
+              </p>
+            </>
+          )}
+        </div>
+      </section>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer style={footerStyle}>
+      <span>© Camp Oase</span>
+
+      <span style={footerDotStyle}>·</span>
+
+      <Link to="/impressum" style={footerLinkStyle}>
+        Impressum
+      </Link>
+
+      <span style={footerDotStyle}>·</span>
+
+      <Link to="/datenschutz" style={footerLinkStyle}>
+        Datenschutz
+      </Link>
+
+      <span style={footerDotStyle}>·</span>
+
+      <Link to="/admin" style={footerLoginStyle}>
+        Login
+      </Link>
+    </footer>
   );
 }
 
@@ -918,15 +1001,6 @@ const buttonStyle = {
   borderRadius: "14px",
   cursor: "pointer",
   fontSize: "16px",
-};
-
-const adminButtonStyle = {
-  background: "#556b5d",
-  color: "white",
-  padding: "10px 18px",
-  borderRadius: "999px",
-  textDecoration: "none",
-  fontSize: "14px",
 };
 
 const requestButtonStyle = {
@@ -1063,4 +1137,39 @@ const modalCloseButtonStyle = {
   fontSize: "34px",
   cursor: "pointer",
   color: "#556b5d",
+};
+
+const footerStyle = {
+  padding: "28px 20px",
+  textAlign: "center",
+  color: "#7f8f82",
+  fontSize: "13px",
+};
+
+const footerDotStyle = {
+  margin: "0 8px",
+  color: "#a1a89f",
+};
+
+const footerLinkStyle = {
+  color: "#7f8f82",
+  textDecoration: "none",
+};
+
+const footerLoginStyle = {
+  color: "#9aa79b",
+  textDecoration: "none",
+  opacity: 0.65,
+  fontSize: "12px",
+};
+
+const legalContentStyle = {
+  maxWidth: "820px",
+  margin: "0 auto",
+  background: "white",
+  padding: "36px",
+  borderRadius: "24px",
+  boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+  lineHeight: "1.8",
+  color: "#555",
 };
