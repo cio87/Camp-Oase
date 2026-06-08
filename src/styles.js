@@ -172,54 +172,118 @@ export const productCardHintStyle = {
 };
 
 export const detailSectionStyle = {
-  padding: "clamp(32px, 6vw, 60px) clamp(18px, 5vw, 40px)",
+  padding: "clamp(28px, 6vw, 64px) clamp(18px, 5vw, 40px)",
+};
+
+export const detailLayoutStyle = {
+  width: "100%",
+  maxWidth: "1180px",
+  margin: "0 auto",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 390px), 1fr))",
+  gap: "clamp(22px, 5vw, 42px)",
+  alignItems: "start",
+};
+
+export const detailMediaPanelStyle = {
+  background: "linear-gradient(135deg, #ffffff, #f8f2e6)",
+  border: "1px solid #eadfcb",
+  borderRadius: "clamp(22px, 5vw, 34px)",
+  padding: "clamp(12px, 3vw, 18px)",
+  boxShadow: "0 18px 42px rgba(0,0,0,0.08)",
+};
+
+export const detailInfoPanelStyle = {
+  background: "rgba(255,255,255,0.82)",
+  border: "1px solid #e8dfcf",
+  borderRadius: "clamp(22px, 5vw, 30px)",
+  padding: "clamp(22px, 5vw, 34px)",
+  boxShadow: "0 16px 36px rgba(0,0,0,0.07)",
 };
 
 export const detailImageStyle = {
   width: "100%",
-  maxHeight: "min(520px, 70vh)",
+  maxHeight: "min(560px, 70vh)",
   objectFit: "contain",
   background: "#f5f1e8",
-  borderRadius: "clamp(20px, 5vw, 32px)",
-  boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
+  borderRadius: "clamp(18px, 4vw, 26px)",
+  display: "block",
 };
 
 export const detailTitleStyle = {
-  fontSize: "clamp(32px, 8vw, 48px)",
+  fontSize: "clamp(30px, 7vw, 46px)",
   color: "#435749",
   lineHeight: "1.1",
+  margin: "16px 0 0",
 };
 
 export const detailDescriptionStyle = {
   fontSize: "clamp(16px, 4vw, 18px)",
-  lineHeight: "1.9",
+  lineHeight: "1.75",
   color: "#5f5f5f",
-  maxWidth: "720px",
-  marginTop: "24px",
+  margin: "18px 0 0",
   whiteSpace: "pre-line",
 };
 
 export const availabilityNoticeStyle = {
   marginTop: "20px",
-  display: "inline-block",
-  background: "#fff6df",
+  display: "block",
+  background: "linear-gradient(135deg, #fff8e8, #f7ecd0)",
   color: "#6d5a2f",
   border: "1px solid #ead7a5",
-  padding: "12px 14px",
-  borderRadius: "14px",
+  padding: "14px 16px",
+  borderRadius: "18px",
   fontWeight: "bold",
+  lineHeight: "1.5",
 };
 
 export const detailPriceStyle = {
-  fontSize: "clamp(26px, 7vw, 32px)",
+  fontSize: "clamp(25px, 6vw, 34px)",
   color: "#556b5d",
+  lineHeight: "1.1",
+};
+
+export const detailPriceSummaryStyle = {
+  marginTop: "22px",
+  background: "#f5f1e8",
+  border: "1px solid #e4dac7",
+  borderRadius: "20px",
+  padding: "16px 18px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "14px",
+  flexWrap: "wrap",
+  color: "#7a7f75",
+  fontSize: "14px",
+  fontWeight: "bold",
+};
+
+export const detailTrustRowStyle = {
+  display: "flex",
+  gap: "8px",
+  flexWrap: "wrap",
+  marginTop: "20px",
+};
+
+export const detailTrustPillStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  width: "fit-content",
+  background: "#eef3ea",
+  color: "#556b5d",
+  border: "1px solid #d8e1d3",
+  borderRadius: "999px",
+  padding: "7px 11px",
+  fontSize: "13px",
+  fontWeight: "bold",
 };
 
 export const detailActionRowStyle = {
   display: "flex",
   gap: "12px",
   flexWrap: "wrap",
-  marginTop: "24px",
+  marginTop: "22px",
 };
 
 export const detailRequestButtonStyle = {
@@ -234,21 +298,50 @@ export const detailRequestButtonStyle = {
 };
 
 export const extrasPreviewBoxStyle = {
-  marginTop: "26px",
+  marginTop: "22px",
+  background: "#fbfaf6",
+  padding: "clamp(16px, 4vw, 20px)",
+  borderRadius: "22px",
+  border: "1px solid #e8dfcf",
+};
+
+export const detailExtraSectionHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "baseline",
+  gap: "10px",
+  flexWrap: "wrap",
+  color: "#435749",
+  fontWeight: "bold",
+};
+
+export const detailExtraGridStyle = {
+  marginTop: "14px",
+  display: "grid",
+  gap: "12px",
+};
+
+export const detailExtraChoiceCardStyle = {
   background: "white",
-  padding: "18px",
+  border: "1px solid #ece4d8",
   borderRadius: "18px",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+  padding: "14px",
+  boxShadow: "0 8px 18px rgba(0,0,0,0.04)",
+  transition: "border-color 160ms ease, box-shadow 160ms ease",
+};
+
+export const detailExtraCardSelectedStyle = {
+  borderColor: "#8da382",
+  boxShadow: "0 10px 22px rgba(85,107,93,0.13)",
 };
 
 export const detailExtraLineStyle = {
-  background: "#f5f1e8",
-  borderRadius: "14px",
-  padding: "12px",
+  background: "transparent",
   display: "flex",
   justifyContent: "space-between",
   gap: "12px",
   flexWrap: "wrap",
+  color: "#435749",
 };
 
 export const detailExtraDescriptionStyle = {
@@ -260,6 +353,22 @@ export const detailExtraDescriptionStyle = {
 
 export const detailExtraPriceStyle = {
   color: "#556b5d",
+  fontWeight: "bold",
+  whiteSpace: "nowrap",
+};
+
+export const detailTotalBoxStyle = {
+  marginTop: "16px",
+  background: "linear-gradient(135deg, #eef3ea, #f7f1e3)",
+  color: "#435749",
+  padding: "15px 16px",
+  borderRadius: "18px",
+  border: "1px solid #dbe4d4",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "12px",
+  flexWrap: "wrap",
   fontWeight: "bold",
 };
 

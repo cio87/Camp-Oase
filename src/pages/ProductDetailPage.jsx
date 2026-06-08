@@ -4,6 +4,7 @@ import InquiryModal from "../components/InquiryModal";
 import SiteFooter from "../components/SiteFooter";
 import { supabase } from "../supabaseClient";
 import {
+  getAvailabilityLabel,
   getProductAvailabilityNotice,
   isProductAvailable,
 } from "../utils/availability";
@@ -18,21 +19,30 @@ import {
   availabilityNoticeStyle,
   detailActionRowStyle,
   detailDescriptionStyle,
+  detailExtraCardSelectedStyle,
+  detailExtraChoiceCardStyle,
   detailExtraDescriptionStyle,
+  detailExtraGridStyle,
   detailExtraLineStyle,
   detailExtraPriceStyle,
+  detailExtraSectionHeaderStyle,
   detailImageStyle,
+  detailInfoPanelStyle,
+  detailLayoutStyle,
+  detailMediaPanelStyle,
   detailPriceStyle,
+  detailPriceSummaryStyle,
   detailRequestButtonStyle,
   detailSectionStyle,
   detailTitleStyle,
-  extraChoiceCardStyle,
+  detailTrustPillStyle,
+  detailTrustRowStyle,
+  detailTotalBoxStyle,
   extrasPreviewBoxStyle,
   headerStyle,
   inputStyle,
   pageStyle,
   siteStyle,
-  totalBoxStyle,
 } from "../styles";
 
 export default function ProductDetailPage() {
@@ -171,12 +181,15 @@ export default function ProductDetailPage() {
   const productExtras = getProductExtras(product);
   const productIsAvailable = isProductAvailable(product);
   const availabilityNotice = getProductAvailabilityNotice(product);
+  const availabilityLabel = getAvailabilityLabel(product);
   const detailEstimatedTotal = product
     ? calculateEstimatedTotal(product, { selectedExtras: selectedDetailExtras })
     : "";
   const hasSelectedDetailExtras = Object.values(selectedDetailExtras).some(
     (extra) => extra?.selected
   );
+  const selectionRequestDisabled =
+    !hasSelectedDetailExtras || !productIsAvailable;
 
   if (!product) {
     return <div style={pageStyle}>Produkt wird geladen...</div>;
@@ -192,100 +205,131 @@ export default function ProductDetailPage() {
         </header>
 
         <section style={detailSectionStyle}>
-          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-            <img src={product.image} alt={product.title} style={detailImageStyle} />
+          <div style={detailLayoutStyle}>
+            <div style={detailMediaPanelStyle}>
+              <img
+                src={product.image}
+                alt={product.title}
+                style={detailImageStyle}
+              />
+            </div>
 
-            <h1 style={detailTitleStyle}>{product.title}</h1>
+            <div style={detailInfoPanelStyle}>
+              <span style={detailTrustPillStyle}>{availabilityLabel}</span>
 
-            <p style={detailDescriptionStyle}>{product.description}</p>
+              <h1 style={detailTitleStyle}>{product.title}</h1>
 
-            {availabilityNotice && (
-              <div style={availabilityNoticeStyle}>{availabilityNotice}</div>
-            )}
+              <p style={detailDescriptionStyle}>{product.description}</p>
 
-            {productExtras.length > 0 && (
-              <div style={extrasPreviewBoxStyle}>
-                <strong style={{ color: "#435749" }}>
-                  Für dieses Produkt sind Extras möglich:
-                </strong>
+              <div style={detailTrustRowStyle}>
+                <span style={detailTrustPillStyle}>Unverbindliche Anfrage</span>
+                <span style={detailTrustPillStyle}>Handmade</span>
+                <span style={detailTrustPillStyle}>Persönlich anpassbar</span>
+              </div>
 
-                <div style={{ marginTop: "12px", display: "grid", gap: "10px" }}>
-                  {productExtras.map((extra, index) => {
-                    const isSelected =
-                      selectedDetailExtras[index]?.selected || false;
+              {availabilityNotice && (
+                <div style={availabilityNoticeStyle}>{availabilityNotice}</div>
+              )}
 
-                    return (
-                      <div key={extra.name + "-" + index} style={extraChoiceCardStyle}>
-                        <label
+              <div style={detailPriceSummaryStyle}>
+                <span>Preis</span>
+                <strong style={detailPriceStyle}>{product.price}</strong>
+              </div>
+
+              {productExtras.length > 0 && (
+                <div style={extrasPreviewBoxStyle}>
+                  <div style={detailExtraSectionHeaderStyle}>
+                    <span>Extras auswählen</span>
+                    <small>Optional und passend zum Produkt</small>
+                  </div>
+
+                  <div style={detailExtraGridStyle}>
+                    {productExtras.map((extra, index) => {
+                      const isSelected =
+                        selectedDetailExtras[index]?.selected || false;
+
+                      return (
+                        <div
+                          key={extra.name + "-" + index}
                           style={{
-                            ...detailExtraLineStyle,
-                            alignItems: "flex-start",
-                            cursor: "pointer",
+                            ...detailExtraChoiceCardStyle,
+                            ...(isSelected ? detailExtraCardSelectedStyle : {}),
+                            opacity: productIsAvailable ? 1 : 0.68,
                           }}
                         >
-                          <span style={{ display: "flex", gap: "10px" }}>
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              disabled={!productIsAvailable}
-                              onChange={(e) =>
-                                toggleDetailExtra(index, e.target.checked)
-                              }
-                            />
-                            <span>
-                              <strong>{extra.name}</strong>
-                              {extra.description && (
-                                <small style={detailExtraDescriptionStyle}>
-                                  {extra.description}
-                                </small>
-                              )}
+                          <label
+                            style={{
+                              ...detailExtraLineStyle,
+                              alignItems: "flex-start",
+                              cursor: productIsAvailable
+                                ? "pointer"
+                                : "not-allowed",
+                            }}
+                          >
+                            <span style={{ display: "flex", gap: "10px" }}>
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                disabled={!productIsAvailable}
+                                onChange={(e) =>
+                                  toggleDetailExtra(index, e.target.checked)
+                                }
+                              />
+                              <span>
+                                <strong>{extra.name}</strong>
+                                {extra.description && (
+                                  <small style={detailExtraDescriptionStyle}>
+                                    {extra.description}
+                                  </small>
+                                )}
+                              </span>
                             </span>
-                          </span>
 
-                          <span style={detailExtraPriceStyle}>
-                            +{formatEuro(extra.price)}
-                          </span>
-                        </label>
+                            <span style={detailExtraPriceStyle}>
+                              +{formatEuro(extra.price)}
+                            </span>
+                          </label>
 
-                        {isSelected && (
-                          <input
-                            placeholder="Hinweis zum Extra"
-                            value={selectedDetailExtras[index]?.note || ""}
-                            onChange={(e) =>
-                              updateDetailExtraNote(index, e.target.value)
-                            }
-                            style={inputStyle}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
+                          {isSelected && (
+                            <input
+                              placeholder="Hinweis zum Extra"
+                              value={selectedDetailExtras[index]?.note || ""}
+                              onChange={(e) =>
+                                updateDetailExtraNote(index, e.target.value)
+                              }
+                              style={inputStyle}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div style={detailTotalBoxStyle}>
+                    <span>Voraussichtlicher Gesamtpreis</span>
+                    <strong>{detailEstimatedTotal}</strong>
+                  </div>
                 </div>
-
-                <div style={totalBoxStyle}>
-                  Voraussichtlicher Gesamtpreis:{" "}
-                  <strong>{detailEstimatedTotal}</strong>
-                </div>
-              </div>
-            )}
-
-            <div style={{ marginTop: "28px" }}>
-              <strong style={detailPriceStyle}>{product.price}</strong>
+              )}
 
               <div style={detailActionRowStyle}>
                 {productExtras.length > 0 && (
                   <button
                     onClick={() => openInquiryWithSelection(product)}
-                    disabled={!hasSelectedDetailExtras || !productIsAvailable}
+                    disabled={selectionRequestDisabled}
                     style={{
                       ...detailRequestButtonStyle,
-                      opacity:
-                        hasSelectedDetailExtras && productIsAvailable
-                          ? 1
-                          : 0.65,
-                      cursor: hasSelectedDetailExtras && productIsAvailable
-                        ? "pointer"
-                        : "not-allowed",
+                      background: selectionRequestDisabled
+                        ? "#a7b0a8"
+                        : detailRequestButtonStyle.background,
+                      color: selectionRequestDisabled ? "#eef3ea" : "white",
+                      opacity: selectionRequestDisabled ? 0.72 : 1,
+                      cursor: selectionRequestDisabled
+                        ? "not-allowed"
+                        : "pointer",
+                      boxShadow: selectionRequestDisabled
+                        ? "none"
+                        : detailRequestButtonStyle.boxShadow,
                     }}
                   >
                     Auswahl anfragen
