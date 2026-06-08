@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { CART_UPDATED_EVENT, getCartItemCount } from "../utils/cart";
 import {
   brandTextStyle,
   headerNavLinkStyle,
@@ -8,6 +10,23 @@ import {
 } from "../styles";
 
 export default function PublicHeader() {
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    function updateCartCount() {
+      setCartCount(getCartItemCount());
+    }
+
+    updateCartCount();
+    window.addEventListener(CART_UPDATED_EVENT, updateCartCount);
+    window.addEventListener("storage", updateCartCount);
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, updateCartCount);
+      window.removeEventListener("storage", updateCartCount);
+    };
+  }, []);
+
   return (
     <header style={headerStyle}>
       <Link
@@ -33,6 +52,9 @@ export default function PublicHeader() {
         </Link>
         <Link to="/kontakt" style={headerNavLinkStyle}>
           Kontakt
+        </Link>
+        <Link to="/warenkorb" style={headerNavLinkStyle}>
+          Warenkorb{cartCount > 0 ? ` (${cartCount})` : ""}
         </Link>
       </nav>
     </header>

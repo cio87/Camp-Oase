@@ -8,6 +8,7 @@ import {
   getProductAvailabilityNotice,
   isProductAvailable,
 } from "../utils/availability";
+import { addProductToCart } from "../utils/cart";
 import { getProductBadges } from "../utils/productBadges";
 import {
   buildSelectedExtras,
@@ -58,6 +59,7 @@ export default function ProductDetailPage() {
   const [inquiryExtrasLocked, setInquiryExtrasLocked] = useState(false);
   const [inquiryMode, setInquiryMode] = useState("question");
   const [isDesktopDetailLayout, setIsDesktopDetailLayout] = useState(false);
+  const [cartStatus, setCartStatus] = useState("");
   const { id } = useParams();
 
   useEffect(() => {
@@ -153,6 +155,17 @@ export default function ProductDetailPage() {
     openInquiry(product, {}, false, "question");
   }
 
+  function addSelectionToCart(product) {
+    if (!productIsAvailable) return;
+
+    addProductToCart(product, selectedDetailExtras);
+    setCartStatus("Das Produkt wurde in den Warenkorb gelegt.");
+
+    setTimeout(() => {
+      setCartStatus("");
+    }, 2600);
+  }
+
   async function submitInquiry(e) {
     e.preventDefault();
 
@@ -208,8 +221,7 @@ export default function ProductDetailPage() {
   const hasSelectedDetailExtras = Object.values(selectedDetailExtras).some(
     (extra) => extra?.selected
   );
-  const selectionRequestDisabled =
-    !hasSelectedDetailExtras || !productIsAvailable;
+  const cartButtonDisabled = !productIsAvailable;
 
   if (!product) {
     return <div style={pageStyle}>Produkt wird geladen...</div>;
@@ -341,28 +353,24 @@ export default function ProductDetailPage() {
               )}
 
               <div style={detailActionRowStyle}>
-                {productExtras.length > 0 && (
-                  <button
-                    onClick={() => openInquiryWithSelection(product)}
-                    disabled={selectionRequestDisabled}
-                    style={{
-                      ...detailRequestButtonStyle,
-                      background: selectionRequestDisabled
-                        ? "#a7b0a8"
-                        : detailRequestButtonStyle.background,
-                      color: selectionRequestDisabled ? "#eef3ea" : "white",
-                      opacity: selectionRequestDisabled ? 0.72 : 1,
-                      cursor: selectionRequestDisabled
-                        ? "not-allowed"
-                        : "pointer",
-                      boxShadow: selectionRequestDisabled
-                        ? "none"
-                        : detailRequestButtonStyle.boxShadow,
-                    }}
-                  >
-                    Auswahl anfragen
-                  </button>
-                )}
+                <button
+                  onClick={() => addSelectionToCart(product)}
+                  disabled={cartButtonDisabled}
+                  style={{
+                    ...detailRequestButtonStyle,
+                    background: cartButtonDisabled
+                      ? "#a7b0a8"
+                      : detailRequestButtonStyle.background,
+                    color: cartButtonDisabled ? "#eef3ea" : "white",
+                    opacity: cartButtonDisabled ? 0.72 : 1,
+                    cursor: cartButtonDisabled ? "not-allowed" : "pointer",
+                    boxShadow: cartButtonDisabled
+                      ? "none"
+                      : detailRequestButtonStyle.boxShadow,
+                  }}
+                >
+                  In den Warenkorb
+                </button>
 
                 <button
                   onClick={() => openProductQuestion(product)}
@@ -375,6 +383,10 @@ export default function ProductDetailPage() {
                   Frage zum Produkt stellen
                 </button>
               </div>
+
+              {cartStatus && (
+                <div style={availabilityNoticeStyle}>{cartStatus}</div>
+              )}
             </div>
           </div>
         </section>

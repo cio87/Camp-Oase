@@ -474,6 +474,76 @@ export const detailTotalBoxStyle = {
   fontWeight: "bold",
 };
 
+export const cartPageStyle = {
+  width: "100%",
+  maxWidth: "1080px",
+  margin: "0 auto",
+};
+
+export const cartItemStyle = {
+  background: "rgba(255,255,255,0.86)",
+  border: "1px solid #e8dfcf",
+  borderRadius: "22px",
+  padding: "clamp(16px, 4vw, 22px)",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+  gap: "18px",
+  alignItems: "start",
+  boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
+};
+
+export const cartImageStyle = {
+  width: "100%",
+  maxWidth: "160px",
+  aspectRatio: "1 / 1",
+  objectFit: "contain",
+  background: "#f5f1e8",
+  borderRadius: "18px",
+};
+
+export const cartQuantityRowStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  flexWrap: "wrap",
+};
+
+export const cartQuantityButtonStyle = {
+  width: "40px",
+  height: "40px",
+  border: "1px solid #d8e1d3",
+  borderRadius: "12px",
+  background: "#eef3ea",
+  color: "#435749",
+  cursor: "pointer",
+  fontSize: "18px",
+  fontWeight: "bold",
+};
+
+export const cartSummaryStyle = {
+  marginTop: "18px",
+  background: "linear-gradient(135deg, #eef3ea, #f7f1e3)",
+  border: "1px solid #dbe4d4",
+  borderRadius: "22px",
+  padding: "clamp(18px, 4vw, 24px)",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "18px",
+  flexWrap: "wrap",
+  color: "#435749",
+};
+
+export const cartEmptyStyle = {
+  background: "rgba(255,255,255,0.86)",
+  border: "1px solid #e8dfcf",
+  borderRadius: "22px",
+  padding: "clamp(22px, 5vw, 32px)",
+  boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
+  color: "#5f665f",
+  lineHeight: "1.7",
+};
+
 export const formStyle = {
   width: "100%",
   maxWidth: "700px",
