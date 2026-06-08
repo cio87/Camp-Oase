@@ -138,6 +138,7 @@ export default function AdminPage() {
       description: newProduct.description,
       price: newProduct.price,
       image: imageUrl,
+      availability_status: newProduct.availability_status || "available",
       extras_enabled: newProduct.extras_enabled && cleanedExtras.length > 0,
       custom_extras: cleanedExtras,
     };
@@ -244,6 +245,7 @@ export default function AdminPage() {
       price: product.price,
       image: product.image,
       file: null,
+      availability_status: product.availability_status || "available",
       extras_enabled: Boolean(product.extras_enabled),
       custom_extras: getProductExtras(product).map((extra) => ({
         name: extra.name || "",

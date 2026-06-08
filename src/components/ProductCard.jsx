@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { getProductAvailabilityBadge } from "../utils/availability";
 import {
   priceRowStyle,
+  productAvailabilityBadgeStyle,
   productCardHintStyle,
   productCardStyle,
   productImageStyle,
@@ -12,6 +14,7 @@ import {
 
 export default function ProductCard({ product }) {
   const [isHovered, setIsHovered] = useState(false);
+  const availabilityBadge = getProductAvailabilityBadge(product);
 
   return (
     <Link
@@ -31,6 +34,10 @@ export default function ProductCard({ product }) {
       }}
     >
       <article>
+        {availabilityBadge && (
+          <span style={productAvailabilityBadgeStyle}>{availabilityBadge}</span>
+        )}
+
         <img src={product.image} alt={product.title} style={productImageStyle} />
 
         <div style={{ padding: "24px 24px 0" }}>

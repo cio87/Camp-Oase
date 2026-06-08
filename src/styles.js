@@ -85,6 +85,7 @@ export const productGridStyle = {
 };
 
 export const productCardStyle = {
+  position: "relative",
   display: "block",
   background: "white",
   borderRadius: "28px",
@@ -92,6 +93,20 @@ export const productCardStyle = {
   boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
   cursor: "pointer",
   transition: "transform 180ms ease, box-shadow 180ms ease",
+};
+
+export const productAvailabilityBadgeStyle = {
+  position: "absolute",
+  top: "14px",
+  left: "14px",
+  zIndex: 1,
+  background: "rgba(85, 107, 93, 0.92)",
+  color: "white",
+  padding: "7px 11px",
+  borderRadius: "999px",
+  fontSize: "13px",
+  fontWeight: "bold",
+  boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
 };
 
 export const productImageStyle = {
@@ -163,6 +178,17 @@ export const detailDescriptionStyle = {
   maxWidth: "720px",
   marginTop: "24px",
   whiteSpace: "pre-line",
+};
+
+export const availabilityNoticeStyle = {
+  marginTop: "20px",
+  display: "inline-block",
+  background: "#fff6df",
+  color: "#6d5a2f",
+  border: "1px solid #ead7a5",
+  padding: "12px 14px",
+  borderRadius: "14px",
+  fontWeight: "bold",
 };
 
 export const detailPriceStyle = {

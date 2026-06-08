@@ -1,5 +1,9 @@
 import { formatEuro, getProductExtras } from "../utils/price";
 import {
+  AVAILABILITY_OPTIONS,
+  getAvailabilityLabel,
+} from "../utils/availability";
+import {
   adminActionRowStyle,
   adminExtraLabelStyle,
   adminExtrasBoxStyle,
@@ -58,6 +62,24 @@ export default function AdminProducts({
           onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
           style={inputStyle}
         />
+
+        <label style={adminExtraLabelStyle}>Verfügbarkeit</label>
+        <select
+          value={newProduct.availability_status || "available"}
+          onChange={(e) =>
+            setNewProduct({
+              ...newProduct,
+              availability_status: e.target.value,
+            })
+          }
+          style={inputStyle}
+        >
+          {AVAILABILITY_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
 
         <input
           type="file"
@@ -165,6 +187,9 @@ export default function AdminProducts({
               <div>
                 <strong>{product.title}</strong>
                 <p style={{ margin: "6px 0", color: "#666" }}>{product.price}</p>
+                <p style={{ margin: "6px 0", color: "#7f8f82", fontSize: "14px" }}>
+                  Status: {getAvailabilityLabel(product)}
+                </p>
 
                 {extras.length > 0 && (
                   <p style={adminProductExtrasInfoStyle}>

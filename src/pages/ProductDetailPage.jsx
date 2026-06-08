@@ -4,6 +4,10 @@ import InquiryModal from "../components/InquiryModal";
 import SiteFooter from "../components/SiteFooter";
 import { supabase } from "../supabaseClient";
 import {
+  getProductAvailabilityNotice,
+  isProductAvailable,
+} from "../utils/availability";
+import {
   buildSelectedExtras,
   calculateEstimatedTotal,
   formatEuro,
@@ -11,6 +15,7 @@ import {
   getProductExtras,
 } from "../utils/price";
 import {
+  availabilityNoticeStyle,
   detailActionRowStyle,
   detailDescriptionStyle,
   detailExtraDescriptionStyle,
@@ -164,6 +169,8 @@ export default function ProductDetailPage() {
 
   const product = products.find((item) => String(item.id) === id);
   const productExtras = getProductExtras(product);
+  const productIsAvailable = isProductAvailable(product);
+  const availabilityNotice = getProductAvailabilityNotice(product);
   const detailEstimatedTotal = product
     ? calculateEstimatedTotal(product, { selectedExtras: selectedDetailExtras })
     : "";
@@ -192,6 +199,10 @@ export default function ProductDetailPage() {
 
             <p style={detailDescriptionStyle}>{product.description}</p>
 
+            {availabilityNotice && (
+              <div style={availabilityNoticeStyle}>{availabilityNotice}</div>
+            )}
+
             {productExtras.length > 0 && (
               <div style={extrasPreviewBoxStyle}>
                 <strong style={{ color: "#435749" }}>
@@ -216,6 +227,7 @@ export default function ProductDetailPage() {
                             <input
                               type="checkbox"
                               checked={isSelected}
+                              disabled={!productIsAvailable}
                               onChange={(e) =>
                                 toggleDetailExtra(index, e.target.checked)
                               }
@@ -264,11 +276,14 @@ export default function ProductDetailPage() {
                 {productExtras.length > 0 && (
                   <button
                     onClick={() => openInquiryWithSelection(product)}
-                    disabled={!hasSelectedDetailExtras}
+                    disabled={!hasSelectedDetailExtras || !productIsAvailable}
                     style={{
                       ...detailRequestButtonStyle,
-                      opacity: hasSelectedDetailExtras ? 1 : 0.65,
-                      cursor: hasSelectedDetailExtras
+                      opacity:
+                        hasSelectedDetailExtras && productIsAvailable
+                          ? 1
+                          : 0.65,
+                      cursor: hasSelectedDetailExtras && productIsAvailable
                         ? "pointer"
                         : "not-allowed",
                     }}

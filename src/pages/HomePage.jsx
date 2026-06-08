@@ -4,6 +4,7 @@ import InquiryModal from "../components/InquiryModal";
 import ProductCard from "../components/ProductCard";
 import SiteFooter from "../components/SiteFooter";
 import { getEmptyInquiryForm } from "../utils/price";
+import { isProductVisible } from "../utils/availability";
 import {
   badgeStyle,
   brandTextStyle,
@@ -122,7 +123,7 @@ export default function HomePage() {
             <h2 style={sectionTitleStyle}>Unsere Produkte</h2>
 
             <div style={productGridStyle}>
-              {products.map((product) => (
+              {products.filter(isProductVisible).map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
