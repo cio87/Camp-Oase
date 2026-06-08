@@ -30,6 +30,7 @@ import {
   detailInfoPanelStyle,
   detailLayoutStyle,
   detailMediaPanelStyle,
+  detailMediaStickyStyle,
   detailPriceStyle,
   detailPriceSummaryStyle,
   detailRequestButtonStyle,
@@ -54,6 +55,7 @@ export default function ProductDetailPage() {
   const [selectedDetailExtras, setSelectedDetailExtras] = useState({});
   const [inquiryExtrasLocked, setInquiryExtrasLocked] = useState(false);
   const [inquiryMode, setInquiryMode] = useState("question");
+  const [isDesktopDetailLayout, setIsDesktopDetailLayout] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
@@ -63,6 +65,21 @@ export default function ProductDetailPage() {
   useEffect(() => {
     setSelectedDetailExtras({});
   }, [id]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 900px)");
+
+    function updateDetailLayout() {
+      setIsDesktopDetailLayout(mediaQuery.matches);
+    }
+
+    updateDetailLayout();
+    mediaQuery.addEventListener("change", updateDetailLayout);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateDetailLayout);
+    };
+  }, []);
 
   async function loadProducts() {
     const { data, error } = await supabase
@@ -206,7 +223,12 @@ export default function ProductDetailPage() {
 
         <section style={detailSectionStyle}>
           <div style={detailLayoutStyle}>
-            <div style={detailMediaPanelStyle}>
+            <div
+              style={{
+                ...detailMediaPanelStyle,
+                ...(isDesktopDetailLayout ? detailMediaStickyStyle : {}),
+              }}
+            >
               <img
                 src={product.image}
                 alt={product.title}

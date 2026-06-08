@@ -193,6 +193,12 @@ export const detailMediaPanelStyle = {
   boxShadow: "0 18px 42px rgba(0,0,0,0.08)",
 };
 
+export const detailMediaStickyStyle = {
+  position: "sticky",
+  top: "110px",
+  alignSelf: "start",
+};
+
 export const detailInfoPanelStyle = {
   background: "rgba(255,255,255,0.82)",
   border: "1px solid #e8dfcf",
