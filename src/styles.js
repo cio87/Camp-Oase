@@ -87,6 +87,54 @@ export const heroTextStyle = {
   lineHeight: "1.6",
 };
 
+export const homeBrandSectionStyle = {
+  maxWidth: "1120px",
+  margin: "clamp(16px, 5vw, 38px) auto 0",
+  padding: "0 clamp(14px, 5vw, 32px)",
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+  gap: "clamp(10px, 3vw, 18px)",
+  alignItems: "stretch",
+};
+
+export const homeBrandIntroStyle = {
+  background: "linear-gradient(135deg, rgba(255,255,255,0.9), #f7efe0)",
+  border: "1px solid #e8dfcf",
+  borderRadius: "24px",
+  padding: "clamp(16px, 4vw, 28px)",
+  boxShadow: "0 12px 28px rgba(0,0,0,0.06)",
+};
+
+export const homeBrandTitleStyle = {
+  margin: "10px 0 0",
+  color: "#435749",
+  fontSize: "clamp(25px, 5vw, 34px)",
+  lineHeight: "1.15",
+};
+
+export const homeBrandTextStyle = {
+  margin: "clamp(8px, 2vw, 14px) 0 0",
+  color: "#5f665f",
+  lineHeight: "1.6",
+  fontSize: "clamp(15px, 3vw, 17px)",
+};
+
+export const homeBrandCardGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))",
+  gap: "clamp(8px, 2vw, 12px)",
+};
+
+export const homeBrandCardStyle = {
+  background: "rgba(255,255,255,0.82)",
+  border: "1px solid #e8dfcf",
+  borderRadius: "20px",
+  padding: "clamp(13px, 3vw, 18px)",
+  color: "#435749",
+  lineHeight: "1.45",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+};
+
 export const sectionStyle = {
   padding: "clamp(36px, 6vw, 60px) clamp(18px, 5vw, 40px)",
 };

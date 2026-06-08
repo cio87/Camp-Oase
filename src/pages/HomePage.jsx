@@ -8,6 +8,12 @@ import { isProductVisible } from "../utils/availability";
 import { getEmptyInquiryForm } from "../utils/price";
 import {
   badgeStyle,
+  homeBrandCardGridStyle,
+  homeBrandCardStyle,
+  homeBrandIntroStyle,
+  homeBrandSectionStyle,
+  homeBrandTextStyle,
+  homeBrandTitleStyle,
   heroStyle,
   heroTextStyle,
   heroTitleStyle,
@@ -105,6 +111,39 @@ export default function HomePage() {
             Liebevoll gestaltete Camping-Produkte, Deko und Zubehör für dein
             persönliches Zuhause auf Rädern.
           </p>
+        </section>
+
+        <section style={homeBrandSectionStyle}>
+          <div style={homeBrandIntroStyle}>
+            <p style={{ color: "#7f9b76", fontWeight: "bold", margin: 0 }}>
+              Kleine Dinge, die unterwegs Freude machen
+            </p>
+
+            <h2 style={homeBrandTitleStyle}>Mit Liebe gemacht für deine Oase</h2>
+
+            <p style={homeBrandTextStyle}>
+              Camp Oase steht für liebevoll gestaltete Camping-Produkte,
+              personalisierte Details und kleine Geschenkideen für Wohnwagen,
+              Wohnmobil und Vanlife.
+            </p>
+          </div>
+
+          <div style={homeBrandCardGridStyle}>
+            <div style={homeBrandCardStyle}>
+              <strong>Handmade & persönlich</strong>
+              <p>Viele Produkte entstehen mit Blick fürs Detail und einem warmen, handgemachten Gefühl.</p>
+            </div>
+
+            <div style={homeBrandCardStyle}>
+              <strong>Für Camper, Vanlife & Wohnwagen</strong>
+              <p>Kleine Lieblingsstücke für unterwegs, den Stellplatz oder als Geschenk für Campingmenschen.</p>
+            </div>
+
+            <div style={homeBrandCardStyle}>
+              <strong>Extras nach Wunsch</strong>
+              <p>Personalisierungen und passende Ergänzungen können direkt auf der Produktseite angefragt werden.</p>
+            </div>
+          </div>
         </section>
 
         <section id="produkte" style={sectionStyle}>
