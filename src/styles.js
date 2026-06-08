@@ -566,6 +566,32 @@ export const adminExtrasBoxStyle = {
   margin: "16px 0",
 };
 
+export const adminImagePreviewBoxStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "14px",
+  background: "#f5f1e8",
+  borderRadius: "16px",
+  padding: "12px",
+  margin: "12px 0",
+  flexWrap: "wrap",
+};
+
+export const adminImagePreviewImageStyle = {
+  width: "92px",
+  height: "72px",
+  objectFit: "cover",
+  borderRadius: "12px",
+  background: "white",
+};
+
+export const adminImagePreviewTextStyle = {
+  margin: "6px 0 10px",
+  color: "#667",
+  fontSize: "14px",
+  lineHeight: "1.5",
+};
+
 export const customExtraCardStyle = {
   background: "white",
   borderRadius: "16px",

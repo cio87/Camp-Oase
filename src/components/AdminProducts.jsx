@@ -8,6 +8,9 @@ import {
   adminExtraLabelStyle,
   adminExtrasBoxStyle,
   adminHintStyle,
+  adminImagePreviewBoxStyle,
+  adminImagePreviewImageStyle,
+  adminImagePreviewTextStyle,
   adminProductExtrasInfoStyle,
   adminProductStyle,
   buttonStyle,
@@ -80,6 +83,29 @@ export default function AdminProducts({
             </option>
           ))}
         </select>
+
+        {editingId && newProduct.image && (
+          <div style={adminImagePreviewBoxStyle}>
+            <img
+              src={newProduct.image}
+              alt={newProduct.title || "Aktuelles Produktbild"}
+              style={adminImagePreviewImageStyle}
+            />
+            <div>
+              <strong>Aktuelles Produktbild</strong>
+              <p style={adminImagePreviewTextStyle}>
+                Wenn du eine neue Datei auswÃ¤hlst, wird dieses Bild beim
+                Speichern ersetzt.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {newProduct.file && (
+          <p style={adminImagePreviewTextStyle}>
+            Neue Datei ausgewÃ¤hlt: <strong>{newProduct.file.name}</strong>
+          </p>
+        )}
 
         <input
           type="file"
