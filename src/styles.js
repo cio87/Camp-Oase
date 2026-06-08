@@ -975,3 +975,13 @@ export const aboutNoteStyle = {
   fontWeight: "bold",
 };
 
+export const contactInfoStyle = {
+  marginTop: "22px",
+  background: "rgba(255,255,255,0.86)",
+  border: "1px solid #e8dfcf",
+  borderRadius: "20px",
+  padding: "18px 20px",
+  color: "#435749",
+  lineHeight: "1.7",
+};
+
