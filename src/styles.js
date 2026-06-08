@@ -154,10 +154,11 @@ export const productGridStyle = {
 export const productCardStyle = {
   position: "relative",
   display: "block",
-  background: "white",
+  background: "linear-gradient(180deg, #ffffff 0%, #fbfaf6 100%)",
+  border: "1px solid #e8dfcf",
   borderRadius: "28px",
   overflow: "hidden",
-  boxShadow: "0 14px 35px rgba(0,0,0,0.08)",
+  boxShadow: "0 14px 34px rgba(0,0,0,0.075)",
   cursor: "pointer",
   transition: "transform 180ms ease, box-shadow 180ms ease",
 };
@@ -167,9 +168,10 @@ export const productAvailabilityBadgeStyle = {
   top: "14px",
   left: "14px",
   zIndex: 1,
-  background: "rgba(85, 107, 93, 0.92)",
-  color: "white",
-  padding: "7px 11px",
+  background: "rgba(255, 248, 232, 0.94)",
+  color: "#6d5a2f",
+  border: "1px solid #ead7a5",
+  padding: "7px 12px",
   borderRadius: "999px",
   fontSize: "13px",
   fontWeight: "bold",
@@ -180,12 +182,38 @@ export const productImageStyle = {
   width: "100%",
   height: "clamp(200px, 55vw, 240px)",
   objectFit: "contain",
-  background: "#f5f1e8",
+  background: "linear-gradient(135deg, #f5f1e8, #f8f4eb)",
+};
+
+export const productCardContentStyle = {
+  padding: "22px 24px 0",
+};
+
+export const productCardMetaRowStyle = {
+  minHeight: "30px",
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "8px",
+  flexWrap: "wrap",
+  marginBottom: "8px",
+};
+
+export const productExtrasBadgeStyle = {
+  display: "inline-block",
+  background: "#eef3ea",
+  color: "#556b5d",
+  border: "1px solid #d8e1d3",
+  padding: "6px 10px",
+  borderRadius: "999px",
+  fontSize: "12px",
+  fontWeight: "bold",
 };
 
 export const productTitleStyle = {
   fontSize: "clamp(21px, 5vw, 24px)",
   margin: "0 0 10px",
+  color: "#435749",
+  lineHeight: "1.2",
 };
 
 export const productPreviewTextStyle = {
@@ -199,7 +227,11 @@ export const productPreviewTextStyle = {
 };
 
 export const priceRowStyle = {
-  marginTop: "22px",
+  marginTop: "20px",
+  background: "#f5f1e8",
+  border: "1px solid #e4dac7",
+  borderRadius: "18px",
+  padding: "12px 14px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -213,10 +245,11 @@ export const productPriceStyle = {
 };
 
 export const productCardHintStyle = {
-  color: "#7f9b76",
+  color: "#556b5d",
   fontSize: "14px",
   fontWeight: "bold",
   letterSpacing: "0.01em",
+  whiteSpace: "nowrap",
 };
 
 export const detailSectionStyle = {

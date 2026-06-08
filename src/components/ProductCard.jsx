@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getProductAvailabilityBadge } from "../utils/availability";
+import { getProductExtras } from "../utils/price";
 import {
   priceRowStyle,
   productAvailabilityBadgeStyle,
+  productCardContentStyle,
   productCardHintStyle,
+  productCardMetaRowStyle,
   productCardStyle,
+  productExtrasBadgeStyle,
   productImageStyle,
   productPreviewTextStyle,
   productPriceStyle,
@@ -15,6 +19,7 @@ import {
 export default function ProductCard({ product }) {
   const [isHovered, setIsHovered] = useState(false);
   const availabilityBadge = getProductAvailabilityBadge(product);
+  const hasExtras = getProductExtras(product).length > 0;
 
   return (
     <Link
@@ -40,21 +45,26 @@ export default function ProductCard({ product }) {
 
         <img src={product.image} alt={product.title} style={productImageStyle} />
 
-        <div style={{ padding: "24px 24px 0" }}>
+        <div style={productCardContentStyle}>
+          <div style={productCardMetaRowStyle}>
+            {hasExtras && (
+              <span style={productExtrasBadgeStyle}>Extras möglich</span>
+            )}
+          </div>
+
           <h3 style={productTitleStyle}>{product.title}</h3>
 
           <p style={productPreviewTextStyle}>{product.description}</p>
         </div>
 
-      <div style={{ padding: "0 24px 24px" }}>
-        <div style={priceRowStyle}>
-          <strong style={productPriceStyle}>{product.price}</strong>
+        <div style={{ padding: "0 24px 24px" }}>
+          <div style={priceRowStyle}>
+            <strong style={productPriceStyle}>{product.price}</strong>
 
-          <span style={productCardHintStyle}>Details ansehen →</span>
+            <span style={productCardHintStyle}>Details ansehen →</span>
+          </div>
         </div>
-      </div>
       </article>
     </Link>
   );
 }
-
