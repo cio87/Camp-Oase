@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
 import InquiryModal from "../components/InquiryModal";
 import ProductCard from "../components/ProductCard";
+import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
-import { getEmptyInquiryForm } from "../utils/price";
+import { supabase } from "../supabaseClient";
 import { isProductVisible } from "../utils/availability";
+import { getEmptyInquiryForm } from "../utils/price";
 import {
   badgeStyle,
-  brandTextStyle,
-  headerStyle,
   heroStyle,
   heroTextStyle,
   heroTitleStyle,
-  logoStyle,
   productGridStyle,
   sectionStyle,
   sectionTitleStyle,
@@ -96,12 +94,7 @@ export default function HomePage() {
   return (
     <>
       <div style={siteStyle}>
-        <header style={headerStyle}>
-          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
-            <strong style={brandTextStyle}>Camp Oase</strong>
-          </div>
-        </header>
+        <PublicHeader />
 
         <section style={heroStyle}>
           <p style={badgeStyle}>Camping • Caravan • Handmade</p>
@@ -114,7 +107,7 @@ export default function HomePage() {
           </p>
         </section>
 
-        <section style={sectionStyle}>
+        <section id="produkte" style={sectionStyle}>
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
             <p style={{ color: "#7f9b76", fontWeight: "bold" }}>
               Produktübersicht
@@ -149,4 +142,3 @@ export default function HomePage() {
     </>
   );
 }
-

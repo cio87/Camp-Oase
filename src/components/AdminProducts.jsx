@@ -7,6 +7,7 @@ import {
   adminActionRowStyle,
   adminExtraLabelStyle,
   adminExtrasBoxStyle,
+  adminAvailabilityBadgeStyle,
   adminHintStyle,
   adminImagePreviewBoxStyle,
   adminImagePreviewImageStyle,
@@ -213,9 +214,9 @@ export default function AdminProducts({
               <div>
                 <strong>{product.title}</strong>
                 <p style={{ margin: "6px 0", color: "#666" }}>{product.price}</p>
-                <p style={{ margin: "6px 0", color: "#7f8f82", fontSize: "14px" }}>
-                  Status: {getAvailabilityLabel(product)}
-                </p>
+                <span style={adminAvailabilityBadgeStyle}>
+                  {getAvailabilityLabel(product)}
+                </span>
 
                 {extras.length > 0 && (
                   <p style={adminProductExtrasInfoStyle}>

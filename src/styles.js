@@ -21,6 +21,8 @@ export const headerStyle = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
+  gap: "16px",
+  flexWrap: "wrap",
   background: "rgba(255,255,255,0.75)",
   backdropFilter: "blur(10px)",
 };
@@ -35,6 +37,23 @@ export const logoStyle = {
 export const brandTextStyle = {
   fontSize: "clamp(22px, 5vw, 26px)",
   color: "#556b5d",
+};
+
+export const headerNavStyle = {
+  display: "flex",
+  gap: "8px",
+  flexWrap: "wrap",
+  justifyContent: "flex-end",
+};
+
+export const headerNavLinkStyle = {
+  color: "#556b5d",
+  textDecoration: "none",
+  fontSize: "14px",
+  fontWeight: "bold",
+  padding: "8px 10px",
+  borderRadius: "999px",
+  background: "rgba(255,255,255,0.55)",
 };
 
 export const heroStyle = {
@@ -375,6 +394,17 @@ export const adminProductStyle = {
   gap: "16px",
   flexWrap: "wrap",
   boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+};
+
+export const adminAvailabilityBadgeStyle = {
+  display: "inline-block",
+  marginTop: "4px",
+  padding: "5px 10px",
+  borderRadius: "999px",
+  background: "#eef3ea",
+  color: "#435749",
+  fontSize: "13px",
+  fontWeight: "bold",
 };
 
 export const adminActionRowStyle = {

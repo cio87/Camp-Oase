@@ -1,8 +1,8 @@
 export const AVAILABILITY_OPTIONS = [
   { value: "available", label: "Verfügbar" },
   { value: "sold_out", label: "Ausverkauft" },
-  { value: "coming_soon", label: "Bald wieder verfügbar" },
-  { value: "hidden", label: "Ausblenden" },
+  { value: "coming_soon", label: "Bald verfügbar" },
+  { value: "hidden", label: "Ausgeblendet" },
 ];
 
 export function getAvailabilityStatus(product) {
