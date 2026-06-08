@@ -3,6 +3,7 @@ import {
   AVAILABILITY_OPTIONS,
   getAvailabilityLabel,
 } from "../utils/availability";
+import { getProductBadges, PRODUCT_BADGE_OPTIONS } from "../utils/productBadges";
 import {
   adminActionRowStyle,
   adminExtraLabelStyle,
@@ -39,6 +40,18 @@ export default function AdminProducts({
   onEditProduct,
   onDeleteProduct,
 }) {
+  const selectedProductBadges = Array.isArray(newProduct.product_badges)
+    ? newProduct.product_badges
+    : [];
+
+  function toggleProductBadge(value, checked) {
+    const nextBadges = checked
+      ? [...new Set([...selectedProductBadges, value])]
+      : selectedProductBadges.filter((badge) => badge !== value);
+
+    setNewProduct({ ...newProduct, product_badges: nextBadges });
+  }
+
   return (
     <>
       <form onSubmit={onSubmit} style={formStyle}>
@@ -84,6 +97,29 @@ export default function AdminProducts({
             </option>
           ))}
         </select>
+
+        <div style={adminExtrasBoxStyle}>
+          <strong style={{ color: "#435749" }}>Produkt-Hinweise</strong>
+          <p style={adminHintStyle}>
+            Diese Hinweise erscheinen dezent auf der Produktkarte und bei der
+            Produktdetailseite. Sie sind unabhÃ¤ngig von den Extras.
+          </p>
+
+          <div style={{ display: "grid", gap: "10px" }}>
+            {PRODUCT_BADGE_OPTIONS.map((badge) => (
+              <label key={badge.value} style={checkboxRowStyle}>
+                <input
+                  type="checkbox"
+                  checked={selectedProductBadges.includes(badge.value)}
+                  onChange={(e) =>
+                    toggleProductBadge(badge.value, e.target.checked)
+                  }
+                />
+                {badge.label}
+              </label>
+            ))}
+          </div>
+        </div>
 
         {editingId && newProduct.image && (
           <div style={adminImagePreviewBoxStyle}>
@@ -208,6 +244,7 @@ export default function AdminProducts({
       <div style={{ display: "grid", gap: "16px", marginTop: "20px" }}>
         {products.map((product) => {
           const extras = getProductExtras(product);
+          const productBadges = getProductBadges(product);
 
           return (
             <div key={product.id} style={adminProductStyle}>
@@ -217,6 +254,13 @@ export default function AdminProducts({
                 <span style={adminAvailabilityBadgeStyle}>
                   {getAvailabilityLabel(product)}
                 </span>
+
+                {productBadges.length > 0 && (
+                  <p style={adminProductExtrasInfoStyle}>
+                    Hinweise aktiv Â·{" "}
+                    {productBadges.map((badge) => badge.label).join(" Â· ")}
+                  </p>
+                )}
 
                 {extras.length > 0 && (
                   <p style={adminProductExtrasInfoStyle}>

@@ -8,6 +8,7 @@ import {
   getProductAvailabilityNotice,
   isProductAvailable,
 } from "../utils/availability";
+import { getProductBadges } from "../utils/productBadges";
 import {
   buildSelectedExtras,
   calculateEstimatedTotal,
@@ -196,6 +197,7 @@ export default function ProductDetailPage() {
 
   const product = products.find((item) => String(item.id) === id);
   const productExtras = getProductExtras(product);
+  const productBadges = getProductBadges(product);
   const productIsAvailable = isProductAvailable(product);
   const availabilityNotice = getProductAvailabilityNotice(product);
   const availabilityLabel = getAvailabilityLabel(product);
@@ -245,8 +247,11 @@ export default function ProductDetailPage() {
 
               <div style={detailTrustRowStyle}>
                 <span style={detailTrustPillStyle}>Unverbindliche Anfrage</span>
-                <span style={detailTrustPillStyle}>Handmade</span>
-                <span style={detailTrustPillStyle}>Persönlich anpassbar</span>
+                {productBadges.map((badge) => (
+                  <span key={badge.value} style={detailTrustPillStyle}>
+                    {badge.label}
+                  </span>
+                ))}
               </div>
 
               {availabilityNotice && (

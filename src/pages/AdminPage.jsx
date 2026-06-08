@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AdminInquiries from "../components/AdminInquiries";
 import AdminProducts from "../components/AdminProducts";
 import { supabase } from "../supabaseClient";
+import { getProductBadgeValues } from "../utils/productBadges";
 import { getEmptyProduct, getProductExtras } from "../utils/price";
 import {
   adminShellStyle,
@@ -139,6 +140,7 @@ export default function AdminPage() {
       price: newProduct.price,
       image: imageUrl,
       availability_status: newProduct.availability_status || "available",
+      product_badges: getProductBadgeValues(newProduct),
       extras_enabled: newProduct.extras_enabled && cleanedExtras.length > 0,
       custom_extras: cleanedExtras,
     };
@@ -246,6 +248,7 @@ export default function AdminPage() {
       image: product.image,
       file: null,
       availability_status: product.availability_status || "available",
+      product_badges: getProductBadgeValues(product),
       extras_enabled: Boolean(product.extras_enabled),
       custom_extras: getProductExtras(product).map((extra) => ({
         name: extra.name || "",

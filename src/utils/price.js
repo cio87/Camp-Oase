@@ -6,6 +6,7 @@ export function getEmptyProduct() {
     image: "",
     file: null,
     availability_status: "available",
+    product_badges: [],
     extras_enabled: false,
     custom_extras: [],
   };

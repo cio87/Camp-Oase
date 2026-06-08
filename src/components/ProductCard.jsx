@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getProductAvailabilityBadge } from "../utils/availability";
+import { getProductBadges } from "../utils/productBadges";
 import { getProductExtras } from "../utils/price";
 import {
   priceRowStyle,
@@ -20,6 +21,7 @@ export default function ProductCard({ product }) {
   const [isHovered, setIsHovered] = useState(false);
   const availabilityBadge = getProductAvailabilityBadge(product);
   const hasExtras = getProductExtras(product).length > 0;
+  const productBadges = getProductBadges(product);
 
   return (
     <Link
@@ -47,6 +49,12 @@ export default function ProductCard({ product }) {
 
         <div style={productCardContentStyle}>
           <div style={productCardMetaRowStyle}>
+            {productBadges.map((badge) => (
+              <span key={badge.value} style={productExtrasBadgeStyle}>
+                {badge.label}
+              </span>
+            ))}
+
             {hasExtras && (
               <span style={productExtrasBadgeStyle}>Extras möglich</span>
             )}
