@@ -6,7 +6,7 @@ import SiteFooter from "../components/SiteFooter";
 import { supabase } from "../supabaseClient";
 import {
   buildCartMessage,
-  clearCart,
+  buildCartSelectedExtras,
   getCartItems,
   getCartSubtotal,
   removeCartItem,
@@ -23,6 +23,8 @@ import {
   cartQuantityRowStyle,
   cartSummaryStyle,
   deleteButtonStyle,
+  extraChoiceCardStyle,
+  extrasBoxStyle,
   inputStyle,
   pageStyle,
   pillBackLinkStyle,
@@ -64,7 +66,7 @@ export default function CartPage() {
 
     setInquiryStatus("");
     setInquiryProduct({
-      title: "Warenkorb",
+      title: "Warenkorbanfrage",
       price: subtotalLabel,
       extras_enabled: false,
       custom_extras: [],
@@ -90,11 +92,13 @@ export default function CartPage() {
 
     const { error } = await supabase.from("inquiries").insert([
       {
-        product_title: "Warenkorb",
+        product_title: "Warenkorbanfrage",
         name: inquiryForm.name,
         email: inquiryForm.email,
         message: inquiryForm.message,
+        selected_extras: buildCartSelectedExtras(items),
         estimated_total: subtotalLabel,
+        status: "offen",
       },
     ]);
 
@@ -107,8 +111,6 @@ export default function CartPage() {
     }
 
     setInquiryStatus("success");
-    clearCart();
-    setItems([]);
 
     setTimeout(() => {
       closeInquiry();
@@ -257,6 +259,49 @@ export default function CartPage() {
           onClose={closeInquiry}
           onSubmit={submitCartInquiry}
           inquiryMode="question"
+          summaryContent={
+            <div style={extrasBoxStyle}>
+              <h3 style={{ marginTop: 0, color: "#435749" }}>
+                Deine Warenkorb-Zusammenfassung
+              </h3>
+
+              {items.map((item) => (
+                <div key={item.id} style={extraChoiceCardStyle}>
+                  <strong>{item.title}</strong>
+                  <p style={{ margin: "8px 0", color: "#555", lineHeight: "1.5" }}>
+                    Menge: {item.quantity || 1}
+                    <br />
+                    Basispreis: {item.basePriceLabel}
+                    <br />
+                    Einzelpreis: {formatEuro(item.unitTotal)}
+                    <br />
+                    Zwischensumme: {formatEuro(item.unitTotal * item.quantity)}
+                  </p>
+
+                  {item.selectedExtras?.length > 0 && (
+                    <div style={{ color: "#555", lineHeight: "1.5" }}>
+                      <strong>Extras:</strong>
+                      {item.selectedExtras.map((extra, index) => (
+                        <p key={extra.name + "-" + index} style={{ margin: "6px 0" }}>
+                          {extra.name} +{formatEuro(extra.price)}
+                          {extra.note && (
+                            <>
+                              <br />
+                              <small>Hinweis: {extra.note}</small>
+                            </>
+                          )}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <div style={{ marginTop: "14px", color: "#435749" }}>
+                Gesamtbetrag: <strong>{subtotalLabel}</strong>
+              </div>
+            </div>
+          }
           submitButtonText="Warenkorb anfragen"
         />
       )}

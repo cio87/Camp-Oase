@@ -137,3 +137,23 @@ export function buildCartMessage(items, subtotalLabel) {
 
   return lines.join("\n");
 }
+
+export function buildCartSelectedExtras(items) {
+  return {
+    type: "cart",
+    positions: items.map((item) => ({
+      product_id: item.productId,
+      product_title: item.title,
+      quantity: Number(item.quantity || 1),
+      base_price: item.basePrice,
+      base_price_label: item.basePriceLabel || formatEuro(item.basePrice),
+      unit_total: Number(item.unitTotal || 0),
+      unit_total_label: formatEuro(item.unitTotal),
+      line_total: Number(item.unitTotal || 0) * Number(item.quantity || 1),
+      line_total_label: formatEuro(
+        Number(item.unitTotal || 0) * Number(item.quantity || 1)
+      ),
+      extras: Array.isArray(item.selectedExtras) ? item.selectedExtras : [],
+    })),
+  };
+}

@@ -64,6 +64,9 @@ export default function AdminInquiries({
             const selectedItems = Array.isArray(inquiry.selected_extras?.items)
               ? inquiry.selected_extras.items
               : [];
+            const cartPositions = Array.isArray(inquiry.selected_extras?.positions)
+              ? inquiry.selected_extras.positions
+              : [];
             const inquiryStatus = inquiry.status || "offen";
             const isDone = inquiryStatus === "erledigt";
 
@@ -131,6 +134,54 @@ export default function AdminInquiries({
                             </>
                           )}
                         </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {cartPositions.length > 0 && (
+                    <div style={adminSelectedExtrasStyle}>
+                      <strong>Warenkorb-Positionen:</strong>
+
+                      {cartPositions.map((position, index) => (
+                        <div key={(position.product_title || "position") + "-" + index}>
+                          <p>
+                            <strong>{position.product_title}</strong>
+                            <br />
+                            Menge: {position.quantity} · Basispreis:{" "}
+                            {position.base_price_label ||
+                              formatEuro(position.base_price)}
+                            <br />
+                            Einzelpreis:{" "}
+                            {position.unit_total_label ||
+                              formatEuro(position.unit_total)}
+                            {" · "}Zwischensumme:{" "}
+                            {position.line_total_label ||
+                              formatEuro(position.line_total)}
+                          </p>
+
+                          {Array.isArray(position.extras) &&
+                            position.extras.length > 0 && (
+                              <div>
+                                <small>
+                                  <strong>Extras:</strong>
+                                </small>
+                                {position.extras.map((extra, extraIndex) => (
+                                  <p
+                                    key={extra.name + "-" + extraIndex}
+                                    style={{ marginLeft: "10px" }}
+                                  >
+                                    {extra.name} · +{formatEuro(extra.price)}
+                                    {extra.note && (
+                                      <>
+                                        <br />
+                                        <small>Hinweis: {extra.note}</small>
+                                      </>
+                                    )}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                        </div>
                       ))}
                     </div>
                   )}

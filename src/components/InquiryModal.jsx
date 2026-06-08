@@ -38,6 +38,7 @@ export default function InquiryModal({
   onSubmit,
   extrasLocked = false,
   inquiryMode = "question",
+  summaryContent = null,
   submitButtonText = "Frage absenden",
 }) {
   const customExtras = getProductExtras(product);
@@ -79,6 +80,8 @@ export default function InquiryModal({
         </div>
 
         <form onSubmit={onSubmit}>
+          {summaryContent}
+
           {showSelectedExtrasSummary && selectedItems.length > 0 && (
             <div style={extrasBoxStyle}>
               <h3 style={{ marginTop: 0, color: "#435749" }}>
