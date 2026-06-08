@@ -906,3 +906,72 @@ export const legalTitleStyle = {
   fontSize: "clamp(32px, 8vw, 42px)",
 };
 
+export const aboutPageStyle = {
+  maxWidth: "980px",
+  margin: "0 auto",
+  background: "linear-gradient(135deg, #ffffff 0%, #fbf7ed 100%)",
+  padding: "clamp(24px, 5vw, 48px)",
+  borderRadius: "28px",
+  boxShadow: "0 16px 38px rgba(0,0,0,0.08)",
+  border: "1px solid rgba(232, 223, 207, 0.9)",
+};
+
+export const aboutIntroStyle = {
+  maxWidth: "780px",
+  color: "#4f5b51",
+  fontSize: "clamp(18px, 4vw, 22px)",
+  lineHeight: "1.8",
+  marginBottom: "22px",
+};
+
+export const aboutStoryStyle = {
+  maxWidth: "760px",
+  background: "#f5f1e8",
+  borderLeft: "4px solid #d9c7a2",
+  borderRadius: "18px",
+  padding: "18px 20px",
+  color: "#5f665f",
+  lineHeight: "1.8",
+  fontSize: "16px",
+};
+
+export const aboutCardGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+  gap: "18px",
+  marginTop: "30px",
+};
+
+export const aboutCardStyle = {
+  background: "rgba(255,255,255,0.82)",
+  border: "1px solid #e8dfcf",
+  borderRadius: "20px",
+  padding: "20px",
+  color: "#435749",
+  lineHeight: "1.6",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+};
+
+export const aboutCardIconStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "38px",
+  height: "38px",
+  borderRadius: "999px",
+  background: "#f5f1e8",
+  marginBottom: "8px",
+  fontSize: "20px",
+};
+
+export const aboutNoteStyle = {
+  marginTop: "26px",
+  background: "#eef3ea",
+  border: "1px solid #d7e2d2",
+  borderRadius: "20px",
+  padding: "18px 20px",
+  color: "#435749",
+  lineHeight: "1.7",
+  fontWeight: "bold",
+};
+
