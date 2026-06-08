@@ -56,6 +56,21 @@ export const headerNavLinkStyle = {
   background: "rgba(255,255,255,0.55)",
 };
 
+export const pillBackLinkStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  width: "fit-content",
+  color: "#556b5d",
+  textDecoration: "none",
+  fontSize: "14px",
+  fontWeight: "bold",
+  padding: "9px 13px",
+  borderRadius: "999px",
+  background: "rgba(255,255,255,0.72)",
+  border: "1px solid #d8e1d3",
+  boxShadow: "0 6px 16px rgba(0,0,0,0.05)",
+};
+
 export const heroStyle = {
   padding: "clamp(46px, 8vw, 90px) 20px",
   textAlign: "center",

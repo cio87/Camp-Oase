@@ -16,6 +16,7 @@ import {
   inputStyle,
   inquiryBadgeStyle,
   pageStyle,
+  pillBackLinkStyle,
 } from "../styles";
 
 export default function AdminPage() {
@@ -267,7 +268,7 @@ export default function AdminPage() {
   return (
     <div style={pageStyle}>
       <div style={adminShellStyle}>
-        <Link to="/" style={{ color: "#556b5d" }}>
+        <Link to="/" style={pillBackLinkStyle}>
           ← Zur Webseite
         </Link>
 

@@ -44,6 +44,7 @@ import {
   headerStyle,
   inputStyle,
   pageStyle,
+  pillBackLinkStyle,
   siteStyle,
 } from "../styles";
 
@@ -218,8 +219,8 @@ export default function ProductDetailPage() {
     <>
       <div style={siteStyle}>
         <header style={headerStyle}>
-          <Link to="/" style={{ color: "#556b5d", textDecoration: "none" }}>
-            ← Zurück
+          <Link to="/" style={pillBackLinkStyle}>
+            ← Zur Produktübersicht
           </Link>
         </header>
 
