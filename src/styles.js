@@ -923,6 +923,38 @@ export const adminImagePreviewImageStyle = {
   background: "white",
 };
 
+export const adminImagePreviewOverlayStyle = {
+  position: "fixed",
+  inset: 0,
+  zIndex: 10000,
+  background: "rgba(47, 62, 52, 0.58)",
+  backdropFilter: "blur(4px)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "clamp(16px, 4vw, 34px)",
+};
+
+export const adminImagePreviewModalStyle = {
+  position: "relative",
+  maxWidth: "min(920px, 100%)",
+  maxHeight: "min(82vh, 760px)",
+  background: "linear-gradient(135deg, #ffffff, #f8f2e6)",
+  border: "1px solid #eadfcb",
+  borderRadius: "24px",
+  padding: "clamp(12px, 3vw, 18px)",
+  boxShadow: "0 22px 70px rgba(0,0,0,0.28)",
+};
+
+export const adminImagePreviewModalImageStyle = {
+  display: "block",
+  maxWidth: "100%",
+  maxHeight: "76vh",
+  objectFit: "contain",
+  borderRadius: "18px",
+  background: "#f5f1e8",
+};
+
 export const adminImagePreviewTextStyle = {
   margin: "6px 0 10px",
   color: "#667",

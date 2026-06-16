@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   formatEuro,
   getDiscountLabel,
@@ -19,6 +20,9 @@ import {
   adminHintStyle,
   adminImagePreviewBoxStyle,
   adminImagePreviewImageStyle,
+  adminImagePreviewModalImageStyle,
+  adminImagePreviewModalStyle,
+  adminImagePreviewOverlayStyle,
   adminImagePreviewTextStyle,
   adminProductExtrasInfoStyle,
   adminProductStyle,
@@ -47,9 +51,24 @@ export default function AdminProducts({
   onEditProduct,
   onDeleteProduct,
 }) {
+  const [previewImage, setPreviewImage] = useState(null);
   const selectedProductBadges = Array.isArray(newProduct.product_badges)
     ? newProduct.product_badges
     : [];
+
+  useEffect(() => {
+    function closePreviewOnEscape(event) {
+      if (event.key === "Escape") {
+        setPreviewImage(null);
+      }
+    }
+
+    window.addEventListener("keydown", closePreviewOnEscape);
+
+    return () => {
+      window.removeEventListener("keydown", closePreviewOnEscape);
+    };
+  }, []);
 
   function toggleProductBadge(value, checked) {
     const nextBadges = checked
@@ -197,11 +216,23 @@ export default function AdminProducts({
 
         {editingId && newProduct.image && (
           <div style={adminImagePreviewBoxStyle}>
-            <img
-              src={newProduct.image}
-              alt={newProduct.title || "Aktuelles Produktbild"}
-              style={adminImagePreviewImageStyle}
-            />
+            <button
+              type="button"
+              onClick={() => setPreviewImage(newProduct.image)}
+              style={{
+                border: "none",
+                padding: 0,
+                background: "transparent",
+                cursor: "zoom-in",
+              }}
+              aria-label="Produktbild größer anzeigen"
+            >
+              <img
+                src={newProduct.image}
+                alt={newProduct.title || "Aktuelles Produktbild"}
+                style={adminImagePreviewImageStyle}
+              />
+            </button>
             <div>
               <strong>Aktuelles Produktbild</strong>
               <p style={adminImagePreviewTextStyle}>
@@ -436,6 +467,47 @@ export default function AdminProducts({
           );
         })}
       </div>
+
+      {previewImage && (
+        <div
+          style={adminImagePreviewOverlayStyle}
+          onClick={() => setPreviewImage(null)}
+          role="presentation"
+        >
+          <div
+            style={adminImagePreviewModalStyle}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewImage(null)}
+              style={{
+                position: "absolute",
+                right: "14px",
+                top: "10px",
+                border: "none",
+                background: "rgba(255,255,255,0.82)",
+                color: "#556b5d",
+                borderRadius: "999px",
+                width: "38px",
+                height: "38px",
+                cursor: "pointer",
+                fontSize: "24px",
+                lineHeight: "1",
+              }}
+              aria-label="Bildvorschau schließen"
+            >
+              ×
+            </button>
+
+            <img
+              src={previewImage}
+              alt={newProduct.title || "Große Produktbild-Vorschau"}
+              style={adminImagePreviewModalImageStyle}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }
