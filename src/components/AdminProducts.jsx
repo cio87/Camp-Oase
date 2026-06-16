@@ -172,7 +172,7 @@ export default function AdminProducts({
           <strong style={{ color: "#435749" }}>Produkt-Hinweise</strong>
           <p style={adminHintStyle}>
             Diese Hinweise erscheinen dezent auf der Produktkarte und bei der
-            Produktdetailseite. Sie sind unabhÃ¤ngig von den Extras.
+            Produktdetailseite. Sie sind unabhängig von den Extras.
           </p>
 
           <div style={{ display: "grid", gap: "10px" }}>
@@ -201,7 +201,7 @@ export default function AdminProducts({
             <div>
               <strong>Aktuelles Produktbild</strong>
               <p style={adminImagePreviewTextStyle}>
-                Wenn du eine neue Datei auswÃ¤hlst, wird dieses Bild beim
+                Wenn du eine neue Datei auswählst, wird dieses Bild beim
                 Speichern ersetzt.
               </p>
             </div>
@@ -210,7 +210,7 @@ export default function AdminProducts({
 
         {newProduct.file && (
           <p style={adminImagePreviewTextStyle}>
-            Neue Datei ausgewÃ¤hlt: <strong>{newProduct.file.name}</strong>
+            Neue Datei ausgewählt: <strong>{newProduct.file.name}</strong>
           </p>
         )}
 
@@ -396,8 +396,8 @@ export default function AdminProducts({
 
                 {productBadges.length > 0 && (
                   <p style={adminProductExtrasInfoStyle}>
-                    Hinweise aktiv Â·{" "}
-                    {productBadges.map((badge) => badge.label).join(" Â· ")}
+                    Hinweise aktiv ·{" "}
+                    {productBadges.map((badge) => badge.label).join(" · ")}
                   </p>
                 )}
 
