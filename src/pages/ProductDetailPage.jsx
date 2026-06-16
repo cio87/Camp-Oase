@@ -9,6 +9,7 @@ import {
   isProductAvailable,
 } from "../utils/availability";
 import { addProductToCart } from "../utils/cart";
+import { MarkdownText } from "../utils/markdown";
 import { getProductBadges } from "../utils/productBadges";
 import {
   buildSelectedExtras,
@@ -270,7 +271,10 @@ export default function ProductDetailPage() {
 
               <h1 style={detailTitleStyle}>{product.title}</h1>
 
-              <p style={detailDescriptionStyle}>{product.description}</p>
+              <MarkdownText
+                text={product.description}
+                style={detailDescriptionStyle}
+              />
 
               <div style={detailTrustRowStyle}>
                 <span style={detailTrustPillStyle}>Unverbindliche Anfrage</span>

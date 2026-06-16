@@ -79,6 +79,10 @@ export default function AdminProducts({
           }
           style={{ ...inputStyle, minHeight: "120px" }}
         />
+        <p style={adminHintStyle}>
+          Markdown möglich: <strong>**fett**</strong>, <em>*kursiv*</em>, -
+          Listen möglich
+        </p>
 
         <input
           placeholder="Preis z.B. 14,99 €"

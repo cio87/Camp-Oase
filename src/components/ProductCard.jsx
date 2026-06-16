@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getProductAvailabilityBadge } from "../utils/availability";
+import { stripMarkdown } from "../utils/markdown";
 import { getProductBadges } from "../utils/productBadges";
 import {
   formatEuro,
@@ -77,7 +78,7 @@ export default function ProductCard({ product }) {
 
           <h3 style={productTitleStyle}>{product.title}</h3>
 
-          <p style={productPreviewTextStyle}>{product.description}</p>
+          <p style={productPreviewTextStyle}>{stripMarkdown(product.description)}</p>
         </div>
 
         <div style={{ padding: "0 24px 24px" }}>

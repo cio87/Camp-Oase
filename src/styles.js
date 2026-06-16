@@ -340,7 +340,6 @@ export const detailDescriptionStyle = {
   lineHeight: "1.75",
   color: "#5f5f5f",
   margin: "18px 0 0",
-  whiteSpace: "pre-line",
 };
 
 export const availabilityNoticeStyle = {
