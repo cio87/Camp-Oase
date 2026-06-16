@@ -2,9 +2,16 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getProductAvailabilityBadge } from "../utils/availability";
 import { getProductBadges } from "../utils/productBadges";
-import { getProductExtras } from "../utils/price";
+import {
+  formatEuro,
+  getDiscountLabel,
+  getDiscountedBasePrice,
+  getProductExtras,
+  hasActiveDiscount,
+} from "../utils/price";
 import {
   priceRowStyle,
+  productActionPriceStyle,
   productAvailabilityBadgeStyle,
   productCardContentStyle,
   productCardHintStyle,
@@ -12,8 +19,10 @@ import {
   productCardStyle,
   productExtrasBadgeStyle,
   productImageStyle,
+  productOldPriceStyle,
   productPreviewTextStyle,
   productPriceStyle,
+  productPriceStackStyle,
   productTitleStyle,
 } from "../styles";
 
@@ -22,6 +31,8 @@ export default function ProductCard({ product }) {
   const availabilityBadge = getProductAvailabilityBadge(product);
   const hasExtras = getProductExtras(product).length > 0;
   const productBadges = getProductBadges(product);
+  const discountActive = hasActiveDiscount(product);
+  const discountPrice = formatEuro(getDiscountedBasePrice(product));
 
   return (
     <Link
@@ -55,6 +66,10 @@ export default function ProductCard({ product }) {
               </span>
             ))}
 
+            {discountActive && (
+              <span style={productExtrasBadgeStyle}>{getDiscountLabel(product)}</span>
+            )}
+
             {hasExtras && (
               <span style={productExtrasBadgeStyle}>Extras möglich</span>
             )}
@@ -67,7 +82,16 @@ export default function ProductCard({ product }) {
 
         <div style={{ padding: "0 24px 24px" }}>
           <div style={priceRowStyle}>
-            <strong style={productPriceStyle}>{product.price}</strong>
+            <span style={productPriceStackStyle}>
+              {discountActive && (
+                <span style={productOldPriceStyle}>{product.price}</span>
+              )}
+              <strong
+                style={discountActive ? productActionPriceStyle : productPriceStyle}
+              >
+                {discountActive ? discountPrice : product.price}
+              </strong>
+            </span>
 
             <span style={productCardHintStyle}>Details ansehen →</span>
           </div>

@@ -259,6 +259,22 @@ export const productPriceStyle = {
   color: "#556b5d",
 };
 
+export const productPriceStackStyle = {
+  display: "grid",
+  gap: "2px",
+};
+
+export const productOldPriceStyle = {
+  color: "#8f958c",
+  fontSize: "14px",
+  textDecoration: "line-through",
+};
+
+export const productActionPriceStyle = {
+  ...productPriceStyle,
+  color: "#8a4f37",
+};
+
 export const productCardHintStyle = {
   color: "#556b5d",
   fontSize: "14px",
@@ -343,6 +359,18 @@ export const detailPriceStyle = {
   fontSize: "clamp(25px, 6vw, 34px)",
   color: "#556b5d",
   lineHeight: "1.1",
+};
+
+export const detailPriceContentStyle = {
+  display: "grid",
+  justifyItems: "end",
+  gap: "3px",
+};
+
+export const detailOldPriceStyle = {
+  color: "#8f958c",
+  fontSize: "16px",
+  textDecoration: "line-through",
 };
 
 export const detailPriceSummaryStyle = {

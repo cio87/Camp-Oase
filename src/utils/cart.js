@@ -1,4 +1,13 @@
-import { formatEuro, getProductExtras, parsePrice } from "./price";
+import {
+  formatEuro,
+  getDiscountLabel,
+  getDiscountPercent,
+  getDiscountedBasePrice,
+  getProductBasePrice,
+  getProductExtras,
+  getStockQuantity,
+  hasActiveDiscount,
+} from "./price";
 
 const CART_STORAGE_KEY = "campoase_cart";
 export const CART_UPDATED_EVENT = "campoase-cart-updated";
@@ -48,6 +57,9 @@ export function getCartSubtotal(items = getCartItems()) {
 }
 
 export function addProductToCart(product, selectedExtras = {}) {
+  const stockQuantity = getStockQuantity(product);
+  if (stockQuantity <= 0) return null;
+
   const customExtras = getProductExtras(product);
   const selectedItems = customExtras
     .map((extra, index) => ({
@@ -60,10 +72,15 @@ export function addProductToCart(product, selectedExtras = {}) {
       name: extra.name,
       description: extra.description,
       price: Number(extra.price || 0),
+      original_price: Number(extra.original_price ?? extra.price ?? 0),
+      discount_percent: Number(extra.discount_percent || 0),
+      discount_label: extra.discount_label || "",
+      has_discount: Boolean(extra.has_discount),
       note: extra.note,
     }));
 
-  const basePrice = parsePrice(product.price);
+  const originalBasePrice = getProductBasePrice(product);
+  const basePrice = getDiscountedBasePrice(product);
   const extrasTotal = selectedItems.reduce(
     (sum, extra) => sum + Number(extra.price || 0),
     0
@@ -75,8 +92,14 @@ export function addProductToCart(product, selectedExtras = {}) {
     productId: product.id,
     title: product.title,
     image: product.image,
+    stockQuantity,
+    originalBasePrice,
+    originalBasePriceLabel: formatEuro(originalBasePrice),
     basePrice,
-    basePriceLabel: product.price,
+    basePriceLabel: formatEuro(basePrice),
+    discountPercent: getDiscountPercent(product),
+    discountLabel: getDiscountLabel(product),
+    discountActive: hasActiveDiscount(product),
     selectedExtras: selectedItems,
     unitTotal,
     unitTotalLabel: formatEuro(unitTotal),
@@ -89,9 +112,21 @@ export function addProductToCart(product, selectedExtras = {}) {
 }
 
 export function updateCartItemQuantity(itemId, quantity) {
-  const safeQuantity = Math.max(1, Number(quantity || 1));
+  const requestedQuantity = Number(quantity || 1);
+  const safeQuantity = Number.isNaN(requestedQuantity)
+    ? 1
+    : Math.max(1, requestedQuantity);
+
   const updatedItems = getCartItems().map((item) =>
-    item.id === itemId ? { ...item, quantity: safeQuantity } : item
+    item.id === itemId
+      ? {
+          ...item,
+          quantity: Math.min(
+            item.stockQuantity > 0 ? Number(item.stockQuantity) : Infinity,
+            safeQuantity
+          ),
+        }
+      : item
   );
 
   saveCartItems(updatedItems);
@@ -121,10 +156,25 @@ export function buildCartMessage(items, subtotalLabel) {
       `Einzelpreis mit Extras: ${formatEuro(item.unitTotal)}`
     );
 
+    if (item.discountActive) {
+      lines.push(
+        `Rabatt: ${item.discountLabel || item.discountPercent + "% Rabatt"}`,
+        `Ursprünglicher Basispreis: ${
+          item.originalBasePriceLabel || formatEuro(item.originalBasePrice)
+        }`
+      );
+    }
+
     if (item.selectedExtras?.length) {
       lines.push("Ausgewählte Extras:");
       item.selectedExtras.forEach((extra) => {
         lines.push(`- ${extra.name} +${formatEuro(extra.price)}`);
+        if (extra.has_discount) {
+          lines.push(
+            `  Rabatt: ${extra.discount_label || extra.discount_percent + "% Rabatt"}`,
+            `  Vorher: ${formatEuro(extra.original_price)}`
+          );
+        }
         if (extra.note) lines.push(`  Hinweis: ${extra.note}`);
       });
     }
@@ -147,6 +197,10 @@ export function buildCartSelectedExtras(items) {
       quantity: Number(item.quantity || 1),
       base_price: item.basePrice,
       base_price_label: item.basePriceLabel || formatEuro(item.basePrice),
+      original_base_price: item.originalBasePrice,
+      original_base_price_label: item.originalBasePriceLabel,
+      discount_percent: item.discountPercent || 0,
+      discount_label: item.discountLabel || "",
       unit_total: Number(item.unitTotal || 0),
       unit_total_label: formatEuro(item.unitTotal),
       line_total: Number(item.unitTotal || 0) * Number(item.quantity || 1),

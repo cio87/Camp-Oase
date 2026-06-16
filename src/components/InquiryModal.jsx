@@ -91,8 +91,22 @@ export default function InquiryModal({
               {selectedItems.map((extra, index) => (
                 <div key={extra.name + "-" + index} style={extraChoiceCardStyle}>
                   <strong>
-                    {extra.name} +{formatEuro(extra.price)}
+                    {extra.name}{" "}
+                    {extra.has_discount && (
+                      <>
+                        <span style={{ textDecoration: "line-through" }}>
+                          +{formatEuro(extra.original_price)}
+                        </span>{" "}
+                      </>
+                    )}
+                    +{formatEuro(extra.price)}
                   </strong>
+
+                  {extra.has_discount && (
+                    <p style={extraDescriptionStyle}>
+                      Rabatt: {extra.discount_label}
+                    </p>
+                  )}
 
                   {extra.description && (
                     <p style={extraDescriptionStyle}>{extra.description}</p>

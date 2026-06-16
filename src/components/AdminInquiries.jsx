@@ -126,7 +126,25 @@ export default function AdminInquiries({
 
                       {selectedItems.map((extra, index) => (
                         <p key={extra.name + "-" + index}>
-                          {extra.name} · +{formatEuro(extra.price)}
+                          {extra.name} ·{" "}
+                          {extra.has_discount && (
+                            <>
+                              <span style={{ textDecoration: "line-through" }}>
+                                +{formatEuro(extra.original_price)}
+                              </span>{" "}
+                            </>
+                          )}
+                          +{formatEuro(extra.price)}
+                          {extra.has_discount && (
+                            <>
+                              <br />
+                              <small>
+                                Rabatt:{" "}
+                                {extra.discount_label ||
+                                  extra.discount_percent + " % Rabatt"}
+                              </small>
+                            </>
+                          )}
                           {extra.note && (
                             <>
                               <br />
@@ -150,6 +168,20 @@ export default function AdminInquiries({
                             Menge: {position.quantity} · Basispreis:{" "}
                             {position.base_price_label ||
                               formatEuro(position.base_price)}
+                            {position.discount_percent > 0 && (
+                              <>
+                                <br />
+                                Rabatt:{" "}
+                                {position.discount_label ||
+                                  position.discount_percent + " % Rabatt"}
+                                {position.original_base_price_label && (
+                                  <>
+                                    {" · "}vorher{" "}
+                                    {position.original_base_price_label}
+                                  </>
+                                )}
+                              </>
+                            )}
                             <br />
                             Einzelpreis:{" "}
                             {position.unit_total_label ||
@@ -170,7 +202,27 @@ export default function AdminInquiries({
                                     key={extra.name + "-" + extraIndex}
                                     style={{ marginLeft: "10px" }}
                                   >
-                                    {extra.name} · +{formatEuro(extra.price)}
+                                    {extra.name} ·{" "}
+                                    {extra.has_discount && (
+                                      <>
+                                        <span
+                                          style={{ textDecoration: "line-through" }}
+                                        >
+                                          +{formatEuro(extra.original_price)}
+                                        </span>{" "}
+                                      </>
+                                    )}
+                                    +{formatEuro(extra.price)}
+                                    {extra.has_discount && (
+                                      <>
+                                        <br />
+                                        <small>
+                                          Rabatt:{" "}
+                                          {extra.discount_label ||
+                                            extra.discount_percent + " % Rabatt"}
+                                        </small>
+                                      </>
+                                    )}
                                     {extra.note && (
                                       <>
                                         <br />

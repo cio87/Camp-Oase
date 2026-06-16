@@ -14,8 +14,12 @@ import {
   buildSelectedExtras,
   calculateEstimatedTotal,
   formatEuro,
+  getDiscountLabel,
+  getDiscountedBasePrice,
   getEmptyInquiryForm,
   getProductExtras,
+  getStockQuantity,
+  hasActiveDiscount,
 } from "../utils/price";
 import {
   availabilityNoticeStyle,
@@ -33,6 +37,8 @@ import {
   detailLayoutStyle,
   detailMediaPanelStyle,
   detailMediaStickyStyle,
+  detailOldPriceStyle,
+  detailPriceContentStyle,
   detailPriceStyle,
   detailPriceSummaryStyle,
   detailRequestButtonStyle,
@@ -46,6 +52,7 @@ import {
   inputStyle,
   pageStyle,
   pillBackLinkStyle,
+  productOldPriceStyle,
   siteStyle,
 } from "../styles";
 
@@ -158,8 +165,12 @@ export default function ProductDetailPage() {
   function addSelectionToCart(product) {
     if (!productIsAvailable) return;
 
-    addProductToCart(product, selectedDetailExtras);
-    setCartStatus("Das Produkt wurde in den Warenkorb gelegt.");
+    const item = addProductToCart(product, selectedDetailExtras);
+    setCartStatus(
+      item
+        ? "Das Produkt wurde in den Warenkorb gelegt."
+        : "Dieses Produkt ist aktuell nicht verfügbar."
+    );
 
     setTimeout(() => {
       setCartStatus("");
@@ -213,6 +224,9 @@ export default function ProductDetailPage() {
   const productExtras = getProductExtras(product);
   const productBadges = getProductBadges(product);
   const productIsAvailable = isProductAvailable(product);
+  const stockQuantity = getStockQuantity(product);
+  const discountActive = hasActiveDiscount(product);
+  const discountPrice = formatEuro(getDiscountedBasePrice(product));
   const availabilityNotice = getProductAvailabilityNotice(product);
   const availabilityLabel = getAvailabilityLabel(product);
   const detailEstimatedTotal = product
@@ -260,6 +274,16 @@ export default function ProductDetailPage() {
 
               <div style={detailTrustRowStyle}>
                 <span style={detailTrustPillStyle}>Unverbindliche Anfrage</span>
+                {productIsAvailable && (
+                  <span style={detailTrustPillStyle}>
+                    Bestand: {stockQuantity}
+                  </span>
+                )}
+                {discountActive && (
+                  <span style={detailTrustPillStyle}>
+                    {getDiscountLabel(product)}
+                  </span>
+                )}
                 {productBadges.map((badge) => (
                   <span key={badge.value} style={detailTrustPillStyle}>
                     {badge.label}
@@ -273,7 +297,17 @@ export default function ProductDetailPage() {
 
               <div style={detailPriceSummaryStyle}>
                 <span>Preis</span>
-                <strong style={detailPriceStyle}>{product.price}</strong>
+                <span style={detailPriceContentStyle}>
+                  {discountActive && (
+                    <>
+                      <span style={detailOldPriceStyle}>{product.price}</span>
+                      <small>{getDiscountLabel(product)}</small>
+                    </>
+                  )}
+                  <strong style={detailPriceStyle}>
+                    {discountActive ? discountPrice : product.price}
+                  </strong>
+                </span>
               </div>
 
               {productExtras.length > 0 && (
@@ -326,6 +360,16 @@ export default function ProductDetailPage() {
                             </span>
 
                             <span style={detailExtraPriceStyle}>
+                              {extra.has_discount && (
+                                <>
+                                  <span style={productOldPriceStyle}>
+                                    +{formatEuro(extra.original_price)}
+                                  </span>
+                                  <br />
+                                  <small>{extra.discount_label}</small>
+                                  <br />
+                                </>
+                              )}
                               +{formatEuro(extra.price)}
                             </span>
                           </label>

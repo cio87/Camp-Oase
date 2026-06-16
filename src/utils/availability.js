@@ -1,3 +1,5 @@
+import { getStockQuantity } from "./price";
+
 export const AVAILABILITY_OPTIONS = [
   { value: "available", label: "Verfügbar" },
   { value: "sold_out", label: "Ausverkauft" },
@@ -10,6 +12,10 @@ export function getAvailabilityStatus(product) {
 }
 
 export function getAvailabilityLabel(product) {
+  if (getAvailabilityStatus(product) === "available" && getStockQuantity(product) <= 0) {
+    return "Ausverkauft";
+  }
+
   const status = getAvailabilityStatus(product);
   return (
     AVAILABILITY_OPTIONS.find((option) => option.value === status)?.label ||
@@ -18,7 +24,7 @@ export function getAvailabilityLabel(product) {
 }
 
 export function isProductAvailable(product) {
-  return getAvailabilityStatus(product) === "available";
+  return getAvailabilityStatus(product) === "available" && getStockQuantity(product) > 0;
 }
 
 export function isProductVisible(product) {
@@ -28,6 +34,7 @@ export function isProductVisible(product) {
 export function getProductAvailabilityBadge(product) {
   const status = getAvailabilityStatus(product);
 
+  if (status === "available" && getStockQuantity(product) <= 0) return "Ausverkauft";
   if (status === "sold_out") return "Ausverkauft";
   if (status === "coming_soon") return "Bald wieder verfügbar";
 
@@ -36,6 +43,10 @@ export function getProductAvailabilityBadge(product) {
 
 export function getProductAvailabilityNotice(product) {
   const status = getAvailabilityStatus(product);
+
+  if (status === "available" && getStockQuantity(product) <= 0) {
+    return "Dieses Produkt ist aktuell ausverkauft.";
+  }
 
   if (status === "sold_out") return "Dieses Produkt ist aktuell ausverkauft.";
   if (status === "coming_soon") {

@@ -7,6 +7,10 @@ export function getEmptyProduct() {
     file: null,
     availability_status: "available",
     product_badges: [],
+    stock_quantity: 0,
+    discount_enabled: false,
+    discount_percent: "",
+    discount_label: "",
     extras_enabled: false,
     custom_extras: [],
   };
@@ -28,11 +32,31 @@ export function getProductExtras(product) {
 
   return product.custom_extras
     .filter((extra) => String(extra.name || "").trim())
-    .map((extra) => ({
-      name: String(extra.name || "").trim(),
-      description: String(extra.description || "").trim(),
-      price: Number(extra.price || 0),
-    }));
+    .map((extra) => {
+      const originalPrice = Number(extra.price || 0);
+      const discountPercent = extra.discount_enabled
+        ? clampDiscountPercent(extra.discount_percent)
+        : 0;
+      const discountedPrice =
+        discountPercent > 0
+          ? Math.max(0, originalPrice * (1 - discountPercent / 100))
+          : originalPrice;
+      const discountLabel = String(extra.discount_label || "").trim();
+
+      return {
+        name: String(extra.name || "").trim(),
+        description: String(extra.description || "").trim(),
+        price: discountedPrice,
+        original_price: originalPrice,
+        discount_enabled: Boolean(extra.discount_enabled),
+        discount_percent: discountPercent,
+        discount_label:
+          discountPercent > 0
+            ? discountLabel || `${discountPercent}% Rabatt`
+            : "",
+        has_discount: discountPercent > 0,
+      };
+    });
 }
 
 export function parsePrice(value) {
@@ -57,8 +81,55 @@ export function formatEuro(value) {
   });
 }
 
+export function clampDiscountPercent(value) {
+  const number = Number(value || 0);
+
+  if (Number.isNaN(number)) return 0;
+
+  return Math.min(100, Math.max(0, number));
+}
+
+export function getStockQuantity(product) {
+  const stock = Number(product?.stock_quantity ?? 0);
+
+  return Number.isNaN(stock) ? 0 : Math.max(0, Math.floor(stock));
+}
+
+export function getDiscountPercent(product) {
+  if (!product?.discount_enabled) return 0;
+
+  return clampDiscountPercent(product.discount_percent);
+}
+
+export function getProductBasePrice(product) {
+  return parsePrice(product?.price);
+}
+
+export function getDiscountedBasePrice(product) {
+  const basePrice = getProductBasePrice(product);
+  const discountPercent = getDiscountPercent(product);
+
+  if (discountPercent <= 0) return basePrice;
+
+  return Math.max(0, basePrice * (1 - discountPercent / 100));
+}
+
+export function hasActiveDiscount(product) {
+  return getDiscountPercent(product) > 0;
+}
+
+export function getDiscountLabel(product) {
+  const percent = getDiscountPercent(product);
+  const label = String(product?.discount_label || "").trim();
+
+  if (percent <= 0) return "";
+  if (label) return label;
+
+  return `${percent}% Rabatt`;
+}
+
 export function calculateEstimatedTotal(product, form) {
-  const basePrice = parsePrice(product.price);
+  const basePrice = getDiscountedBasePrice(product);
   const customExtras = getProductExtras(product);
   let total = basePrice;
 
@@ -85,6 +156,10 @@ export function buildSelectedExtras(product, form) {
       name: extra.name,
       description: extra.description,
       price: Number(extra.price || 0),
+      original_price: Number(extra.original_price ?? extra.price ?? 0),
+      discount_percent: Number(extra.discount_percent || 0),
+      discount_label: extra.discount_label || "",
+      has_discount: Boolean(extra.has_discount),
       note: extra.note,
     }));
 

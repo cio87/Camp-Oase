@@ -157,7 +157,27 @@ export default function CartPage() {
                           {item.title}
                         </h2>
                         <p style={{ margin: "0 0 8px", color: "#667" }}>
-                          Basispreis: <strong>{item.basePriceLabel}</strong>
+                          Basispreis:{" "}
+                          {item.discountActive && (
+                            <>
+                              <span style={{ textDecoration: "line-through" }}>
+                                {item.originalBasePriceLabel}
+                              </span>{" "}
+                            </>
+                          )}
+                          <strong>{item.basePriceLabel}</strong>
+                          {item.discountActive && item.discountLabel && (
+                            <>
+                              <br />
+                              <small>{item.discountLabel}</small>
+                            </>
+                          )}
+                          {item.stockQuantity > 0 && (
+                            <>
+                              <br />
+                              <small>Maximal verfügbar: {item.stockQuantity}</small>
+                            </>
+                          )}
                         </p>
 
                         {item.selectedExtras?.length > 0 && (
@@ -165,7 +185,21 @@ export default function CartPage() {
                             <strong>Ausgewählte Extras:</strong>
                             {item.selectedExtras.map((extra, index) => (
                               <p key={extra.name + "-" + index} style={{ margin: "6px 0" }}>
-                                {extra.name} +{formatEuro(extra.price)}
+                                {extra.name}{" "}
+                                {extra.has_discount && (
+                                  <>
+                                    <span style={{ textDecoration: "line-through" }}>
+                                      +{formatEuro(extra.original_price)}
+                                    </span>{" "}
+                                  </>
+                                )}
+                                +{formatEuro(extra.price)}
+                                {extra.has_discount && extra.discount_label && (
+                                  <>
+                                    <br />
+                                    <small>{extra.discount_label}</small>
+                                  </>
+                                )}
                                 {extra.note && (
                                   <>
                                     <br />
@@ -193,6 +227,7 @@ export default function CartPage() {
                           <input
                             type="number"
                             min="1"
+                            max={item.stockQuantity > 0 ? item.stockQuantity : undefined}
                             value={item.quantity || 1}
                             onChange={(e) => changeQuantity(item.id, e.target.value)}
                             style={{ ...inputStyle, width: "74px", margin: 0 }}
@@ -202,6 +237,10 @@ export default function CartPage() {
                             type="button"
                             onClick={() =>
                               changeQuantity(item.id, Number(item.quantity || 1) + 1)
+                            }
+                            disabled={
+                              item.stockQuantity > 0 &&
+                              Number(item.quantity || 1) >= Number(item.stockQuantity)
                             }
                             style={cartQuantityButtonStyle}
                           >
@@ -272,6 +311,9 @@ export default function CartPage() {
                     Menge: {item.quantity || 1}
                     <br />
                     Basispreis: {item.basePriceLabel}
+                    {item.discountActive && item.discountLabel
+                      ? " (" + item.discountLabel + ")"
+                      : ""}
                     <br />
                     Einzelpreis: {formatEuro(item.unitTotal)}
                     <br />
@@ -283,7 +325,21 @@ export default function CartPage() {
                       <strong>Extras:</strong>
                       {item.selectedExtras.map((extra, index) => (
                         <p key={extra.name + "-" + index} style={{ margin: "6px 0" }}>
-                          {extra.name} +{formatEuro(extra.price)}
+                          {extra.name}{" "}
+                          {extra.has_discount && (
+                            <>
+                              <span style={{ textDecoration: "line-through" }}>
+                                +{formatEuro(extra.original_price)}
+                              </span>{" "}
+                            </>
+                          )}
+                          +{formatEuro(extra.price)}
+                          {extra.has_discount && extra.discount_label && (
+                            <>
+                              <br />
+                              <small>{extra.discount_label}</small>
+                            </>
+                          )}
                           {extra.note && (
                             <>
                               <br />

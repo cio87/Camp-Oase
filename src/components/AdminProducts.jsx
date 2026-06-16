@@ -1,4 +1,11 @@
-import { formatEuro, getProductExtras } from "../utils/price";
+import {
+  formatEuro,
+  getDiscountLabel,
+  getDiscountPercent,
+  getProductExtras,
+  getStockQuantity,
+  hasActiveDiscount,
+} from "../utils/price";
 import {
   AVAILABILITY_OPTIONS,
   getAvailabilityLabel,
@@ -79,6 +86,69 @@ export default function AdminProducts({
           onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
           style={inputStyle}
         />
+
+        <label style={adminExtraLabelStyle}>Bestand / Stückzahl</label>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          placeholder="z. B. 3"
+          value={newProduct.stock_quantity ?? 0}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, stock_quantity: e.target.value })
+          }
+          style={inputStyle}
+        />
+
+        <div style={adminExtrasBoxStyle}>
+          <label style={checkboxRowStyle}>
+            <input
+              type="checkbox"
+              checked={Boolean(newProduct.discount_enabled)}
+              onChange={(e) =>
+                setNewProduct({
+                  ...newProduct,
+                  discount_enabled: e.target.checked,
+                })
+              }
+            />
+            Rabatt aktivieren
+          </label>
+
+          {newProduct.discount_enabled && (
+            <>
+              <label style={adminExtraLabelStyle}>Rabatt in Prozent</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                placeholder="z. B. 15"
+                value={newProduct.discount_percent ?? ""}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    discount_percent: e.target.value,
+                  })
+                }
+                style={inputStyle}
+              />
+
+              <label style={adminExtraLabelStyle}>Rabatt-Label optional</label>
+              <input
+                placeholder="z. B. Sommeraktion"
+                value={newProduct.discount_label || ""}
+                onChange={(e) =>
+                  setNewProduct({
+                    ...newProduct,
+                    discount_label: e.target.value,
+                  })
+                }
+                style={inputStyle}
+              />
+            </>
+          )}
+        </div>
 
         <label style={adminExtraLabelStyle}>Verfügbarkeit</label>
         <select
@@ -213,6 +283,61 @@ export default function AdminProducts({
                       onChange={(e) => onUpdateExtra(index, "price", e.target.value)}
                       style={inputStyle}
                     />
+
+                    <label style={checkboxRowStyle}>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(extra.discount_enabled)}
+                        onChange={(e) =>
+                          onUpdateExtra(
+                            index,
+                            "discount_enabled",
+                            e.target.checked
+                          )
+                        }
+                      />
+                      Rabatt für dieses Extra aktivieren
+                    </label>
+
+                    {extra.discount_enabled && (
+                      <>
+                        <label style={adminExtraLabelStyle}>
+                          Extra-Rabatt in Prozent
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          placeholder="z. B. 20"
+                          value={extra.discount_percent ?? ""}
+                          onChange={(e) =>
+                            onUpdateExtra(
+                              index,
+                              "discount_percent",
+                              e.target.value
+                            )
+                          }
+                          style={inputStyle}
+                        />
+
+                        <label style={adminExtraLabelStyle}>
+                          Extra-Rabatt-Label optional
+                        </label>
+                        <input
+                          placeholder="z. B. Aktion"
+                          value={extra.discount_label || ""}
+                          onChange={(e) =>
+                            onUpdateExtra(
+                              index,
+                              "discount_label",
+                              e.target.value
+                            )
+                          }
+                          style={inputStyle}
+                        />
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
@@ -245,6 +370,8 @@ export default function AdminProducts({
         {products.map((product) => {
           const extras = getProductExtras(product);
           const productBadges = getProductBadges(product);
+          const stockQuantity = getStockQuantity(product);
+          const discountActive = hasActiveDiscount(product);
 
           return (
             <div key={product.id} style={adminProductStyle}>
@@ -254,6 +381,18 @@ export default function AdminProducts({
                 <span style={adminAvailabilityBadgeStyle}>
                   {getAvailabilityLabel(product)}
                 </span>
+                <span style={{ ...adminAvailabilityBadgeStyle, marginLeft: "8px" }}>
+                  Bestand: {stockQuantity}
+                </span>
+
+                {discountActive && (
+                  <span style={{ ...adminAvailabilityBadgeStyle, marginLeft: "8px" }}>
+                    Rabatt {getDiscountPercent(product)} % aktiv
+                    {product.discount_label
+                      ? " · " + getDiscountLabel(product)
+                      : ""}
+                  </span>
+                )}
 
                 {productBadges.length > 0 && (
                   <p style={adminProductExtrasInfoStyle}>
@@ -266,7 +405,15 @@ export default function AdminProducts({
                   <p style={adminProductExtrasInfoStyle}>
                     Extras aktiv ·{" "}
                     {extras
-                      .map((extra) => extra.name + " +" + formatEuro(extra.price))
+                      .map(
+                        (extra) =>
+                          extra.name +
+                          " +" +
+                          formatEuro(extra.price) +
+                          (extra.has_discount
+                            ? " (" + extra.discount_label + ")"
+                            : "")
+                      )
                       .join(" · ")}
                   </p>
                 )}

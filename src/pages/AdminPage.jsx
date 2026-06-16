@@ -4,7 +4,12 @@ import AdminInquiries from "../components/AdminInquiries";
 import AdminProducts from "../components/AdminProducts";
 import { supabase } from "../supabaseClient";
 import { getProductBadgeValues } from "../utils/productBadges";
-import { getEmptyProduct, getProductExtras } from "../utils/price";
+import {
+  clampDiscountPercent,
+  getEmptyProduct,
+  getProductExtras,
+  getStockQuantity,
+} from "../utils/price";
 import {
   adminShellStyle,
   adminTabActiveStyle,
@@ -133,6 +138,9 @@ export default function AdminPage() {
         name: String(extra.name || "").trim(),
         description: String(extra.description || "").trim(),
         price: Number(extra.price || 0),
+        discount_enabled: Boolean(extra.discount_enabled),
+        discount_percent: clampDiscountPercent(extra.discount_percent),
+        discount_label: String(extra.discount_label || "").trim(),
       }));
 
     const productPayload = {
@@ -142,6 +150,10 @@ export default function AdminPage() {
       image: imageUrl,
       availability_status: newProduct.availability_status || "available",
       product_badges: getProductBadgeValues(newProduct),
+      stock_quantity: getStockQuantity(newProduct),
+      discount_enabled: Boolean(newProduct.discount_enabled),
+      discount_percent: clampDiscountPercent(newProduct.discount_percent),
+      discount_label: String(newProduct.discount_label || "").trim(),
       extras_enabled: newProduct.extras_enabled && cleanedExtras.length > 0,
       custom_extras: cleanedExtras,
     };
@@ -179,7 +191,14 @@ export default function AdminPage() {
       ...newProduct,
       custom_extras: [
         ...(newProduct.custom_extras || []),
-        { name: "", description: "", price: "0" },
+        {
+          name: "",
+          description: "",
+          price: "0",
+          discount_enabled: false,
+          discount_percent: "",
+          discount_label: "",
+        },
       ],
     });
   }
@@ -250,11 +269,18 @@ export default function AdminPage() {
       file: null,
       availability_status: product.availability_status || "available",
       product_badges: getProductBadgeValues(product),
+      stock_quantity: getStockQuantity(product),
+      discount_enabled: Boolean(product.discount_enabled),
+      discount_percent: String(product.discount_percent ?? 0),
+      discount_label: product.discount_label || "",
       extras_enabled: Boolean(product.extras_enabled),
       custom_extras: getProductExtras(product).map((extra) => ({
         name: extra.name || "",
         description: extra.description || "",
-        price: String(extra.price ?? "0"),
+        price: String(extra.original_price ?? extra.price ?? "0"),
+        discount_enabled: Boolean(extra.has_discount),
+        discount_percent: String(extra.discount_percent ?? 0),
+        discount_label: extra.discount_label || "",
       })),
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
