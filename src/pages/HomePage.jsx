@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AnnouncementBanner from "../components/AnnouncementBanner";
 import InquiryModal from "../components/InquiryModal";
 import ProductCard from "../components/ProductCard";
 import PublicHeader from "../components/PublicHeader";
@@ -6,6 +7,7 @@ import SiteFooter from "../components/SiteFooter";
 import { supabase } from "../supabaseClient";
 import { isProductVisible } from "../utils/availability";
 import { getEmptyInquiryForm } from "../utils/price";
+import { sortProductsByDisplayOrder } from "../utils/products";
 import {
   badgeStyle,
   homeBrandCardGridStyle,
@@ -41,7 +43,7 @@ export default function HomePage() {
       .order("id", { ascending: true });
 
     if (error) console.log(error);
-    else setProducts(data || []);
+    else setProducts(sortProductsByDisplayOrder(data || []));
   }
 
   function openInquiry(product) {
@@ -112,6 +114,8 @@ export default function HomePage() {
             persönliches Zuhause auf Rädern.
           </p>
         </section>
+
+        <AnnouncementBanner />
 
         <section style={homeBrandSectionStyle}>
           <div style={homeBrandIntroStyle}>

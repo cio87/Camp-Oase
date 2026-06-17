@@ -110,6 +110,18 @@ export default function AdminProducts({
           style={inputStyle}
         />
 
+        <label style={adminExtraLabelStyle}>Reihenfolge</label>
+        <input
+          type="number"
+          step="1"
+          placeholder="z. B. 1"
+          value={newProduct.sort_order ?? 0}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, sort_order: e.target.value })
+          }
+          style={inputStyle}
+        />
+
         <label style={adminExtraLabelStyle}>Bestand / Stückzahl</label>
         <input
           type="number"
@@ -413,6 +425,9 @@ export default function AdminProducts({
               <div>
                 <strong>{product.title}</strong>
                 <p style={{ margin: "6px 0", color: "#666" }}>{product.price}</p>
+                <p style={{ margin: "6px 0", color: "#667", fontSize: "14px" }}>
+                  Reihenfolge: {Number(product.sort_order || 0)}
+                </p>
                 <span style={adminAvailabilityBadgeStyle}>
                   {getAvailabilityLabel(product)}
                 </span>

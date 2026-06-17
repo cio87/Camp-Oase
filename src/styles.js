@@ -56,6 +56,69 @@ export const headerNavLinkStyle = {
   background: "rgba(255,255,255,0.55)",
 };
 
+export const announcementBannerStyle = {
+  maxWidth: "1120px",
+  margin: "clamp(18px, 4vw, 30px) auto 0",
+  padding: "0 clamp(14px, 5vw, 32px)",
+  color: "#435749",
+};
+
+export const announcementBannerInnerStyle = {
+  background: "linear-gradient(135deg, #fff8e8, #eef3ea)",
+  border: "1px solid #ead7a5",
+  borderRadius: "22px",
+  boxShadow: "0 14px 34px rgba(0,0,0,0.07)",
+  padding: "clamp(14px, 3vw, 20px) clamp(16px, 4vw, 24px)",
+  textAlign: "center",
+  fontSize: "clamp(15px, 3vw, 18px)",
+  fontWeight: "bold",
+  overflow: "hidden",
+};
+
+export const announcementBannerLinkStyle = {
+  color: "#435749",
+  textDecoration: "none",
+  minWidth: 0,
+  flex: "1 1 auto",
+};
+
+export const announcementBannerTextWrapStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "12px",
+  width: "100%",
+  minWidth: 0,
+  flexWrap: "wrap",
+};
+
+export const announcementBannerBadgeStyle = {
+  flex: "0 0 auto",
+  background: "#d9c7a2",
+  color: "#2f3e34",
+  padding: "6px 10px",
+  borderRadius: "999px",
+  fontSize: "12px",
+  letterSpacing: "0.02em",
+  textTransform: "uppercase",
+};
+
+export const announcementBannerTextViewportStyle = {
+  display: "block",
+  minWidth: 0,
+  width: "100%",
+  overflow: "hidden",
+  textAlign: "center",
+};
+
+export const announcementBannerMarqueeStyle = {
+  display: "inline-block",
+  whiteSpace: "nowrap",
+  paddingLeft: "20px",
+  minWidth: "max-content",
+  animation: "campoase-marquee 30s linear infinite",
+};
+
 export const pillBackLinkStyle = {
   display: "inline-flex",
   alignItems: "center",

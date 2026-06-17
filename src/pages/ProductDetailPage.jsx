@@ -11,6 +11,7 @@ import {
 import { addProductToCart } from "../utils/cart";
 import { MarkdownText } from "../utils/markdown";
 import { getProductBadges } from "../utils/productBadges";
+import { sortProductsByDisplayOrder } from "../utils/products";
 import {
   buildSelectedExtras,
   calculateEstimatedTotal,
@@ -100,7 +101,7 @@ export default function ProductDetailPage() {
       .order("id", { ascending: true });
 
     if (error) console.log(error);
-    else setProducts(data || []);
+    else setProducts(sortProductsByDisplayOrder(data || []));
   }
 
   function openInquiry(

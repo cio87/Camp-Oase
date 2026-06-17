@@ -5,6 +5,7 @@ export function getEmptyProduct() {
     price: "",
     image: "",
     file: null,
+    sort_order: 0,
     availability_status: "available",
     product_badges: [],
     stock_quantity: 0,

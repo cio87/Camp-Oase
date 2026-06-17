@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminInquiries from "../components/AdminInquiries";
 import AdminProducts from "../components/AdminProducts";
+import AdminSiteSettings from "../components/AdminSiteSettings";
 import { supabase } from "../supabaseClient";
 import { getProductBadgeValues } from "../utils/productBadges";
+import { sortProductsByDisplayOrder } from "../utils/products";
 import {
   clampDiscountPercent,
   getEmptyProduct,
@@ -34,6 +36,15 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [newProduct, setNewProduct] = useState(getEmptyProduct());
+  const [siteSettings, setSiteSettings] = useState({
+    id: "main",
+    announcement_enabled: false,
+    announcement_text: "",
+    announcement_mode: "static",
+    announcement_link: "",
+  });
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [settingsSaveStatus, setSettingsSaveStatus] = useState("");
 
   useEffect(() => {
     loadProducts();
@@ -43,6 +54,7 @@ export default function AdminPage() {
 
       if (data.session) {
         loadInquiries();
+        loadSiteSettings();
       }
     });
 
@@ -53,6 +65,7 @@ export default function AdminPage() {
 
       if (session) {
         loadInquiries();
+        loadSiteSettings();
       }
     });
 
@@ -66,7 +79,56 @@ export default function AdminPage() {
       .order("id", { ascending: true });
 
     if (error) console.log(error);
-    else setProducts(data || []);
+    else setProducts(sortProductsByDisplayOrder(data || []));
+  }
+
+  async function loadSiteSettings() {
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("*")
+      .eq("id", "main")
+      .maybeSingle();
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    if (data) {
+      setSiteSettings({
+        id: "main",
+        announcement_enabled: Boolean(data.announcement_enabled),
+        announcement_text: data.announcement_text || "",
+        announcement_mode: data.announcement_mode || "static",
+        announcement_link: data.announcement_link || "",
+      });
+    }
+  }
+
+  async function saveSiteSettings(e) {
+    e.preventDefault();
+
+    setSettingsSaving(true);
+    setSettingsSaveStatus("");
+
+    const { error } = await supabase.from("site_settings").upsert({
+      id: "main",
+      announcement_enabled: Boolean(siteSettings.announcement_enabled),
+      announcement_text: siteSettings.announcement_text || "",
+      announcement_mode: siteSettings.announcement_mode || "static",
+      announcement_link: siteSettings.announcement_link || "",
+      updated_at: new Date().toISOString(),
+    });
+
+    setSettingsSaving(false);
+
+    if (error) {
+      alert("Banner konnte nicht gespeichert werden: " + error.message);
+      return;
+    }
+
+    setSettingsSaveStatus("success");
+    await loadSiteSettings();
   }
 
   async function loadInquiries() {
@@ -148,6 +210,7 @@ export default function AdminPage() {
       description: newProduct.description,
       price: newProduct.price,
       image: imageUrl,
+      sort_order: Number(newProduct.sort_order || 0),
       availability_status: newProduct.availability_status || "available",
       product_badges: getProductBadgeValues(newProduct),
       stock_quantity: getStockQuantity(newProduct),
@@ -267,6 +330,7 @@ export default function AdminPage() {
       price: product.price,
       image: product.image,
       file: null,
+      sort_order: Number(product.sort_order || 0),
       availability_status: product.availability_status || "available",
       product_badges: getProductBadgeValues(product),
       stock_quantity: getStockQuantity(product),
@@ -356,6 +420,20 @@ export default function AdminPage() {
                   <span style={inquiryBadgeStyle}>{inquiries.length}</span>
                 )}
               </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminTab("website");
+                  loadSiteSettings();
+                }}
+                style={{
+                  ...adminTabButtonStyle,
+                  ...(adminTab === "website" ? adminTabActiveStyle : {}),
+                }}
+              >
+                Webseite
+              </button>
             </div>
 
             {adminTab === "products" && (
@@ -381,6 +459,16 @@ export default function AdminPage() {
                 setStatusFilter={setInquiryStatusFilter}
                 onUpdateStatus={updateInquiryStatus}
                 onDeleteInquiry={deleteInquiry}
+              />
+            )}
+
+            {adminTab === "website" && (
+              <AdminSiteSettings
+                settings={siteSettings}
+                setSettings={setSiteSettings}
+                saving={settingsSaving}
+                saveStatus={settingsSaveStatus}
+                onSave={saveSiteSettings}
               />
             )}
           </>
