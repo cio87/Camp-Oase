@@ -156,6 +156,9 @@ export default function CartPage() {
                         <h2 style={{ margin: "0 0 8px", color: "#435749" }}>
                           {item.title}
                         </h2>
+                        {item.isPreorder && (
+                          <span style={productCardHintStyle}>Vorbestellung</span>
+                        )}
                         <p style={{ margin: "0 0 8px", color: "#667" }}>
                           Basispreis:{" "}
                           {item.discountActive && (
@@ -307,6 +310,11 @@ export default function CartPage() {
               {items.map((item) => (
                 <div key={item.id} style={extraChoiceCardStyle}>
                   <strong>{item.title}</strong>
+                  {item.isPreorder && (
+                    <p style={{ margin: "6px 0", color: "#556b5d" }}>
+                      Vorbestellung
+                    </p>
+                  )}
                   <p style={{ margin: "8px 0", color: "#555", lineHeight: "1.5" }}>
                     Menge: {item.quantity || 1}
                     <br />

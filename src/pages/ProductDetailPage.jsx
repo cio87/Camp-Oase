@@ -6,6 +6,7 @@ import { supabase } from "../supabaseClient";
 import {
   getAvailabilityLabel,
   getProductAvailabilityNotice,
+  getAvailabilityStatus,
   isProductAvailable,
 } from "../utils/availability";
 import { addProductToCart } from "../utils/cart";
@@ -226,6 +227,7 @@ export default function ProductDetailPage() {
   const productExtras = getProductExtras(product);
   const productBadges = getProductBadges(product);
   const productIsAvailable = isProductAvailable(product);
+  const isPreorder = getAvailabilityStatus(product) === "preorder";
   const stockQuantity = getStockQuantity(product);
   const discountActive = hasActiveDiscount(product);
   const discountPrice = formatEuro(getDiscountedBasePrice(product));
@@ -279,10 +281,13 @@ export default function ProductDetailPage() {
 
               <div style={detailTrustRowStyle}>
                 <span style={detailTrustPillStyle}>Unverbindliche Anfrage</span>
-                {productIsAvailable && (
+                {productIsAvailable && !isPreorder && (
                   <span style={detailTrustPillStyle}>
                     Bestand: {stockQuantity}
                   </span>
+                )}
+                {isPreorder && (
+                  <span style={detailTrustPillStyle}>Vorbestellung</span>
                 )}
                 {discountActive && (
                   <span style={detailTrustPillStyle}>
@@ -418,7 +423,7 @@ export default function ProductDetailPage() {
                       : detailRequestButtonStyle.boxShadow,
                   }}
                 >
-                  In den Warenkorb
+                  {isPreorder ? "Vorbestellen" : "In den Warenkorb"}
                 </button>
 
                 <button

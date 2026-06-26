@@ -164,6 +164,12 @@ export default function AdminInquiries({
                         <div key={(position.product_title || "position") + "-" + index}>
                           <p>
                             <strong>{position.product_title}</strong>
+                            {position.is_preorder && (
+                              <>
+                                <br />
+                                <small>Vorbestellung</small>
+                              </>
+                            )}
                             <br />
                             Menge: {position.quantity} · Basispreis:{" "}
                             {position.base_price_label ||

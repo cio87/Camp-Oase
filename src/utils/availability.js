@@ -2,6 +2,7 @@ import { getStockQuantity } from "./price";
 
 export const AVAILABILITY_OPTIONS = [
   { value: "available", label: "Verfügbar" },
+  { value: "preorder", label: "Vorbestellbar" },
   { value: "sold_out", label: "Ausverkauft" },
   { value: "coming_soon", label: "Bald verfügbar" },
   { value: "hidden", label: "Ausgeblendet" },
@@ -24,7 +25,11 @@ export function getAvailabilityLabel(product) {
 }
 
 export function isProductAvailable(product) {
-  return getAvailabilityStatus(product) === "available" && getStockQuantity(product) > 0;
+  const status = getAvailabilityStatus(product);
+
+  if (status === "preorder") return true;
+
+  return status === "available" && getStockQuantity(product) > 0;
 }
 
 export function isProductVisible(product) {
@@ -35,6 +40,7 @@ export function getProductAvailabilityBadge(product) {
   const status = getAvailabilityStatus(product);
 
   if (status === "available" && getStockQuantity(product) <= 0) return "Ausverkauft";
+  if (status === "preorder") return "Vorbestellbar";
   if (status === "sold_out") return "Ausverkauft";
   if (status === "coming_soon") return "Bald wieder verfügbar";
 
@@ -49,6 +55,7 @@ export function getProductAvailabilityNotice(product) {
   }
 
   if (status === "sold_out") return "Dieses Produkt ist aktuell ausverkauft.";
+  if (status === "preorder") return "Dieser Artikel ist vorbestellbar.";
   if (status === "coming_soon") {
     return "Dieses Produkt ist bald wieder verfügbar.";
   }

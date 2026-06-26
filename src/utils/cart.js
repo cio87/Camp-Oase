@@ -8,6 +8,7 @@ import {
   getStockQuantity,
   hasActiveDiscount,
 } from "./price";
+import { getAvailabilityStatus } from "./availability";
 
 const CART_STORAGE_KEY = "campoase_cart";
 export const CART_UPDATED_EVENT = "campoase-cart-updated";
@@ -58,7 +59,11 @@ export function getCartSubtotal(items = getCartItems()) {
 
 export function addProductToCart(product, selectedExtras = {}) {
   const stockQuantity = getStockQuantity(product);
-  if (stockQuantity <= 0) return null;
+  const availabilityStatus = getAvailabilityStatus(product);
+  const isPreorder = availabilityStatus === "preorder";
+
+  if (availabilityStatus !== "available" && !isPreorder) return null;
+  if (!isPreorder && stockQuantity <= 0) return null;
 
   const customExtras = getProductExtras(product);
   const selectedItems = customExtras
@@ -92,6 +97,8 @@ export function addProductToCart(product, selectedExtras = {}) {
     productId: product.id,
     title: product.title,
     image: product.image,
+    availabilityStatus,
+    isPreorder,
     stockQuantity,
     originalBasePrice,
     originalBasePriceLabel: formatEuro(originalBasePrice),
@@ -156,6 +163,10 @@ export function buildCartMessage(items, subtotalLabel) {
       `Einzelpreis mit Extras: ${formatEuro(item.unitTotal)}`
     );
 
+    if (item.isPreorder) {
+      lines.push("Hinweis: Vorbestellung");
+    }
+
     if (item.discountActive) {
       lines.push(
         `Rabatt: ${item.discountLabel || item.discountPercent + "% Rabatt"}`,
@@ -194,6 +205,8 @@ export function buildCartSelectedExtras(items) {
     positions: items.map((item) => ({
       product_id: item.productId,
       product_title: item.title,
+      availability_status: item.availabilityStatus || "",
+      is_preorder: Boolean(item.isPreorder),
       quantity: Number(item.quantity || 1),
       base_price: item.basePrice,
       base_price_label: item.basePriceLabel || formatEuro(item.basePrice),
