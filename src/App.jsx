@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import AboutPage from "./pages/AboutPage";
 import AdminPage from "./pages/AdminPage";
 import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
 import ContactPage from "./pages/ContactPage";
 import HomePage from "./pages/HomePage";
 import LegalPage from "./pages/LegalPage";
@@ -16,6 +17,7 @@ export default function App() {
       <Route path="/ueber-uns" element={<AboutPage />} />
       <Route path="/kontakt" element={<ContactPage />} />
       <Route path="/warenkorb" element={<CartPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/impressum" element={<LegalPage type="impressum" />} />
       <Route path="/datenschutz" element={<LegalPage type="datenschutz" />} />
     </Routes>

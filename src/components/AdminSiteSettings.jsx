@@ -69,12 +69,58 @@ export default function AdminSiteSettings({
       />
 
       <button disabled={saving} style={buttonStyle}>
-        {saving ? "Wird gespeichert..." : "Banner speichern"}
+        {saving ? "Wird gespeichert..." : "Webseite speichern"}
       </button>
 
       {saveStatus === "success" && (
-        <div style={successBoxStyle}>Banner-Einstellungen gespeichert.</div>
+        <div style={successBoxStyle}>Webseiten-Einstellungen gespeichert.</div>
       )}
+
+      <hr style={{ margin: "28px 0", border: "none", borderTop: "1px solid #e8dfcf" }} />
+
+      <h2>Checkout-Vorbereitung</h2>
+      <p style={adminHintStyle}>
+        Diese Einstellungen bereiten einen späteren Checkout vor. Es wird noch
+        kein Zahlungsanbieter aktiviert.
+      </p>
+
+      <label style={checkboxRowStyle}>
+        <input
+          type="checkbox"
+          checked={Boolean(settings.checkout_enabled)}
+          onChange={(e) =>
+            setSettings({
+              ...settings,
+              checkout_enabled: e.target.checked,
+            })
+          }
+        />
+        Checkout aktivieren
+      </label>
+
+      <label style={checkboxRowStyle}>
+        <input
+          type="checkbox"
+          checked={Boolean(settings.payment_enabled)}
+          onChange={(e) =>
+            setSettings({
+              ...settings,
+              payment_enabled: e.target.checked,
+            })
+          }
+        />
+        Zahlung aktivieren
+      </label>
+
+      <label style={adminExtraLabelStyle}>Checkout-Hinweistext</label>
+      <textarea
+        placeholder="z. B. Der Checkout ist aktuell noch nicht aktiviert."
+        value={settings.checkout_notice || ""}
+        onChange={(e) =>
+          setSettings({ ...settings, checkout_notice: e.target.value })
+        }
+        style={{ ...inputStyle, minHeight: "90px" }}
+      />
     </form>
   );
 }

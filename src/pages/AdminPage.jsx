@@ -42,6 +42,9 @@ export default function AdminPage() {
     announcement_text: "",
     announcement_mode: "static",
     announcement_link: "",
+    checkout_enabled: false,
+    payment_enabled: false,
+    checkout_notice: "",
   });
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaveStatus, setSettingsSaveStatus] = useState("");
@@ -101,6 +104,9 @@ export default function AdminPage() {
         announcement_text: data.announcement_text || "",
         announcement_mode: data.announcement_mode || "static",
         announcement_link: data.announcement_link || "",
+        checkout_enabled: Boolean(data.checkout_enabled),
+        payment_enabled: Boolean(data.payment_enabled),
+        checkout_notice: data.checkout_notice || "",
       });
     }
   }
@@ -117,6 +123,9 @@ export default function AdminPage() {
       announcement_text: siteSettings.announcement_text || "",
       announcement_mode: siteSettings.announcement_mode || "static",
       announcement_link: siteSettings.announcement_link || "",
+      checkout_enabled: Boolean(siteSettings.checkout_enabled),
+      payment_enabled: Boolean(siteSettings.payment_enabled),
+      checkout_notice: siteSettings.checkout_notice || "",
       updated_at: new Date().toISOString(),
     });
 
