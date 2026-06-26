@@ -62,6 +62,17 @@ const fieldErrorStyle = {
   margin: "-4px 0 8px",
 };
 
+const addressHintStyle = {
+  background: "linear-gradient(135deg, #f7f1e3, #eef3ea)",
+  border: "1px solid #dbe4d4",
+  borderRadius: "18px",
+  padding: "14px 16px",
+  color: "#556b5d",
+  lineHeight: "1.6",
+  fontSize: "14px",
+  margin: "18px 0 8px",
+};
+
 export default function CheckoutPage() {
   const [settings, setSettings] = useState({
     checkout_enabled: false,
@@ -392,6 +403,17 @@ export default function CheckoutPage() {
                 })}
 
                 {renderInput("phone", "Telefonnummer optional")}
+
+                <div>
+                  <h3 style={{ margin: "18px 0 8px", color: "#435749" }}>
+                    Lieferadresse
+                  </h3>
+                  <p style={addressHintStyle}>
+                    Bitte prüfe deine Lieferadresse sorgfältig. Eine vollständige
+                    und korrekte Angabe hilft uns, deine Anfrage reibungslos zu
+                    bearbeiten und den Versand später zuverlässig vorzubereiten.
+                  </p>
+                </div>
 
                 {renderInput("street", "Straße und Hausnummer", {
                   required: true,
