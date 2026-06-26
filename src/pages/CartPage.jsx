@@ -7,6 +7,7 @@ import { supabase } from "../supabaseClient";
 import {
   buildCartMessage,
   buildCartSelectedExtras,
+  clearCart,
   getCartItems,
   getCartSubtotal,
   removeCartItem,
@@ -39,13 +40,27 @@ export default function CartPage() {
   const [inquiryForm, setInquiryForm] = useState(getEmptyInquiryForm());
   const [inquiryStatus, setInquiryStatus] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
+  const [checkoutEnabled, setCheckoutEnabled] = useState(false);
 
   const subtotal = useMemo(() => getCartSubtotal(items), [items]);
   const subtotalLabel = formatEuro(subtotal);
 
   useEffect(() => {
     setItems(getCartItems());
+    loadCheckoutSettings();
   }, []);
+
+  async function loadCheckoutSettings() {
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("checkout_enabled")
+      .eq("id", "main")
+      .maybeSingle();
+
+    if (!error && data) {
+      setCheckoutEnabled(Boolean(data.checkout_enabled));
+    }
+  }
 
   function refreshCart() {
     setItems(getCartItems());
@@ -111,6 +126,8 @@ export default function CartPage() {
     }
 
     setInquiryStatus("success");
+    clearCart();
+    setItems([]);
 
     setTimeout(() => {
       closeInquiry();
@@ -279,9 +296,24 @@ export default function CartPage() {
                     </strong>
                   </div>
 
-                  <button type="button" onClick={openCartInquiry} style={buttonStyle}>
-                    Warenkorb unverbindlich anfragen
-                  </button>
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                    {checkoutEnabled && (
+                      <Link
+                        to="/checkout"
+                        style={{
+                          ...buttonStyle,
+                          display: "inline-block",
+                          textDecoration: "none",
+                        }}
+                      >
+                        Zur Kasse
+                      </Link>
+                    )}
+
+                    <button type="button" onClick={openCartInquiry} style={buttonStyle}>
+                      Warenkorb unverbindlich anfragen
+                    </button>
+                  </div>
                 </aside>
               </>
             )}
