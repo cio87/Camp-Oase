@@ -55,6 +55,12 @@ export default function AdminProducts({
   const selectedProductBadges = Array.isArray(newProduct.product_badges)
     ? newProduct.product_badges
     : [];
+  const galleryImages = Array.isArray(newProduct.gallery_images)
+    ? newProduct.gallery_images.slice(0, 3)
+    : [];
+  const galleryFiles = Array.isArray(newProduct.galleryFiles)
+    ? newProduct.galleryFiles.slice(0, 3)
+    : [];
 
   useEffect(() => {
     function closePreviewOnEscape(event) {
@@ -76,6 +82,27 @@ export default function AdminProducts({
       : selectedProductBadges.filter((badge) => badge !== value);
 
     setNewProduct({ ...newProduct, product_badges: nextBadges });
+  }
+
+  function updateGalleryFile(index, file) {
+    const nextFiles = [...galleryFiles];
+    nextFiles[index] = file || null;
+
+    setNewProduct({ ...newProduct, galleryFiles: nextFiles });
+  }
+
+  function removeGalleryImage(index) {
+    const nextImages = [...galleryImages];
+    const nextFiles = [...galleryFiles];
+
+    nextImages[index] = "";
+    nextFiles[index] = null;
+
+    setNewProduct({
+      ...newProduct,
+      gallery_images: nextImages.filter(Boolean).slice(0, 3),
+      galleryFiles: nextFiles,
+    });
   }
 
   return (
@@ -269,6 +296,76 @@ export default function AdminProducts({
           }
           style={inputStyle}
         />
+
+        <div style={adminExtrasBoxStyle}>
+          <strong style={{ color: "#435749" }}>Produktgalerie</strong>
+          <p style={adminHintStyle}>
+            Optional bis zu 3 zusätzliche Bilder. Das Hauptbild bleibt weiterhin
+            das Bild für Produktkarten und Übersicht.
+          </p>
+
+          <div style={{ display: "grid", gap: "12px" }}>
+            {[0, 1, 2].map((index) => {
+              const image = galleryImages[index];
+              const file = galleryFiles[index];
+
+              return (
+                <div key={index} style={adminImagePreviewBoxStyle}>
+                  {image && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewImage(image)}
+                      style={{
+                        border: "none",
+                        padding: 0,
+                        background: "transparent",
+                        cursor: "zoom-in",
+                      }}
+                      aria-label={`Galeriebild ${index + 1} größer anzeigen`}
+                    >
+                      <img
+                        src={image}
+                        alt={`Galeriebild ${index + 1}`}
+                        style={adminImagePreviewImageStyle}
+                      />
+                    </button>
+                  )}
+
+                  <div style={{ flex: "1 1 220px" }}>
+                    <strong>Galeriebild {index + 1}</strong>
+                    {file && (
+                      <p style={adminImagePreviewTextStyle}>
+                        Neue Datei ausgewählt: <strong>{file.name}</strong>
+                      </p>
+                    )}
+                    {!image && !file && (
+                      <p style={adminImagePreviewTextStyle}>
+                        Noch kein Galeriebild ausgewählt.
+                      </p>
+                    )}
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => updateGalleryFile(index, e.target.files[0])}
+                      style={inputStyle}
+                    />
+
+                    {(image || file) && (
+                      <button
+                        type="button"
+                        onClick={() => removeGalleryImage(index)}
+                        style={smallDeleteButtonStyle}
+                      >
+                        Galeriebild entfernen
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         <div style={adminExtrasBoxStyle}>
           <label style={checkboxRowStyle}>

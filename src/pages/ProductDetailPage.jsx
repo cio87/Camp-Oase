@@ -70,6 +70,7 @@ export default function ProductDetailPage() {
   const [inquiryMode, setInquiryMode] = useState("question");
   const [isDesktopDetailLayout, setIsDesktopDetailLayout] = useState(false);
   const [cartStatus, setCartStatus] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
   const { id } = useParams();
 
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     setSelectedDetailExtras({});
+    setSelectedImage("");
   }, [id]);
 
   useEffect(() => {
@@ -224,6 +226,13 @@ export default function ProductDetailPage() {
   }
 
   const product = products.find((item) => String(item.id) === id);
+  const productGalleryImages = Array.isArray(product?.gallery_images)
+    ? product.gallery_images.filter(Boolean).slice(0, 3)
+    : [];
+  const productImages = product
+    ? [product.image, ...productGalleryImages].filter(Boolean)
+    : [];
+  const displayImage = selectedImage || product?.image;
   const productExtras = getProductExtras(product);
   const productBadges = getProductBadges(product);
   const productIsAvailable = isProductAvailable(product);
@@ -263,10 +272,57 @@ export default function ProductDetailPage() {
               }}
             >
               <img
-                src={product.image}
+                src={displayImage}
                 alt={product.title}
                 style={detailImageStyle}
               />
+
+              {productImages.length > 1 && (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    flexWrap: "wrap",
+                    marginTop: "14px",
+                  }}
+                >
+                  {productImages.map((image, index) => {
+                    const isSelected = image === displayImage;
+
+                    return (
+                      <button
+                        key={image + "-" + index}
+                        type="button"
+                        onClick={() => setSelectedImage(image)}
+                        style={{
+                          width: "72px",
+                          height: "72px",
+                          padding: "4px",
+                          borderRadius: "14px",
+                          border: isSelected
+                            ? "2px solid #556b5d"
+                            : "1px solid #e4dac7",
+                          background: isSelected ? "#eef3ea" : "white",
+                          cursor: "pointer",
+                        }}
+                        aria-label={`Produktbild ${index + 1} anzeigen`}
+                      >
+                        <img
+                          src={image}
+                          alt={`${product.title} Ansicht ${index + 1}`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            borderRadius: "10px",
+                            background: "#f5f1e8",
+                          }}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div style={detailInfoPanelStyle}>

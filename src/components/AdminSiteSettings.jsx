@@ -17,6 +17,48 @@ export default function AdminSiteSettings({
 }) {
   return (
     <form onSubmit={onSave} style={formStyle}>
+      <h2>Wartungsmodus</h2>
+      <p style={adminHintStyle}>
+        Wenn der Wartungsmodus aktiv ist, sehen Besucher eine ruhige
+        Wartungsseite. Der Adminbereich bleibt erreichbar.
+      </p>
+
+      <label style={checkboxRowStyle}>
+        <input
+          type="checkbox"
+          checked={Boolean(settings.maintenance_enabled)}
+          onChange={(e) =>
+            setSettings({
+              ...settings,
+              maintenance_enabled: e.target.checked,
+            })
+          }
+        />
+        Wartungsmodus aktivieren
+      </label>
+
+      <label style={adminExtraLabelStyle}>Wartungsmodus Überschrift</label>
+      <input
+        placeholder="z. B. Camp Oase macht kurz Pause"
+        value={settings.maintenance_title || ""}
+        onChange={(e) =>
+          setSettings({ ...settings, maintenance_title: e.target.value })
+        }
+        style={inputStyle}
+      />
+
+      <label style={adminExtraLabelStyle}>Wartungsmodus Text</label>
+      <textarea
+        placeholder="Kurzer Hinweis für Besucher während der Wartung."
+        value={settings.maintenance_text || ""}
+        onChange={(e) =>
+          setSettings({ ...settings, maintenance_text: e.target.value })
+        }
+        style={{ ...inputStyle, minHeight: "90px" }}
+      />
+
+      <hr style={{ margin: "28px 0", border: "none", borderTop: "1px solid #e8dfcf" }} />
+
       <h2>Hinweis-Banner</h2>
       <p style={adminHintStyle}>
         Dieser Banner erscheint auf der öffentlichen Webseite, wenn er aktiv ist.

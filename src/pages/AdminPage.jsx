@@ -45,6 +45,9 @@ export default function AdminPage() {
     checkout_enabled: false,
     payment_enabled: false,
     checkout_notice: "",
+    maintenance_enabled: false,
+    maintenance_title: "",
+    maintenance_text: "",
   });
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaveStatus, setSettingsSaveStatus] = useState("");
@@ -107,6 +110,9 @@ export default function AdminPage() {
         checkout_enabled: Boolean(data.checkout_enabled),
         payment_enabled: Boolean(data.payment_enabled),
         checkout_notice: data.checkout_notice || "",
+        maintenance_enabled: Boolean(data.maintenance_enabled),
+        maintenance_title: data.maintenance_title || "",
+        maintenance_text: data.maintenance_text || "",
       });
     }
   }
@@ -126,6 +132,9 @@ export default function AdminPage() {
       checkout_enabled: Boolean(siteSettings.checkout_enabled),
       payment_enabled: Boolean(siteSettings.payment_enabled),
       checkout_notice: siteSettings.checkout_notice || "",
+      maintenance_enabled: Boolean(siteSettings.maintenance_enabled),
+      maintenance_title: siteSettings.maintenance_title || "",
+      maintenance_text: siteSettings.maintenance_text || "",
       updated_at: new Date().toISOString(),
     });
 
@@ -169,38 +178,70 @@ export default function AdminPage() {
     setAdminTab("products");
   }
 
+  async function uploadProductImage(file) {
+    const cleanFileName = file.name
+      .toLowerCase()
+      .replaceAll("ä", "ae")
+      .replaceAll("ö", "oe")
+      .replaceAll("ü", "ue")
+      .replaceAll("ß", "ss")
+      .replaceAll("Ã¤", "ae")
+      .replaceAll("Ã¶", "oe")
+      .replaceAll("Ã¼", "ue")
+      .replaceAll("ÃŸ", "ss")
+      .replace(/[^a-z0-9.-]/g, "-");
+
+    const uniquePart = Date.now() + "-" + Math.random().toString(16).slice(2);
+    const fileName = uniquePart + "-" + cleanFileName;
+
+    const { error: uploadError } = await supabase.storage
+      .from("products")
+      .upload(fileName, file);
+
+    if (uploadError) {
+      alert("Bild-Upload fehlgeschlagen: " + uploadError.message);
+      return "";
+    }
+
+    return supabase.storage.from("products").getPublicUrl(fileName).data
+      .publicUrl;
+  }
+
+  function getGalleryImages(product) {
+    return Array.isArray(product?.gallery_images)
+      ? product.gallery_images.filter(Boolean).slice(0, 3)
+      : [];
+  }
+
   async function addProduct(e) {
     e.preventDefault();
 
     let imageUrl = newProduct.image;
 
     if (newProduct.file) {
-      const cleanFileName = newProduct.file.name
-        .toLowerCase()
-        .replaceAll("ä", "ae")
-        .replaceAll("ö", "oe")
-        .replaceAll("ü", "ue")
-        .replaceAll("ß", "ss")
-        .replace(/[^a-z0-9.-]/g, "-");
-
-      const fileName = Date.now() + "-" + cleanFileName;
-
-      const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(fileName, newProduct.file);
-
-      if (uploadError) {
-        alert("Bild-Upload fehlgeschlagen: " + uploadError.message);
-        return;
-      }
-
-      imageUrl = supabase.storage.from("products").getPublicUrl(fileName).data
-        .publicUrl;
+      imageUrl = await uploadProductImage(newProduct.file);
+      if (!imageUrl) return;
     }
 
     if (!imageUrl) {
       alert("Bitte ein Bild auswählen");
       return;
+    }
+
+    const galleryImages = [];
+    const existingGalleryImages = getGalleryImages(newProduct);
+    const galleryFiles = Array.isArray(newProduct.galleryFiles)
+      ? newProduct.galleryFiles
+      : [];
+
+    for (let index = 0; index < 3; index += 1) {
+      if (galleryFiles[index]) {
+        const uploadedImage = await uploadProductImage(galleryFiles[index]);
+        if (!uploadedImage) return;
+        galleryImages.push(uploadedImage);
+      } else if (existingGalleryImages[index]) {
+        galleryImages.push(existingGalleryImages[index]);
+      }
     }
 
     const cleanedExtras = (newProduct.custom_extras || [])
@@ -228,6 +269,7 @@ export default function AdminPage() {
       discount_label: String(newProduct.discount_label || "").trim(),
       extras_enabled: newProduct.extras_enabled && cleanedExtras.length > 0,
       custom_extras: cleanedExtras,
+      gallery_images: galleryImages,
     };
 
     let error;
@@ -339,6 +381,8 @@ export default function AdminPage() {
       price: product.price,
       image: product.image,
       file: null,
+      gallery_images: getGalleryImages(product),
+      galleryFiles: [],
       sort_order: Number(product.sort_order || 0),
       availability_status: product.availability_status || "available",
       product_badges: getProductBadgeValues(product),
