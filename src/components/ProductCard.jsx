@@ -52,7 +52,14 @@ export default function ProductCard({ product }) {
         color: "inherit",
       }}
     >
-      <article>
+      <article
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          flex: "1 1 auto",
+          height: "100%",
+        }}
+      >
         {availabilityBadge && (
           <span style={productAvailabilityBadgeStyle}>{availabilityBadge}</span>
         )}
@@ -81,7 +88,7 @@ export default function ProductCard({ product }) {
           <p style={productPreviewTextStyle}>{stripMarkdown(product.description)}</p>
         </div>
 
-        <div style={{ padding: "0 24px 24px" }}>
+        <div style={{ padding: "0 24px 24px", marginTop: "auto" }}>
           <div style={priceRowStyle}>
             <span style={productPriceStackStyle}>
               {discountActive && (

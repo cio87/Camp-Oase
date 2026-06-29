@@ -231,7 +231,9 @@ export const productGridStyle = {
 
 export const productCardStyle = {
   position: "relative",
-  display: "block",
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
   background: "linear-gradient(180deg, #ffffff 0%, #fbfaf6 100%)",
   border: "1px solid #e8dfcf",
   borderRadius: "28px",
@@ -265,6 +267,9 @@ export const productImageStyle = {
 
 export const productCardContentStyle = {
   padding: "22px 24px 0",
+  display: "flex",
+  flex: "1 1 auto",
+  flexDirection: "column",
 };
 
 export const productCardMetaRowStyle = {
