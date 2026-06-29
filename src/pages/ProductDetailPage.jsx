@@ -71,6 +71,7 @@ export default function ProductDetailPage() {
   const [isDesktopDetailLayout, setIsDesktopDetailLayout] = useState(false);
   const [cartStatus, setCartStatus] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const { id } = useParams();
 
   useEffect(() => {
@@ -80,7 +81,24 @@ export default function ProductDetailPage() {
   useEffect(() => {
     setSelectedDetailExtras({});
     setSelectedImage("");
+    setLightboxOpen(false);
   }, [id]);
+
+  useEffect(() => {
+    function closeLightboxOnEscape(event) {
+      if (event.key === "Escape") {
+        setLightboxOpen(false);
+      }
+    }
+
+    if (lightboxOpen) {
+      window.addEventListener("keydown", closeLightboxOnEscape);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", closeLightboxOnEscape);
+    };
+  }, [lightboxOpen]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 900px)");
@@ -249,6 +267,17 @@ export default function ProductDetailPage() {
     (extra) => extra?.selected
   );
   const cartButtonDisabled = !productIsAvailable;
+  const selectedImageIndex = Math.max(0, productImages.indexOf(displayImage));
+
+  function showLightboxImage(direction) {
+    if (productImages.length <= 1) return;
+
+    const nextIndex =
+      (selectedImageIndex + direction + productImages.length) %
+      productImages.length;
+
+    setSelectedImage(productImages[nextIndex]);
+  }
 
   if (!product) {
     return <div style={pageStyle}>Produkt wird geladen...</div>;
@@ -271,11 +300,43 @@ export default function ProductDetailPage() {
                 ...(isDesktopDetailLayout ? detailMediaStickyStyle : {}),
               }}
             >
-              <img
-                src={displayImage}
-                alt={product.title}
-                style={detailImageStyle}
-              />
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                style={{
+                  position: "relative",
+                  display: "block",
+                  width: "100%",
+                  border: "none",
+                  padding: 0,
+                  background: "transparent",
+                  cursor: "zoom-in",
+                }}
+                aria-label="Produktbild vergrößern"
+              >
+                <img
+                  src={displayImage}
+                  alt={product.title}
+                  style={detailImageStyle}
+                />
+                <span
+                  style={{
+                    position: "absolute",
+                    right: "14px",
+                    bottom: "14px",
+                    background: "rgba(255,255,255,0.88)",
+                    color: "#556b5d",
+                    border: "1px solid #d8e1d3",
+                    borderRadius: "999px",
+                    padding: "7px 11px",
+                    fontSize: "13px",
+                    fontWeight: "bold",
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.08)",
+                  }}
+                >
+                  Zum Vergrößern antippen
+                </span>
+              </button>
 
               {productImages.length > 1 && (
                 <div
@@ -503,6 +564,127 @@ export default function ProductDetailPage() {
 
         <SiteFooter />
       </div>
+
+      {lightboxOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10000,
+            background: "rgba(47, 62, 52, 0.72)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "clamp(16px, 4vw, 34px)",
+          }}
+          onClick={() => setLightboxOpen(false)}
+          role="presentation"
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "min(980px, 100%)",
+              maxHeight: "90vh",
+              background: "linear-gradient(135deg, #ffffff, #f8f2e6)",
+              border: "1px solid #eadfcb",
+              borderRadius: "24px",
+              padding: "clamp(12px, 3vw, 18px)",
+              boxShadow: "0 22px 70px rgba(0,0,0,0.32)",
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(false)}
+              style={{
+                position: "absolute",
+                right: "12px",
+                top: "12px",
+                zIndex: 2,
+                border: "none",
+                background: "rgba(255,255,255,0.9)",
+                color: "#556b5d",
+                borderRadius: "999px",
+                width: "40px",
+                height: "40px",
+                cursor: "pointer",
+                fontSize: "25px",
+                lineHeight: "1",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+              }}
+              aria-label="Bildansicht schließen"
+            >
+              ×
+            </button>
+
+            {productImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => showLightboxImage(-1)}
+                  style={{
+                    position: "absolute",
+                    left: "12px",
+                    top: "50%",
+                    zIndex: 2,
+                    transform: "translateY(-50%)",
+                    border: "none",
+                    background: "rgba(255,255,255,0.9)",
+                    color: "#556b5d",
+                    borderRadius: "999px",
+                    width: "42px",
+                    height: "42px",
+                    cursor: "pointer",
+                    fontSize: "28px",
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+                  }}
+                  aria-label="Vorheriges Produktbild anzeigen"
+                >
+                  ‹
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => showLightboxImage(1)}
+                  style={{
+                    position: "absolute",
+                    right: "12px",
+                    top: "50%",
+                    zIndex: 2,
+                    transform: "translateY(-50%)",
+                    border: "none",
+                    background: "rgba(255,255,255,0.9)",
+                    color: "#556b5d",
+                    borderRadius: "999px",
+                    width: "42px",
+                    height: "42px",
+                    cursor: "pointer",
+                    fontSize: "28px",
+                    boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+                  }}
+                  aria-label="Nächstes Produktbild anzeigen"
+                >
+                  ›
+                </button>
+              </>
+            )}
+
+            <img
+              src={displayImage}
+              alt={`${product.title} vergrößert`}
+              style={{
+                display: "block",
+                width: "100%",
+                maxHeight: "82vh",
+                objectFit: "contain",
+                borderRadius: "18px",
+                background: "#f5f1e8",
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {inquiryProduct && (
         <InquiryModal
