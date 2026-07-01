@@ -31,6 +31,12 @@ export default function SiteFooter() {
 
       <span style={footerDotStyle}>·</span>
 
+      <Link to="/widerruf" style={footerLinkStyle}>
+        Widerruf
+      </Link>
+
+      <span style={footerDotStyle}>·</span>
+
       <Link to="/admin" style={footerLoginStyle}>
         Login
       </Link>

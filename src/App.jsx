@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import LegalPage from "./pages/LegalPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ShippingPaymentPage from "./pages/ShippingPaymentPage";
+import WithdrawalPage from "./pages/WithdrawalPage";
 import MaintenanceGate from "./components/MaintenanceGate";
 
 function publicPage(page) {
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/impressum" element={publicPage(<LegalPage type="impressum" />)} />
       <Route path="/datenschutz" element={publicPage(<LegalPage type="datenschutz" />)} />
       <Route path="/versand-zahlung" element={publicPage(<ShippingPaymentPage />)} />
+      <Route path="/widerruf" element={publicPage(<WithdrawalPage />)} />
     </Routes>
   );
 }
