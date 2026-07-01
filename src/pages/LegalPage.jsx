@@ -39,6 +39,12 @@ const legalTextStyle = {
   lineHeight: "1.75",
 };
 
+const legalListStyle = {
+  ...legalTextStyle,
+  margin: "10px 0 0",
+  paddingLeft: "22px",
+};
+
 const legalMailLinkStyle = {
   color: "#556b5d",
   fontWeight: "bold",
@@ -145,11 +151,14 @@ export default function LegalPage({ type }) {
             <>
               <p style={legalIntroStyle}>
                 Informationen zur Verarbeitung personenbezogener Daten auf dieser
-                Webseite
+                Website
               </p>
 
               <div style={legalSectionGridStyle}>
                 <LegalSection title="1. Verantwortlicher">
+                  Verantwortlich für die Datenverarbeitung auf dieser Website ist:
+                  <br />
+                  <br />
                   Brian Hillier
                   <br />
                   Camp Oase
@@ -160,105 +169,236 @@ export default function LegalPage({ type }) {
                   <br />
                   Deutschland
                   <br />
+                  <br />
                   E-Mail: <ContactMail />
                 </LegalSection>
 
                 <LegalSection title="2. Allgemeine Hinweise zur Datenverarbeitung">
-                  Wir verarbeiten personenbezogene Daten nur, soweit dies zur
-                  Bereitstellung dieser Webseite, zur Bearbeitung von Anfragen
-                  oder zur technischen Verwaltung erforderlich ist. Über diese
-                  Webseite erfolgt derzeit kein direkter Kaufabschluss und keine
-                  Online-Zahlung. Produktanfragen, Warenkorbanfragen und die
-                  Checkout-Vorschau sind unverbindliche Anfragewege.
+                  <p style={legalTextStyle}>
+                    Wir verarbeiten personenbezogene Daten nur, soweit dies zur
+                    Bereitstellung dieser Website, zur Bearbeitung von Anfragen
+                    oder zur technischen Sicherheit erforderlich ist.
+                    Personenbezogene Daten sind alle Informationen, mit denen eine
+                    Person direkt oder indirekt identifiziert werden kann.
+                  </p>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Diese Website dient aktuell der Präsentation von Produkten und
+                    der unverbindlichen Anfrage von Produkten oder
+                    Warenkorbinhalten. Es findet derzeit kein direkter
+                    Kaufabschluss und keine Online-Zahlung über die Website statt.
+                  </p>
                 </LegalSection>
 
-                <LegalSection title="3. Hosting und Server-Logfiles / Vercel">
-                  Diese Webseite wird über Vercel bereitgestellt. Beim Aufruf der
-                  Webseite können technisch erforderliche Server-Logfiles
-                  verarbeitet werden, zum Beispiel IP-Adresse, Datum und Uhrzeit
-                  des Zugriffs, aufgerufene Seiten, Browserinformationen,
-                  Betriebssystem und Referrer-URL. Die Verarbeitung erfolgt zur
-                  sicheren und stabilen Bereitstellung der Webseite.
+                <LegalSection title="3. Hosting und Server-Logfiles">
+                  Diese Website wird über Vercel bereitgestellt. Beim Aufruf der
+                  Website können technisch notwendige Daten verarbeitet werden, zum
+                  Beispiel:
+                  <ul style={legalListStyle}>
+                    <li>IP-Adresse</li>
+                    <li>Datum und Uhrzeit des Zugriffs</li>
+                    <li>aufgerufene Seiten</li>
+                    <li>Browsertyp und Betriebssystem</li>
+                    <li>Referrer-URL</li>
+                    <li>technische Verbindungsdaten</li>
+                  </ul>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Diese Daten sind erforderlich, um die Website sicher und
+                    zuverlässig auszuliefern. Die Verarbeitung erfolgt auf
+                    Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes
+                    Interesse liegt in der sicheren, stabilen und effizienten
+                    Bereitstellung unserer Website.
+                  </p>
                 </LegalSection>
 
-                <LegalSection title="4. Nutzung von Supabase für Datenbank, Auth und Storage">
-                  Für Datenbankfunktionen, Admin-Login und Bildspeicherung wird
-                  Supabase eingesetzt. Produktanfragen und Warenkorbanfragen
-                  werden in Supabase gespeichert. Der Admin-Login läuft über
-                  Supabase Auth. Produktbilder werden über Supabase Storage
-                  geladen.
+                <LegalSection title="4. Nutzung von Supabase">
+                  Für Datenbankfunktionen, Authentifizierung im Adminbereich und
+                  die Speicherung von Produktbildern nutzen wir Supabase.
+                  <br />
+                  <br />
+                  Über Supabase können insbesondere folgende Daten verarbeitet
+                  werden:
+                  <ul style={legalListStyle}>
+                    <li>Produktdaten</li>
+                    <li>Produktbilder</li>
+                    <li>Anfragen über Produkt- und Warenkorbanfragen</li>
+                    <li>Name, E-Mail-Adresse und Nachrichteninhalt bei Anfragen</li>
+                    <li>
+                      Adressdaten, sofern diese in der Checkout-Vorschau für eine
+                      unverbindliche Anfrage eingegeben werden
+                    </li>
+                    <li>technische Authentifizierungsdaten für den Adminbereich</li>
+                  </ul>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Die Verarbeitung erfolgt, soweit sie zur Bearbeitung von
+                    Anfragen erforderlich ist, auf Grundlage von Art. 6 Abs. 1
+                    lit. b DSGVO. Soweit die Verarbeitung zur technischen
+                    Bereitstellung und Verwaltung der Website erforderlich ist,
+                    erfolgt sie auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.
+                  </p>
                 </LegalSection>
 
                 <LegalSection title="5. Kontaktaufnahme per E-Mail">
-                  Wenn du uns per E-Mail kontaktierst, verarbeiten wir die von
-                  dir mitgeteilten Daten, insbesondere deine E-Mail-Adresse und
-                  den Inhalt deiner Nachricht, zur Bearbeitung deiner Anfrage.
-                  Die E-Mail-Kommunikation läuft über <ContactMail />. Domain,
-                  DNS und Mail werden über IONOS bereitgestellt.
+                  <p style={legalTextStyle}>
+                    Wenn du uns per E-Mail kontaktierst, verarbeiten wir die von
+                    dir übermittelten Daten, zum Beispiel deine E-Mail-Adresse,
+                    deinen Namen und den Inhalt deiner Nachricht. Diese Daten
+                    verwenden wir ausschließlich zur Bearbeitung deiner Anfrage.
+                  </p>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit.
+                    b DSGVO, sofern deine Anfrage mit einer möglichen Bestellung
+                    oder Leistung zusammenhängt. In allen anderen Fällen erfolgt
+                    die Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.
+                  </p>
                 </LegalSection>
 
                 <LegalSection title="6. Produktanfragen, Warenkorbanfragen und Checkout-Vorschau">
-                  Wenn du eine Produktfrage, Warenkorbanfrage oder Anfrage über
-                  die Checkout-Vorschau absendest, verarbeiten wir die von dir
-                  eingegebenen Angaben wie Name, E-Mail-Adresse, Nachricht,
-                  ausgewählte Produkte, Extras, Mengen, Preiszusammenfassungen
-                  sowie bei der Checkout-Vorschau die angegebenen Adressdaten.
-                  Diese Daten dienen ausschließlich dazu, deine unverbindliche
-                  Anfrage zu bearbeiten. Die Checkout-Vorschau löst keine Zahlung
-                  aus und stellt keinen direkten Kaufabschluss dar.
+                  Auf unserer Website kannst du Produkte oder deinen Warenkorb
+                  unverbindlich anfragen. Dabei können je nach Formular folgende
+                  Daten verarbeitet werden:
+                  <ul style={legalListStyle}>
+                    <li>Vorname und Nachname</li>
+                    <li>E-Mail-Adresse</li>
+                    <li>Telefonnummer, falls freiwillig angegeben</li>
+                    <li>Lieferadresse, falls in der Checkout-Vorschau angegeben</li>
+                    <li>Nachricht oder Personalisierungswunsch</li>
+                    <li>angefragte Produkte</li>
+                    <li>ausgewählte Extras</li>
+                    <li>Mengen und angezeigte Preise</li>
+                    <li>Gesamtbetrag der Anfrage</li>
+                  </ul>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Diese Daten werden genutzt, um deine Anfrage zu bearbeiten
+                    und mit dir Kontakt aufzunehmen. Über die Website kommt
+                    aktuell kein direkter Kaufvertrag zustande und es wird keine
+                    Online-Zahlung ausgelöst.
+                  </p>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit.
+                    b DSGVO, da deine Anfrage auf eine mögliche spätere
+                    Bestellung oder individuelle Abstimmung gerichtet ist.
+                  </p>
                 </LegalSection>
 
-                <LegalSection title="7. Warenkorb / localStorage">
-                  Der Warenkorb wird lokal in deinem Browser über localStorage
-                  gespeichert. Dadurch bleibt deine unverbindliche Auswahl auch
-                  nach dem Neuladen der Seite erhalten. Diese Daten werden nicht
-                  automatisch an uns übertragen. Eine Übermittlung erfolgt erst,
-                  wenn du eine Warenkorbanfrage oder Checkout-Anfrage absendest.
+                <LegalSection title="7. Warenkorb und localStorage">
+                  Damit dein Warenkorb beim Wechsel zwischen Seiten erhalten
+                  bleibt, speichert die Website Warenkorbdaten lokal in deinem
+                  Browser. Dafür wird localStorage verwendet.
+                  <br />
+                  <br />
+                  Dabei können zum Beispiel folgende Daten lokal auf deinem Gerät
+                  gespeichert werden:
+                  <ul style={legalListStyle}>
+                    <li>Produkt-ID</li>
+                    <li>Produktname</li>
+                    <li>Menge</li>
+                    <li>ausgewählte Extras</li>
+                    <li>Preisangaben</li>
+                    <li>Produktstatus</li>
+                  </ul>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Diese Daten werden nicht automatisch an uns übertragen. Eine
+                    Übertragung erfolgt erst, wenn du eine Warenkorbanfrage oder
+                    Checkout-Anfrage absendest.
+                  </p>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Du kannst die gespeicherten Daten löschen, indem du den
+                    Warenkorb leerst oder die Browserdaten löschst.
+                  </p>
                 </LegalSection>
 
-                <LegalSection title="8. Keine Analyse- oder Marketing-Tools">
-                  Wir setzen derzeit kein Google Analytics, kein Meta Pixel,
-                  keine Marketing-Cookies, keine Newsletter-Funktion, keine
-                  Adress-Autovervollständigung/API und keine aktiven
-                  Zahlungsanbieter ein.
+                <LegalSection title="8. PayPal-Vorbereitung">
+                  PayPal ist technisch für eine spätere Zahlungsfunktion
+                  vorbereitet, aber aktuell nicht live aktiv. Solange die
+                  Zahlungsfunktion nicht aktiviert und vollständig eingerichtet
+                  ist, werden über PayPal keine Zahlungen ausgelöst und keine
+                  Zahlungsdaten über diese Website verarbeitet.
+                  <br />
+                  <br />
+                  Sobald PayPal zukünftig aktiv genutzt wird, wird diese
+                  Datenschutzerklärung entsprechend ergänzt.
                 </LegalSection>
 
-                <LegalSection title="9. Empfänger / technische Dienstleister">
-                  Zur Bereitstellung und Verwaltung dieser Webseite können
-                  technische Dienstleister eingesetzt werden. Dazu gehören Vercel
-                  für Hosting und Website-Bereitstellung, Supabase für Datenbank,
-                  Auth und Storage sowie IONOS für Domain, DNS und
-                  E-Mail-Kommunikation.
+                <LegalSection title="9. Keine Analyse- oder Marketing-Tools">
+                  Wir verwenden aktuell keine Analyse- oder Marketing-Tools wie
+                  Google Analytics, Meta Pixel oder vergleichbare Trackingdienste.
+                  <br />
+                  <br />
+                  Es werden keine Marketing-Cookies gesetzt und es findet kein
+                  werbliches Nutzertracking statt.
                 </LegalSection>
 
-                <LegalSection title="10. Speicherdauer">
-                  Wir speichern personenbezogene Daten nur so lange, wie es für
-                  die Bearbeitung deiner Anfrage, die technische Bereitstellung
-                  oder gesetzliche Aufbewahrungspflichten erforderlich ist. Nicht
-                  mehr benötigte Daten werden gelöscht, soweit keine berechtigten
-                  Gründe oder gesetzlichen Pflichten einer Löschung entgegenstehen.
+                <LegalSection title="10. Cookies und technisch notwendige Speicherung">
+                  Aktuell verwenden wir keine Marketing-Cookies. Für technisch
+                  notwendige Funktionen können jedoch browserseitige
+                  Speichertechniken wie localStorage genutzt werden, insbesondere
+                  für den Warenkorb.
+                  <br />
+                  <br />
+                  Diese Speicherung dient der technischen Funktion der Website und
+                  der Nutzerfreundlichkeit.
                 </LegalSection>
 
-                <LegalSection title="11. Rechte der betroffenen Personen">
-                  Du hast im Rahmen der gesetzlichen Voraussetzungen das Recht auf
-                  Auskunft, Berichtigung, Löschung, Einschränkung der
-                  Verarbeitung, Datenübertragbarkeit und Widerspruch gegen die
-                  Verarbeitung deiner personenbezogenen Daten. Außerdem kannst du
-                  dich bei einer zuständigen Datenschutzaufsichtsbehörde
-                  beschweren.
+                <LegalSection title="11. Empfänger und technische Dienstleister">
+                  Zur Bereitstellung der Website und zur Bearbeitung von Anfragen
+                  können Daten durch technische Dienstleister verarbeitet werden,
+                  insbesondere:
+                  <ul style={legalListStyle}>
+                    <li>Vercel für Hosting und Bereitstellung der Website</li>
+                    <li>Supabase für Datenbank, Authentifizierung und Produktbildspeicherung</li>
+                    <li>IONOS für Domain, DNS und E-Mail-Kommunikation</li>
+                  </ul>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Eine Weitergabe personenbezogener Daten erfolgt nur, soweit
+                    dies zur Bereitstellung der Website, zur Bearbeitung deiner
+                    Anfrage oder aufgrund gesetzlicher Pflichten erforderlich ist.
+                  </p>
                 </LegalSection>
 
-                <LegalSection title="12. SSL-/TLS-Verschlüsselung">
-                  Diese Webseite nutzt eine SSL-/TLS-Verschlüsselung. Eine
-                  verschlüsselte Verbindung erkennst du daran, dass die Adresse
-                  der Webseite mit „https://“ beginnt.
+                <LegalSection title="12. Speicherdauer">
+                  Personenbezogene Daten werden nur so lange gespeichert, wie es
+                  für den jeweiligen Zweck erforderlich ist. Anfragen werden
+                  gespeichert, solange dies zur Bearbeitung, Nachvollziehbarkeit
+                  oder aufgrund gesetzlicher Aufbewahrungspflichten erforderlich
+                  ist.
+                  <br />
+                  <br />
+                  Wenn eine Anfrage nicht mehr benötigt wird und keine
+                  gesetzlichen Aufbewahrungspflichten entgegenstehen, wird sie
+                  gelöscht.
                 </LegalSection>
 
-                <LegalSection title="13. Aktualität und Änderung dieser Datenschutzerklärung">
-                  Diese Datenschutzerklärung gilt für den aktuellen technischen
-                  Stand der Webseite. Wenn sich Funktionen, technische Dienste
-                  oder rechtliche Anforderungen ändern, kann diese
-                  Datenschutzerklärung angepasst werden.
+                <LegalSection title="13. Deine Rechte">
+                  Du hast im Rahmen der gesetzlichen Voraussetzungen insbesondere
+                  folgende Rechte:
+                  <ul style={legalListStyle}>
+                    <li>Recht auf Auskunft über gespeicherte personenbezogene Daten</li>
+                    <li>Recht auf Berichtigung unrichtiger Daten</li>
+                    <li>Recht auf Löschung</li>
+                    <li>Recht auf Einschränkung der Verarbeitung</li>
+                    <li>Recht auf Datenübertragbarkeit</li>
+                    <li>Recht auf Widerspruch gegen bestimmte Verarbeitungen</li>
+                    <li>Recht auf Beschwerde bei einer Datenschutzaufsichtsbehörde</li>
+                  </ul>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Zur Ausübung deiner Rechte kannst du dich jederzeit an{" "}
+                    <ContactMail /> wenden.
+                  </p>
+                </LegalSection>
+
+                <LegalSection title="14. SSL-/TLS-Verschlüsselung">
+                  Diese Website nutzt aus Sicherheitsgründen eine
+                  SSL-/TLS-Verschlüsselung. Eine verschlüsselte Verbindung
+                  erkennst du an „https://“ in der Adresszeile deines Browsers.
+                </LegalSection>
+
+                <LegalSection title="15. Aktualität und Änderung dieser Datenschutzerklärung">
+                  Wir behalten uns vor, diese Datenschutzerklärung anzupassen,
+                  wenn sich technische Funktionen, eingesetzte Dienste oder
+                  rechtliche Anforderungen ändern.
+                  <br />
+                  <br />
+                  Stand: Juli 2026
                 </LegalSection>
               </div>
             </>
