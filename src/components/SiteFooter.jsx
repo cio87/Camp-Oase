@@ -25,10 +25,15 @@ export default function SiteFooter() {
 
       <span style={footerDotStyle}>·</span>
 
+      <Link to="/versand-zahlung" style={footerLinkStyle}>
+        Versand & Zahlung
+      </Link>
+
+      <span style={footerDotStyle}>·</span>
+
       <Link to="/admin" style={footerLoginStyle}>
         Login
       </Link>
     </footer>
   );
 }
-
