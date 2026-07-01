@@ -25,6 +25,7 @@ import {
   productPriceStyle,
   productPriceStackStyle,
   productTitleStyle,
+  taxHintStyle,
 } from "../styles";
 
 export default function ProductCard({ product }) {
@@ -103,6 +104,9 @@ export default function ProductCard({ product }) {
 
             <span style={productCardHintStyle}>Details ansehen →</span>
           </div>
+          <p style={taxHintStyle}>
+            Endpreis. Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.
+          </p>
         </div>
       </article>
     </Link>

@@ -27,6 +27,7 @@ import {
   sectionTitleStyle,
   siteStyle,
   successBoxStyle,
+  taxHintStyle,
 } from "../styles";
 
 const emptyCheckoutForm = {
@@ -378,6 +379,10 @@ export default function CheckoutPage() {
                   <strong style={{ display: "block", fontSize: "28px" }}>
                     {subtotalLabel}
                   </strong>
+                  <p style={{ ...taxHintStyle, marginBottom: 0 }}>
+                    Endpreis. Gemäß § 19 UStG wird keine Umsatzsteuer
+                    ausgewiesen.
+                  </p>
                 </div>
                 <p style={{ maxWidth: "520px", margin: 0 }}>
                   Zahlung ist aktuell noch nicht aktiviert. Es wird keine echte

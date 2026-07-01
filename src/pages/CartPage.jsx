@@ -32,6 +32,7 @@ import {
   productCardHintStyle,
   sectionTitleStyle,
   siteStyle,
+  taxHintStyle,
 } from "../styles";
 
 export default function CartPage() {
@@ -294,6 +295,10 @@ export default function CartPage() {
                     <strong style={{ display: "block", fontSize: "28px" }}>
                       {subtotalLabel}
                     </strong>
+                    <p style={{ ...taxHintStyle, marginBottom: 0 }}>
+                      Endpreis. Gemäß § 19 UStG wird keine Umsatzsteuer
+                      ausgewiesen.
+                    </p>
                   </div>
 
                   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>

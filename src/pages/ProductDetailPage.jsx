@@ -57,6 +57,7 @@ import {
   pillBackLinkStyle,
   productOldPriceStyle,
   siteStyle,
+  taxHintStyle,
 } from "../styles";
 
 export default function ProductDetailPage() {
@@ -436,6 +437,9 @@ export default function ProductDetailPage() {
                   </strong>
                 </span>
               </div>
+              <p style={{ ...taxHintStyle, fontSize: "13px" }}>
+                Endpreis. Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.
+              </p>
 
               {productExtras.length > 0 && (
                 <div style={extrasPreviewBoxStyle}>

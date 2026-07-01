@@ -61,7 +61,7 @@ export default function ContactPage() {
           <div style={contactInfoStyle}>
             <span>E-Mail</span>
             <a
-              href="mailto:campoasesupport@gmail.com"
+              href="mailto:service@camp-oase.de"
               style={{
                 display: "block",
                 color: "#556b5d",
@@ -71,7 +71,7 @@ export default function ContactPage() {
                 overflowWrap: "anywhere",
               }}
             >
-              campoasesupport@gmail.com
+              service@camp-oase.de
             </a>
             <p>Wir melden uns so schnell wie möglich zurück.</p>
           </div>

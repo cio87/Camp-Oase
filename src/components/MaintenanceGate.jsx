@@ -83,7 +83,7 @@ export default function MaintenanceGate({ children }) {
           </h1>
           <p style={{ maxWidth: "620px", margin: "0 auto 24px" }}>{text}</p>
           <a
-            href="mailto:campoasesupport@gmail.com"
+            href="mailto:service@camp-oase.de"
             style={{ ...buttonStyle, display: "inline-block", textDecoration: "none" }}
           >
             Kontakt per E-Mail

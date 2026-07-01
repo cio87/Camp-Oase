@@ -351,6 +351,13 @@ export const productCardHintStyle = {
   whiteSpace: "nowrap",
 };
 
+export const taxHintStyle = {
+  color: "#7f8f82",
+  fontSize: "12px",
+  lineHeight: "1.45",
+  margin: "8px 0 0",
+ };
+
 export const detailSectionStyle = {
   padding: "clamp(28px, 6vw, 64px) clamp(18px, 5vw, 40px)",
 };
