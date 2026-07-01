@@ -74,6 +74,22 @@ const addressHintStyle = {
   margin: "18px 0 8px",
 };
 
+const paymentPreparationBoxStyle = {
+  background: "linear-gradient(135deg, #f7f1e3, #eef3ea)",
+  border: "1px solid #dbe4d4",
+  borderRadius: "18px",
+  padding: "14px 16px",
+  color: "#556b5d",
+  lineHeight: "1.6",
+  margin: "14px 0",
+};
+
+const paymentPreparationTitleStyle = {
+  display: "block",
+  color: "#435749",
+  marginBottom: "4px",
+};
+
 export default function CheckoutPage() {
   const [settings, setSettings] = useState({
     checkout_enabled: false,
@@ -88,6 +104,8 @@ export default function CheckoutPage() {
 
   const subtotal = useMemo(() => getCartSubtotal(items), [items]);
   const subtotalLabel = formatEuro(subtotal);
+  const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || "";
+  const paypalConfigured = Boolean(paypalClientId.trim());
 
   useEffect(() => {
     setItems(getCartItems());
@@ -385,8 +403,9 @@ export default function CheckoutPage() {
                   </p>
                 </div>
                 <p style={{ maxWidth: "520px", margin: 0 }}>
-                  Zahlung ist aktuell noch nicht aktiviert. Es wird keine echte
-                  Zahlung ausgelöst.
+                  {settings.payment_enabled
+                    ? "PayPal Checkout ist technisch vorbereitet, aber noch nicht live aktiv."
+                    : "Zahlung ist aktuell noch nicht aktiviert. Es wird keine echte Zahlung ausgelöst."}
                 </p>
               </aside>
 
@@ -443,6 +462,30 @@ export default function CheckoutPage() {
                     Zahlung ist aktuell noch nicht aktiviert. Es wird keine echte
                     Zahlung ausgelöst.
                   </p>
+                )}
+
+                {settings.payment_enabled && !paypalConfigured && (
+                  <div style={paymentPreparationBoxStyle}>
+                    <strong style={paymentPreparationTitleStyle}>
+                      PayPal ist noch nicht vollständig konfiguriert.
+                    </strong>
+                    Es wird kein Zahlungsbutton angezeigt und keine echte Zahlung
+                    ausgelöst. Du kannst die Bestellung weiterhin unverbindlich
+                    anfragen.
+                  </div>
+                )}
+
+                {settings.payment_enabled && paypalConfigured && (
+                  <div style={paymentPreparationBoxStyle}>
+                    <strong style={paymentPreparationTitleStyle}>
+                      PayPal Checkout vorbereitet
+                    </strong>
+                    Der PayPal-Bereich kann später mit der Client ID aus
+                    <code> VITE_PAYPAL_CLIENT_ID </code>
+                    eingebunden werden. Bis eine serverseitige Prüfung ergänzt
+                    ist, wird hier keine echte Zahlung ausgelöst und keine
+                    Bestellung als bezahlt markiert.
+                  </div>
                 )}
 
                 <button disabled={sending} style={buttonStyle}>

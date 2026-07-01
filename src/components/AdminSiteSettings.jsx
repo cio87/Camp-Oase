@@ -154,6 +154,12 @@ export default function AdminSiteSettings({
         Zahlung aktivieren
       </label>
 
+      <p style={adminHintStyle}>
+        PayPal Checkout ist nur vorbereitet. Die spätere Client ID wird über
+        <code> VITE_PAYPAL_CLIENT_ID </code>
+        gesetzt. Ohne diese Variable erscheint im Checkout kein Zahlungsbutton.
+      </p>
+
       <label style={adminExtraLabelStyle}>Checkout-Hinweistext</label>
       <textarea
         placeholder="z. B. Der Checkout ist aktuell noch nicht aktiviert."
