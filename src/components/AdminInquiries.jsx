@@ -1,4 +1,5 @@
-import { formatEuro } from "../utils/price";
+import { useState } from "react";
+import { formatEuro, parsePrice } from "../utils/price";
 import {
   adminSelectedExtrasStyle,
   adminTotalStyle,
@@ -32,8 +33,137 @@ export default function AdminInquiries({
   onUpdateStatus,
   onDeleteInquiry,
 }) {
+  const [invoiceInquiry, setInvoiceInquiry] = useState(null);
+
+  function getInvoiceDate(inquiry) {
+    return inquiry?.created_at ? new Date(inquiry.created_at) : new Date();
+  }
+
+  function getInvoiceNumber(inquiry) {
+    const year = getInvoiceDate(inquiry).getFullYear();
+    const shortId = String(inquiry?.id || "ENTWURF").replace(/-/g, "").slice(0, 8);
+
+    // Later, a real invoices table should store permanent, sequential invoice numbers.
+    return `CO-${year}-${shortId}`;
+  }
+
+  function getInvoiceCustomer(inquiry) {
+    const selectedExtras = inquiry?.selected_extras || {};
+    const firstName = selectedExtras.customer_first_name || "";
+    const lastName = selectedExtras.customer_last_name || "";
+    const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+    const address = selectedExtras.shipping_address || {};
+
+    return {
+      name: String(fullName || inquiry?.name || "").trim(),
+      street: String(address.street || "").trim(),
+      zip: String(address.zip || "").trim(),
+      city: String(address.city || "").trim(),
+      email: String(inquiry?.email || "").trim(),
+    };
+  }
+
+  function getInvoicePositions(inquiry) {
+    const cartPositions = Array.isArray(inquiry?.selected_extras?.positions)
+      ? inquiry.selected_extras.positions
+      : [];
+    const selectedItems = Array.isArray(inquiry?.selected_extras?.items)
+      ? inquiry.selected_extras.items
+      : [];
+
+    if (cartPositions.length > 0) {
+      return cartPositions.map((position) => ({
+        title: position.product_title || "Position",
+        quantity: Number(position.quantity || 1),
+        unitLabel: position.unit_total_label || formatEuro(position.unit_total),
+        lineLabel: position.line_total_label || formatEuro(position.line_total),
+        extras: Array.isArray(position.extras) ? position.extras : [],
+      }));
+    }
+
+    if (selectedItems.length > 0) {
+      const extrasTotal = selectedItems.reduce(
+        (sum, extra) => sum + Number(extra.price || 0),
+        0
+      );
+      const estimatedTotal = parsePrice(inquiry?.estimated_total);
+      const unitTotal = estimatedTotal || extrasTotal;
+
+      return [
+        {
+          title: inquiry?.product_title || "Anfrage",
+          quantity: 1,
+          unitLabel: inquiry?.estimated_total || formatEuro(unitTotal),
+          lineLabel: inquiry?.estimated_total || formatEuro(unitTotal),
+          extras: selectedItems,
+        },
+      ];
+    }
+
+    return [
+      {
+        title: inquiry?.product_title || "Anfrage",
+        quantity: 1,
+        unitLabel: inquiry?.estimated_total || "",
+        lineLabel: inquiry?.estimated_total || "",
+        extras: [],
+      },
+    ];
+  }
+
   return (
     <>
+      <style>
+        {`
+          @media print {
+            html,
+            body {
+              background: white !important;
+            }
+
+            body * {
+              visibility: hidden !important;
+            }
+
+            .invoice-print-area,
+            .invoice-print-area * {
+              visibility: visible !important;
+            }
+
+            .invoice-print-area {
+              position: absolute !important;
+              inset: 0 auto auto 0 !important;
+              width: 100% !important;
+              max-width: none !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: white !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+            }
+
+            .invoice-no-print {
+              display: none !important;
+            }
+
+            .invoice-print-table {
+              page-break-inside: auto;
+            }
+
+            .invoice-print-row {
+              page-break-inside: avoid;
+              page-break-after: auto;
+            }
+
+            @page {
+              size: A4;
+              margin: 16mm;
+            }
+          }
+        `}
+      </style>
+
       <h2 style={{ marginTop: "40px" }}>Kundenanfragen</h2>
 
       <div style={statusFilterRowStyle}>
@@ -280,6 +410,14 @@ export default function AdminInquiries({
                     </button>
 
                     <button
+                      type="button"
+                      onClick={() => setInvoiceInquiry(inquiry)}
+                      style={compactEditButtonStyle}
+                    >
+                      Rechnung anzeigen
+                    </button>
+
+                    <button
                       onClick={() => onDeleteInquiry(inquiry.id)}
                       style={compactDeleteButtonStyle}
                     >
@@ -292,6 +430,331 @@ export default function AdminInquiries({
           })}
         </div>
       )}
+
+      {invoiceInquiry &&
+        (() => {
+          const customer = getInvoiceCustomer(invoiceInquiry);
+          const positions = getInvoicePositions(invoiceInquiry);
+          const invoiceDate = getInvoiceDate(invoiceInquiry);
+          const invoiceDateLabel = invoiceDate.toLocaleDateString("de-DE");
+          const invoiceNumber = getInvoiceNumber(invoiceInquiry);
+          const customerLocation = [customer.zip, customer.city]
+            .filter(Boolean)
+            .join(" ");
+          const customerLines = [
+            customer.name,
+            customer.street,
+            customerLocation,
+          ].filter(Boolean);
+
+          return (
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 10000,
+                background: "rgba(47, 62, 52, 0.62)",
+                padding: "clamp(14px, 4vw, 32px)",
+                overflowY: "auto",
+              }}
+              onClick={() => setInvoiceInquiry(null)}
+              role="presentation"
+            >
+              <div
+                style={{
+                  maxWidth: "960px",
+                  margin: "0 auto",
+                }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div
+                  className="invoice-no-print"
+                  style={{
+                    background: "#fff8e8",
+                    border: "1px solid #ead7a5",
+                    borderRadius: "16px",
+                    padding: "14px 16px",
+                    marginBottom: "14px",
+                    color: "#6d5a2f",
+                    lineHeight: "1.5",
+                  }}
+                >
+                  Diese Rechnungsvorlage ist eine technische Vorbereitung. Bitte
+                  Rechnungsdaten vor Versand prüfen.
+                </div>
+
+                <div
+                  className="invoice-no-print"
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    justifyContent: "flex-end",
+                    flexWrap: "wrap",
+                    marginBottom: "14px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    style={completeInquiryButtonStyle}
+                  >
+                    Rechnung drucken
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setInvoiceInquiry(null)}
+                    style={reopenInquiryButtonStyle}
+                  >
+                    Schließen
+                  </button>
+                </div>
+
+                <article
+                  className="invoice-print-area"
+                  style={{
+                    background: "white",
+                    color: "#25332a",
+                    borderRadius: "18px",
+                    padding: "clamp(24px, 5vw, 42px)",
+                    boxShadow: "0 22px 70px rgba(0,0,0,0.24)",
+                    fontFamily: "Arial, sans-serif",
+                    lineHeight: "1.55",
+                  }}
+                >
+                  <header
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: "28px",
+                      flexWrap: "wrap",
+                      borderBottom: "2px solid #eef3ea",
+                      paddingBottom: "22px",
+                      marginBottom: "24px",
+                    }}
+                  >
+                    <div>
+                      <img
+                        src="/logo.png"
+                        alt="Camp Oase Logo"
+                        style={{
+                          width: "82px",
+                          maxWidth: "32vw",
+                          height: "auto",
+                          borderRadius: "18px",
+                          display: "block",
+                          marginBottom: "14px",
+                        }}
+                      />
+                      <h1 style={{ margin: "0 0 8px", color: "#435749" }}>
+                        Rechnung
+                      </h1>
+                      <p className="invoice-no-print" style={{ margin: 0, color: "#667" }}>
+                        Rechnungsvorlage aus Anfrage
+                      </p>
+                    </div>
+
+                    <div style={{ textAlign: "right" }}>
+                      <strong>Brian Hillier</strong>
+                      <br />
+                      Camp Oase
+                      <br />
+                      Uelzener Str. 9
+                      <br />
+                      33719 Bielefeld
+                      <br />
+                      Deutschland
+                      <br />
+                      E-Mail: service@camp-oase.de
+                    </div>
+                  </header>
+
+                  <section
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                      gap: "22px",
+                      marginBottom: "26px",
+                    }}
+                  >
+                    <div>
+                      <h2 style={{ color: "#435749", fontSize: "18px" }}>
+                        Rechnungsempfänger
+                      </h2>
+                      <p style={{ margin: 0 }}>
+                        {customerLines.length > 0
+                          ? customerLines.map((line) => (
+                              <span key={line}>
+                                {line}
+                                <br />
+                              </span>
+                            ))
+                          : "Rechnungsempfänger noch offen"}
+                        {customer.email && <>E-Mail: {customer.email}</>}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h2 style={{ color: "#435749", fontSize: "18px" }}>
+                        Rechnungsdaten
+                      </h2>
+                      <p style={{ margin: 0 }}>
+                        Rechnungsnummer: <strong>{invoiceNumber}</strong>
+                        <br />
+                        Rechnungsdatum: {invoiceDateLabel}
+                        <br />
+                        Leistungs-/Lieferdatum: {invoiceDateLabel}
+                        <br />
+                        Referenz Anfrage-ID: {invoiceInquiry.id}
+                      </p>
+                    </div>
+                  </section>
+
+                  <table
+                    className="invoice-print-table"
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      marginBottom: "22px",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ background: "#eef3ea", color: "#435749" }}>
+                        <th style={{ textAlign: "left", padding: "10px" }}>
+                          Position
+                        </th>
+                        <th style={{ textAlign: "right", padding: "10px" }}>
+                          Menge
+                        </th>
+                        <th style={{ textAlign: "right", padding: "10px" }}>
+                          Einzelpreis
+                        </th>
+                        <th style={{ textAlign: "right", padding: "10px" }}>
+                          Zwischensumme
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {positions.map((position, index) => (
+                        <tr
+                          key={position.title + "-" + index}
+                          className="invoice-print-row"
+                        >
+                          <td
+                            style={{
+                              padding: "12px 10px",
+                              borderBottom: "1px solid #eee7da",
+                              verticalAlign: "top",
+                            }}
+                          >
+                            <strong>{position.title}</strong>
+                            {position.extras.length > 0 && (
+                              <div style={{ marginTop: "6px", color: "#667" }}>
+                                Extras:
+                                {position.extras.map((extra, extraIndex) => (
+                                  <div key={extra.name + "-" + extraIndex}>
+                                    {extra.name} +{formatEuro(extra.price)}
+                                    {extra.note ? " · Hinweis: " + extra.note : ""}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "right",
+                              padding: "12px 10px",
+                              borderBottom: "1px solid #eee7da",
+                              verticalAlign: "top",
+                            }}
+                          >
+                            {position.quantity}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "right",
+                              padding: "12px 10px",
+                              borderBottom: "1px solid #eee7da",
+                              verticalAlign: "top",
+                            }}
+                          >
+                            {position.unitLabel}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "right",
+                              padding: "12px 10px",
+                              borderBottom: "1px solid #eee7da",
+                              verticalAlign: "top",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {position.lineLabel}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <section
+                    style={{
+                      display: "grid",
+                      justifyContent: "end",
+                      gap: "10px",
+                      marginBottom: "22px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        minWidth: "260px",
+                        background: "#f5f1e8",
+                        border: "1px solid #e4dac7",
+                        borderRadius: "14px",
+                        padding: "14px 16px",
+                      }}
+                    >
+                      <span>Gesamtbetrag</span>
+                      <strong
+                        style={{
+                          display: "block",
+                          color: "#435749",
+                          fontSize: "24px",
+                        }}
+                      >
+                        {invoiceInquiry.estimated_total || "Noch offen"}
+                      </strong>
+                    </div>
+                  </section>
+
+                  <p
+                    style={{
+                      background: "#eef3ea",
+                      border: "1px solid #d8e1d3",
+                      borderRadius: "14px",
+                      padding: "14px 16px",
+                      color: "#435749",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Kein Steuerausweis aufgrund der Anwendung der
+                    Kleinunternehmerregelung (§ 19 UStG).
+                  </p>
+
+                  <footer
+                    style={{
+                      marginTop: "28px",
+                      borderTop: "1px solid #eee7da",
+                      paddingTop: "16px",
+                      color: "#667",
+                    }}
+                  >
+                    Vielen Dank für deine Anfrage / Bestellung bei Camp Oase.
+                  </footer>
+                </article>
+              </div>
+            </div>
+          );
+        })()}
     </>
   );
 }
