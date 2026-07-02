@@ -123,6 +123,46 @@ export default function AdminInquiries({
     <>
       <style>
         {`
+          .invoice-preview-overlay {
+            box-sizing: border-box;
+          }
+
+          .invoice-preview-inner {
+            width: 100%;
+            max-width: 960px;
+            box-sizing: border-box;
+          }
+
+          .invoice-print-area {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-wrap: anywhere;
+          }
+
+          .invoice-screen-table-wrap {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 22px;
+          }
+
+          .invoice-print-table {
+            min-width: 640px;
+          }
+
+          @media (max-width: 640px) {
+            .invoice-preview-overlay {
+              padding: 10px !important;
+            }
+
+            .invoice-print-area {
+              padding: 18px 14px !important;
+              border-radius: 16px !important;
+            }
+          }
+
           @media print {
             html,
             body {
@@ -156,7 +196,14 @@ export default function AdminInquiries({
             }
 
             .invoice-print-table {
+              width: 100% !important;
+              min-width: 0 !important;
               page-break-inside: auto;
+            }
+
+            .invoice-screen-table-wrap {
+              overflow: visible !important;
+              margin-bottom: 22px !important;
             }
 
             .invoice-print-row {
@@ -484,6 +531,7 @@ export default function AdminInquiries({
 
           return (
             <div
+              className="invoice-preview-overlay"
               style={{
                 position: "fixed",
                 inset: 0,
@@ -496,6 +544,7 @@ export default function AdminInquiries({
               role="presentation"
             >
               <div
+                className="invoice-preview-inner"
                 style={{
                   maxWidth: "960px",
                   margin: "0 auto",
@@ -645,14 +694,14 @@ export default function AdminInquiries({
                     </div>
                   </section>
 
-                  <table
-                    className="invoice-print-table"
-                    style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
-                      marginBottom: "22px",
-                    }}
-                  >
+                  <div className="invoice-screen-table-wrap">
+                    <table
+                      className="invoice-print-table"
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                      }}
+                    >
                     <thead>
                       <tr style={{ background: "#eef3ea", color: "#435749" }}>
                         <th style={{ textAlign: "left", padding: "10px" }}>
@@ -783,7 +832,8 @@ export default function AdminInquiries({
                         </Fragment>
                       ))}
                     </tbody>
-                  </table>
+                    </table>
+                  </div>
 
                   <section
                     style={{
