@@ -74,6 +74,7 @@ export default function AdminInquiries({
     if (cartPositions.length > 0) {
       return cartPositions.map((position) => ({
         title: position.product_title || "Position",
+        variant: position.variant || null,
         quantity: Number(position.quantity || 1),
         unitLabel: position.unit_total_label || formatEuro(position.unit_total),
         lineLabel: position.line_total_label || formatEuro(position.line_total),
@@ -92,6 +93,7 @@ export default function AdminInquiries({
       return [
         {
           title: inquiry?.product_title || "Anfrage",
+          variant: inquiry?.selected_extras?.selected_variant || null,
           quantity: 1,
           unitLabel: inquiry?.estimated_total || formatEuro(unitTotal),
           lineLabel: inquiry?.estimated_total || formatEuro(unitTotal),
@@ -103,6 +105,7 @@ export default function AdminInquiries({
     return [
       {
         title: inquiry?.product_title || "Anfrage",
+        variant: inquiry?.selected_extras?.selected_variant || null,
         quantity: 1,
         unitLabel: inquiry?.estimated_total || "",
         lineLabel: inquiry?.estimated_total || "",
@@ -199,6 +202,7 @@ export default function AdminInquiries({
               : [];
             const inquiryStatus = inquiry.status || "offen";
             const isDone = inquiryStatus === "erledigt";
+            const selectedVariant = inquiry.selected_extras?.selected_variant;
 
             return (
               <div
@@ -250,6 +254,21 @@ export default function AdminInquiries({
                     </p>
                   )}
 
+                  {selectedVariant?.name && (
+                    <div style={adminSelectedExtrasStyle}>
+                      <strong>Variante:</strong>
+                      <p>
+                        {selectedVariant.name}
+                        {selectedVariant.description && (
+                          <>
+                            <br />
+                            <small>{selectedVariant.description}</small>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  )}
+
                   {selectedItems.length > 0 && (
                     <div style={adminSelectedExtrasStyle}>
                       <strong>Ausgewählte Extras:</strong>
@@ -298,6 +317,17 @@ export default function AdminInquiries({
                               <>
                                 <br />
                                 <small>Vorbestellung</small>
+                              </>
+                            )}
+                            {position.variant?.name && (
+                              <>
+                                <br />
+                                <small>
+                                  Variante: {position.variant.name}
+                                  {position.variant.description
+                                    ? " · " + position.variant.description
+                                    : ""}
+                                </small>
                               </>
                             )}
                             <br />
@@ -648,6 +678,14 @@ export default function AdminInquiries({
                             }}
                           >
                             <strong>{position.title}</strong>
+                            {position.variant?.name && (
+                              <div style={{ marginTop: "4px", color: "#667" }}>
+                                Variante: {position.variant.name}
+                                {position.variant.description
+                                  ? " · " + position.variant.description
+                                  : ""}
+                              </div>
+                            )}
                             {position.extras.length > 0 && (
                               <div style={{ marginTop: "6px", color: "#667" }}>
                                 Extras:

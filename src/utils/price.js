@@ -1,3 +1,5 @@
+import { getVariantPriceAdjustment, serializeProductVariant } from "./productVariants";
+
 export function getEmptyProduct() {
   return {
     title: "",
@@ -7,6 +9,7 @@ export function getEmptyProduct() {
     file: null,
     gallery_images: [],
     galleryFiles: [],
+    product_variants: [],
     sort_order: 0,
     availability_status: "available",
     product_badges: [],
@@ -133,8 +136,9 @@ export function getDiscountLabel(product) {
 
 export function calculateEstimatedTotal(product, form) {
   const basePrice = getDiscountedBasePrice(product);
+  const variantAdjustment = getVariantPriceAdjustment(form.selectedVariant);
   const customExtras = getProductExtras(product);
-  let total = basePrice;
+  let total = basePrice + variantAdjustment;
 
   customExtras.forEach((extra, index) => {
     if (form.selectedExtras?.[index]?.selected) {
@@ -166,6 +170,11 @@ export function buildSelectedExtras(product, form) {
       note: extra.note,
     }));
 
-  return { items };
+  return {
+    items,
+    selected_variant: form.selectedVariant
+      ? serializeProductVariant(form.selectedVariant)
+      : null,
+  };
 }
 

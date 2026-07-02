@@ -13,6 +13,10 @@ import {
 } from "../utils/availability";
 import { getProductBadges, PRODUCT_BADGE_OPTIONS } from "../utils/productBadges";
 import {
+  createEmptyProductVariant,
+  getProductVariants,
+} from "../utils/productVariants";
+import {
   adminActionRowStyle,
   adminExtraLabelStyle,
   adminExtrasBoxStyle,
@@ -61,6 +65,9 @@ export default function AdminProducts({
   const galleryFiles = Array.isArray(newProduct.galleryFiles)
     ? newProduct.galleryFiles.slice(0, 3)
     : [];
+  const productVariants = Array.isArray(newProduct.product_variants)
+    ? newProduct.product_variants
+    : [];
 
   useEffect(() => {
     function closePreviewOnEscape(event) {
@@ -103,6 +110,27 @@ export default function AdminProducts({
       gallery_images: nextImages.filter(Boolean).slice(0, 3),
       galleryFiles: nextFiles,
     });
+  }
+
+  function addProductVariant() {
+    setNewProduct({
+      ...newProduct,
+      product_variants: [...productVariants, createEmptyProductVariant()],
+    });
+  }
+
+  function updateProductVariant(index, field, value) {
+    const nextVariants = [...productVariants];
+    nextVariants[index] = { ...nextVariants[index], [field]: value };
+
+    setNewProduct({ ...newProduct, product_variants: nextVariants });
+  }
+
+  function removeProductVariant(index) {
+    const nextVariants = [...productVariants];
+    nextVariants.splice(index, 1);
+
+    setNewProduct({ ...newProduct, product_variants: nextVariants });
   }
 
   return (
@@ -368,6 +396,143 @@ export default function AdminProducts({
         </div>
 
         <div style={adminExtrasBoxStyle}>
+          <strong style={{ color: "#435749" }}>Produktvarianten</strong>
+          <p style={adminHintStyle}>
+            Optional: Varianten mit eigenem Bild und Preisaufschlag oder
+            Preisabschlag. Ohne Varianten bleibt das Produkt wie bisher.
+          </p>
+
+          {productVariants.length > 0 && (
+            <div style={{ display: "grid", gap: "14px" }}>
+              {productVariants.map((variant, index) => (
+                <div key={variant.id || index} style={customExtraCardStyle}>
+                  <div style={customExtraHeaderStyle}>
+                    <strong>Variante {index + 1}</strong>
+                    <button
+                      type="button"
+                      onClick={() => removeProductVariant(index)}
+                      style={smallDeleteButtonStyle}
+                    >
+                      Entfernen
+                    </button>
+                  </div>
+
+                  <label style={checkboxRowStyle}>
+                    <input
+                      type="checkbox"
+                      checked={variant.enabled !== false}
+                      onChange={(e) =>
+                        updateProductVariant(index, "enabled", e.target.checked)
+                      }
+                    />
+                    Variante aktiv
+                  </label>
+
+                  <label style={adminExtraLabelStyle}>Name</label>
+                  <input
+                    placeholder="z. B. Salbei, Natur, Variante 1"
+                    value={variant.name || ""}
+                    onChange={(e) =>
+                      updateProductVariant(index, "name", e.target.value)
+                    }
+                    style={inputStyle}
+                  />
+
+                  <label style={adminExtraLabelStyle}>Beschreibung optional</label>
+                  <textarea
+                    placeholder="Kurzer Hinweis zu dieser Variante."
+                    value={variant.description || ""}
+                    onChange={(e) =>
+                      updateProductVariant(index, "description", e.target.value)
+                    }
+                    style={{ ...inputStyle, minHeight: "80px" }}
+                  />
+
+                  <label style={adminExtraLabelStyle}>
+                    Preisaufschlag / Preisabschlag
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="z. B. 2 oder -1"
+                    value={variant.price_adjustment ?? "0"}
+                    onChange={(e) =>
+                      updateProductVariant(
+                        index,
+                        "price_adjustment",
+                        e.target.value
+                      )
+                    }
+                    style={inputStyle}
+                  />
+
+                  {(variant.image_url || variant.image_file) && (
+                    <div style={adminImagePreviewBoxStyle}>
+                      {variant.image_url && (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewImage(variant.image_url)}
+                          style={{
+                            border: "none",
+                            padding: 0,
+                            background: "transparent",
+                            cursor: "zoom-in",
+                          }}
+                          aria-label={`Variantenbild ${index + 1} größer anzeigen`}
+                        >
+                          <img
+                            src={variant.image_url}
+                            alt={variant.name || `Variante ${index + 1}`}
+                            style={adminImagePreviewImageStyle}
+                          />
+                        </button>
+                      )}
+
+                      <div>
+                        <strong>Variantenbild</strong>
+                        {variant.image_file && (
+                          <p style={adminImagePreviewTextStyle}>
+                            Neue Datei ausgewählt:{" "}
+                            <strong>{variant.image_file.name}</strong>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      updateProductVariant(index, "image_file", e.target.files[0])
+                    }
+                    style={inputStyle}
+                  />
+
+                  {variant.image_url && (
+                    <button
+                      type="button"
+                      onClick={() => updateProductVariant(index, "image_url", "")}
+                      style={smallDeleteButtonStyle}
+                    >
+                      Variantenbild entfernen
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={addProductVariant}
+            style={secondaryButtonStyle}
+          >
+            + Variante hinzufügen
+          </button>
+        </div>
+
+        <div style={adminExtrasBoxStyle}>
           <label style={checkboxRowStyle}>
             <input
               type="checkbox"
@@ -513,6 +678,7 @@ export default function AdminProducts({
       <div style={{ display: "grid", gap: "16px", marginTop: "20px" }}>
         {products.map((product) => {
           const extras = getProductExtras(product);
+          const variants = getProductVariants(product);
           const productBadges = getProductBadges(product);
           const stockQuantity = getStockQuantity(product);
           const discountActive = hasActiveDiscount(product);
@@ -559,6 +725,22 @@ export default function AdminProducts({
                           formatEuro(extra.price) +
                           (extra.has_discount
                             ? " (" + extra.discount_label + ")"
+                            : "")
+                      )
+                      .join(" · ")}
+                  </p>
+                )}
+
+                {variants.length > 0 && (
+                  <p style={adminProductExtrasInfoStyle}>
+                    Varianten aktiv ·{" "}
+                    {variants
+                      .map(
+                        (variant) =>
+                          variant.name +
+                          (variant.enabled ? "" : " (deaktiviert)") +
+                          (Number(variant.price_adjustment || 0) !== 0
+                            ? " " + formatEuro(variant.price_adjustment)
                             : "")
                       )
                       .join(" · ")}

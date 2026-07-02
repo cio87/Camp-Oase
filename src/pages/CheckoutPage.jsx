@@ -338,6 +338,17 @@ export default function CheckoutPage() {
                         {item.isPreorder && (
                           <span style={productCardHintStyle}>Vorbestellung</span>
                         )}
+                        {item.selectedVariant?.name && (
+                          <p style={{ margin: "4px 0 8px", color: "#556b5d" }}>
+                            <strong>Variante:</strong> {item.selectedVariant.name}
+                            {item.selectedVariant.description && (
+                              <>
+                                <br />
+                                <small>{item.selectedVariant.description}</small>
+                              </>
+                            )}
+                          </p>
+                        )}
                         <p style={{ margin: "8px 0", color: "#555", lineHeight: "1.6" }}>
                           Menge: {item.quantity || 1}
                           <br />

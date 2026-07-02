@@ -12,6 +12,10 @@ import {
 import { addProductToCart } from "../utils/cart";
 import { MarkdownText } from "../utils/markdown";
 import { getProductBadges } from "../utils/productBadges";
+import {
+  getProductVariants,
+  getVariantPriceAdjustment,
+} from "../utils/productVariants";
 import { sortProductsByDisplayOrder } from "../utils/products";
 import {
   buildSelectedExtras,
@@ -72,6 +76,7 @@ export default function ProductDetailPage() {
   const [isDesktopDetailLayout, setIsDesktopDetailLayout] = useState(false);
   const [cartStatus, setCartStatus] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
+  const [selectedVariantId, setSelectedVariantId] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const { id } = useParams();
 
@@ -82,8 +87,26 @@ export default function ProductDetailPage() {
   useEffect(() => {
     setSelectedDetailExtras({});
     setSelectedImage("");
+    setSelectedVariantId("");
     setLightboxOpen(false);
   }, [id]);
+
+  useEffect(() => {
+    const currentProduct = products.find((item) => String(item.id) === id);
+    const activeVariants = getProductVariants(currentProduct, {
+      onlyEnabled: true,
+    });
+
+    if (activeVariants.length === 0) {
+      if (selectedVariantId) setSelectedVariantId("");
+      return;
+    }
+
+    if (!activeVariants.some((variant) => variant.id === selectedVariantId)) {
+      setSelectedVariantId(activeVariants[0].id);
+      setSelectedImage(activeVariants[0].image_url || "");
+    }
+  }, [products, id, selectedVariantId]);
 
   useEffect(() => {
     function closeLightboxOnEscape(event) {
@@ -182,6 +205,13 @@ export default function ProductDetailPage() {
     openInquiry(product, selectedDetailExtras, true, "selection");
   }
 
+  function selectVariant(variantId) {
+    const variant = activeVariants.find((item) => item.id === variantId);
+
+    setSelectedVariantId(variantId);
+    setSelectedImage(variant?.image_url || product?.image || "");
+  }
+
   function openProductQuestion(product) {
     openInquiry(product, {}, false, "question");
   }
@@ -189,7 +219,11 @@ export default function ProductDetailPage() {
   function addSelectionToCart(product) {
     if (!productIsAvailable) return;
 
-    const item = addProductToCart(product, selectedDetailExtras);
+    const item = addProductToCart(
+      product,
+      selectedDetailExtras,
+      selectedVariant
+    );
     setCartStatus(
       item
         ? "Das Produkt wurde in den Warenkorb gelegt."
@@ -219,11 +253,11 @@ export default function ProductDetailPage() {
     if (inquiryMode === "selection") {
       inquiryPayload.selected_extras = buildSelectedExtras(
         inquiryProduct,
-        inquiryForm
+        { ...inquiryForm, selectedVariant }
       );
       inquiryPayload.estimated_total = calculateEstimatedTotal(
         inquiryProduct,
-        inquiryForm
+        { ...inquiryForm, selectedVariant }
       );
     }
 
@@ -245,13 +279,22 @@ export default function ProductDetailPage() {
   }
 
   const product = products.find((item) => String(item.id) === id);
+  const activeVariants = getProductVariants(product, { onlyEnabled: true });
+  const selectedVariant =
+    activeVariants.find((variant) => variant.id === selectedVariantId) ||
+    activeVariants[0] ||
+    null;
+  const selectedVariantAdjustment = getVariantPriceAdjustment(selectedVariant);
   const productGalleryImages = Array.isArray(product?.gallery_images)
     ? product.gallery_images.filter(Boolean).slice(0, 3)
     : [];
+  const variantImage = selectedVariant?.image_url || "";
   const productImages = product
-    ? [product.image, ...productGalleryImages].filter(Boolean)
+    ? [variantImage, product.image, ...productGalleryImages].filter(
+        (image, index, images) => image && images.indexOf(image) === index
+      )
     : [];
-  const displayImage = selectedImage || product?.image;
+  const displayImage = selectedImage || variantImage || product?.image;
   const productExtras = getProductExtras(product);
   const productBadges = getProductBadges(product);
   const productIsAvailable = isProductAvailable(product);
@@ -262,7 +305,10 @@ export default function ProductDetailPage() {
   const availabilityNotice = getProductAvailabilityNotice(product);
   const availabilityLabel = getAvailabilityLabel(product);
   const detailEstimatedTotal = product
-    ? calculateEstimatedTotal(product, { selectedExtras: selectedDetailExtras })
+    ? calculateEstimatedTotal(product, {
+        selectedExtras: selectedDetailExtras,
+        selectedVariant,
+      })
     : "";
   const hasSelectedDetailExtras = Object.values(selectedDetailExtras).some(
     (extra) => extra?.selected
@@ -440,6 +486,61 @@ export default function ProductDetailPage() {
               <p style={{ ...taxHintStyle, fontSize: "13px" }}>
                 Endpreis. Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.
               </p>
+
+              {activeVariants.length > 0 && (
+                <div style={extrasPreviewBoxStyle}>
+                  <div style={detailExtraSectionHeaderStyle}>
+                    <span>Variante auswählen</span>
+                    <small>Bild und Preis passen sich deiner Auswahl an</small>
+                  </div>
+
+                  <select
+                    value={selectedVariant?.id || ""}
+                    onChange={(e) => selectVariant(e.target.value)}
+                    style={inputStyle}
+                  >
+                    {activeVariants.map((variant) => {
+                      const adjustment = getVariantPriceAdjustment(variant);
+                      const adjustmentLabel =
+                        adjustment > 0
+                          ? ` (+${formatEuro(adjustment)})`
+                          : adjustment < 0
+                          ? ` (${formatEuro(adjustment)})`
+                          : "";
+
+                      return (
+                        <option key={variant.id} value={variant.id}>
+                          {variant.name}
+                          {adjustmentLabel}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  {selectedVariant?.description && (
+                    <p style={{ ...detailExtraDescriptionStyle, marginTop: "8px" }}>
+                      {selectedVariant.description}
+                    </p>
+                  )}
+
+                  {selectedVariantAdjustment !== 0 && (
+                    <p style={{ margin: "10px 0 0", color: "#556b5d" }}>
+                      Variantenpreis:{" "}
+                      <strong>
+                        {selectedVariantAdjustment > 0 ? "+" : ""}
+                        {formatEuro(selectedVariantAdjustment)}
+                      </strong>
+                    </p>
+                  )}
+
+                  {productExtras.length === 0 && (
+                    <div style={detailTotalBoxStyle}>
+                      <span>Voraussichtlicher Gesamtpreis</span>
+                      <strong>{detailEstimatedTotal}</strong>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {productExtras.length > 0 && (
                 <div style={extrasPreviewBoxStyle}>

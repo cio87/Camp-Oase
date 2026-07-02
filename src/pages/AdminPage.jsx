@@ -5,6 +5,7 @@ import AdminProducts from "../components/AdminProducts";
 import AdminSiteSettings from "../components/AdminSiteSettings";
 import { supabase } from "../supabaseClient";
 import { getProductBadgeValues } from "../utils/productBadges";
+import { getProductVariants, serializeProductVariant } from "../utils/productVariants";
 import { sortProductsByDisplayOrder } from "../utils/products";
 import {
   clampDiscountPercent,
@@ -213,6 +214,28 @@ export default function AdminPage() {
       : [];
   }
 
+  async function getCleanedProductVariants() {
+    const variants = Array.isArray(newProduct.product_variants)
+      ? newProduct.product_variants
+      : [];
+    const cleanedVariants = [];
+
+    for (const variant of variants) {
+      const cleanedVariant = serializeProductVariant(variant);
+      if (!cleanedVariant.name) continue;
+
+      if (variant.image_file) {
+        const uploadedImage = await uploadProductImage(variant.image_file);
+        if (!uploadedImage) return null;
+        cleanedVariant.image_url = uploadedImage;
+      }
+
+      cleanedVariants.push(cleanedVariant);
+    }
+
+    return cleanedVariants;
+  }
+
   async function addProduct(e) {
     e.preventDefault();
 
@@ -254,6 +277,9 @@ export default function AdminPage() {
         discount_percent: clampDiscountPercent(extra.discount_percent),
         discount_label: String(extra.discount_label || "").trim(),
       }));
+    const cleanedVariants = await getCleanedProductVariants();
+
+    if (!cleanedVariants) return;
 
     const productPayload = {
       title: newProduct.title,
@@ -270,6 +296,7 @@ export default function AdminPage() {
       extras_enabled: newProduct.extras_enabled && cleanedExtras.length > 0,
       custom_extras: cleanedExtras,
       gallery_images: galleryImages,
+      product_variants: cleanedVariants,
     };
 
     let error;
@@ -383,6 +410,11 @@ export default function AdminPage() {
       file: null,
       gallery_images: getGalleryImages(product),
       galleryFiles: [],
+      product_variants: getProductVariants(product).map((variant) => ({
+        ...variant,
+        price_adjustment: String(variant.price_adjustment ?? 0),
+        image_file: null,
+      })),
       sort_order: Number(product.sort_order || 0),
       availability_status: product.availability_status || "available",
       product_badges: getProductBadgeValues(product),

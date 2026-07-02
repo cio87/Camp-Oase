@@ -9,6 +9,7 @@ import {
   hasActiveDiscount,
 } from "./price";
 import { getAvailabilityStatus } from "./availability";
+import { getVariantPriceAdjustment, serializeProductVariant } from "./productVariants";
 
 const CART_STORAGE_KEY = "campoase_cart";
 export const CART_UPDATED_EVENT = "campoase-cart-updated";
@@ -57,7 +58,7 @@ export function getCartSubtotal(items = getCartItems()) {
   );
 }
 
-export function addProductToCart(product, selectedExtras = {}) {
+export function addProductToCart(product, selectedExtras = {}, selectedVariant = null) {
   const stockQuantity = getStockQuantity(product);
   const availabilityStatus = getAvailabilityStatus(product);
   const isPreorder = availabilityStatus === "preorder";
@@ -84,8 +85,10 @@ export function addProductToCart(product, selectedExtras = {}) {
       note: extra.note,
     }));
 
-  const originalBasePrice = getProductBasePrice(product);
-  const basePrice = getDiscountedBasePrice(product);
+  const variant = selectedVariant ? serializeProductVariant(selectedVariant) : null;
+  const variantAdjustment = getVariantPriceAdjustment(variant);
+  const originalBasePrice = getProductBasePrice(product) + variantAdjustment;
+  const basePrice = getDiscountedBasePrice(product) + variantAdjustment;
   const extrasTotal = selectedItems.reduce(
     (sum, extra) => sum + Number(extra.price || 0),
     0
@@ -96,7 +99,8 @@ export function addProductToCart(product, selectedExtras = {}) {
     id: createCartId(),
     productId: product.id,
     title: product.title,
-    image: product.image,
+    image: variant?.image_url || product.image,
+    selectedVariant: variant,
     availabilityStatus,
     isPreorder,
     stockQuantity,
@@ -163,6 +167,18 @@ export function buildCartMessage(items, subtotalLabel) {
       `Einzelpreis mit Extras: ${formatEuro(item.unitTotal)}`
     );
 
+    if (item.selectedVariant?.name) {
+      lines.push(`Variante: ${item.selectedVariant.name}`);
+      if (item.selectedVariant.description) {
+        lines.push(`Variantenhinweis: ${item.selectedVariant.description}`);
+      }
+      if (Number(item.selectedVariant.price_adjustment || 0) !== 0) {
+        lines.push(
+          `Varianten-Aufpreis: ${formatEuro(item.selectedVariant.price_adjustment)}`
+        );
+      }
+    }
+
     if (item.isPreorder) {
       lines.push("Hinweis: Vorbestellung");
     }
@@ -205,6 +221,7 @@ export function buildCartSelectedExtras(items) {
     positions: items.map((item) => ({
       product_id: item.productId,
       product_title: item.title,
+      variant: item.selectedVariant || null,
       availability_status: item.availabilityStatus || "",
       is_preorder: Boolean(item.isPreorder),
       quantity: Number(item.quantity || 1),
