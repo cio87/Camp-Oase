@@ -10,6 +10,7 @@ const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
+const RequestTermsPage = lazy(() => import("./pages/RequestTermsPage"));
 const ShippingPaymentPage = lazy(() => import("./pages/ShippingPaymentPage"));
 const WithdrawalPage = lazy(() => import("./pages/WithdrawalPage"));
 
@@ -50,6 +51,7 @@ export default function App() {
       <Route path="/checkout" element={publicPage(<CheckoutPage />)} />
       <Route path="/impressum" element={publicPage(<LegalPage type="impressum" />)} />
       <Route path="/datenschutz" element={publicPage(<LegalPage type="datenschutz" />)} />
+      <Route path="/anfragebedingungen" element={publicPage(<RequestTermsPage />)} />
       <Route path="/versand-zahlung" element={publicPage(<ShippingPaymentPage />)} />
       <Route path="/widerruf" element={publicPage(<WithdrawalPage />)} />
     </Routes>

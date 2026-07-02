@@ -6,36 +6,29 @@ import {
   footerStyle,
 } from "../styles";
 
+const footerLinks = [
+  { to: "/impressum", label: "Impressum" },
+  { to: "/datenschutz", label: "Datenschutz" },
+  { to: "/versand-zahlung", label: "Versand & Zahlung" },
+  { to: "/widerruf", label: "Widerruf" },
+  { to: "/anfragebedingungen", label: "AGB" },
+];
+
 export default function SiteFooter() {
   return (
     <footer style={footerStyle}>
-      <span>© Camp Oase</span>
+      <span>{"\u00a9"} Camp Oase</span>
 
-      <span style={footerDotStyle}>·</span>
+      {footerLinks.map((link) => (
+        <span key={link.to}>
+          <span style={footerDotStyle}>{"\u00b7"}</span>
+          <Link to={link.to} style={footerLinkStyle}>
+            {link.label}
+          </Link>
+        </span>
+      ))}
 
-      <Link to="/impressum" style={footerLinkStyle}>
-        Impressum
-      </Link>
-
-      <span style={footerDotStyle}>·</span>
-
-      <Link to="/datenschutz" style={footerLinkStyle}>
-        Datenschutz
-      </Link>
-
-      <span style={footerDotStyle}>·</span>
-
-      <Link to="/versand-zahlung" style={footerLinkStyle}>
-        Versand & Zahlung
-      </Link>
-
-      <span style={footerDotStyle}>·</span>
-
-      <Link to="/widerruf" style={footerLinkStyle}>
-        Widerruf
-      </Link>
-
-      <span style={footerDotStyle}>·</span>
+      <span style={footerDotStyle}>{"\u00b7"}</span>
 
       <Link to="/admin" style={footerLoginStyle}>
         Login
