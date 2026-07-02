@@ -58,7 +58,7 @@ export default function ShippingPaymentPage() {
     <div style={siteStyle}>
       <header style={headerStyle}>
         <Link to="/" style={{ color: "#556b5d", textDecoration: "none" }}>
-          ← Zur Startseite
+          {"\u2190"} Zur Startseite
         </Link>
       </header>
 
@@ -67,59 +67,91 @@ export default function ShippingPaymentPage() {
           <h1 style={legalTitleStyle}>Versand & Zahlung</h1>
 
           <p style={introStyle}>
-            Hier findest du Informationen zum aktuellen Ablauf von
-            Produktanfragen, Versand und Zahlung bei Camp Oase.
+            Hier findest du Informationen zum Ablauf von Produktanfragen,
+            Versand und Zahlung bei Camp Oase.
           </p>
 
           <div style={sectionGridStyle}>
-            <InfoSection title="Aktueller Bestellablauf">
+            <InfoSection title="Aktueller Ablauf">
               <p style={textStyle}>
-                Camp Oase befindet sich aktuell noch im Aufbau. Über die Webseite
-                erfolgt derzeit kein direkter Kaufabschluss und keine
-                Online-Zahlung.
+                Camp Oase befindet sich aktuell noch im Aufbau. Produkte und
+                Warenkorbinhalte können unverbindlich angefragt werden.
               </p>
               <p style={{ ...textStyle, marginTop: "12px" }}>
-                Du kannst Produkte oder deinen Warenkorb unverbindlich anfragen.
-                Nach deiner Anfrage melden wir uns bei dir, klären offene
-                Details, Personalisierungswünsche, Verfügbarkeit, Lieferzeit und
-                die weitere Abwicklung.
+                Ist die Online-Zahlung deaktiviert, erfolgt die Abstimmung zu
+                Verfügbarkeit, Personalisierungswünschen, Lieferzeit, Versand und
+                Zahlung individuell nach deiner Anfrage.
               </p>
               <p style={{ ...textStyle, marginTop: "12px" }}>
                 Ein verbindlicher Kaufvertrag kommt erst nach individueller
-                Abstimmung und ausdrücklicher Bestätigung zustande.
-              </p>
-            </InfoSection>
-
-            <InfoSection title="Zahlung">
-              <p style={textStyle}>
-                Aktuell ist keine direkte Online-Zahlung über die Webseite aktiv.
-              </p>
-              <p style={{ ...textStyle, marginTop: "12px" }}>
-                PayPal ist technisch für eine spätere Nutzung vorbereitet, aber
-                derzeit nicht live geschaltet. Zahlungsdetails werden aktuell
-                individuell nach deiner Anfrage abgestimmt.
-              </p>
-              <p style={{ ...textStyle, marginTop: "12px" }}>
-                Bitte beachte: Solange keine Zahlungsfunktion aktiv ist, wird
-                über die Webseite keine Zahlung ausgelöst.
+                Abstimmung und ausdrücklicher Bestätigung zustande. Wenn später
+                ein Checkout mit Online-Zahlung aktiviert ist, werden die
+                verfügbaren Schritte und Zahlungsarten auf der Website bzw. im
+                Checkout angezeigt.
               </p>
             </InfoSection>
 
             <InfoSection title="Versand">
               <p style={textStyle}>
-                Der Versand erfolgt nach individueller Abstimmung und abhängig
-                vom jeweiligen Produkt, der gewünschten Personalisierung und der
-                Verfügbarkeit.
+                Der Versand erfolgt nach individueller Abstimmung und ist
+                zunächst für Deutschland vorgesehen.
               </p>
               <p style={{ ...textStyle, marginTop: "12px" }}>
-                Die konkreten Versandkosten und die voraussichtliche Lieferzeit
-                teilen wir dir im Rahmen der Anfrage oder vor einer verbindlichen
-                Bestellung mit.
+                Versandkosten hängen von Produkt, Größe, Menge und Versandart ab.
+                Die konkreten Versandkosten werden vor einer verbindlichen
+                Bestätigung bzw. bei aktiviertem Checkout im Bestellprozess klar
+                angezeigt.
+              </p>
+              <p style={{ ...textStyle, marginTop: "12px" }}>
+                Bei mehreren Produkten können Versandkosten zusammengefasst
+                werden, sofern dies für die jeweilige Anfrage sinnvoll möglich ist.
+              </p>
+            </InfoSection>
+
+            <InfoSection title="Lieferzeiten">
+              <p style={textStyle}>
+                Lagerware wird voraussichtlich innerhalb von ca. 3-5 Werktagen
+                nach Abstimmung und Zahlung versendet.
+              </p>
+              <p style={{ ...textStyle, marginTop: "12px" }}>
+                Personalisierte Produkte benötigen voraussichtlich ca. 5-10
+                Werktage nach finaler Motiv- oder Textfreigabe und Zahlung.
+              </p>
+              <p style={{ ...textStyle, marginTop: "12px" }}>
+                Bei Vorbestellungen richtet sich die Lieferzeit nach der
+                Produktangabe oder nach individueller Abstimmung.
+              </p>
+              <p style={{ ...textStyle, marginTop: "12px" }}>
+                Bei hoher Nachfrage, Materialengpässen oder Sonderwünschen kann
+                es länger dauern. In diesem Fall wirst du entsprechend
+                informiert.
+              </p>
+            </InfoSection>
+
+            <InfoSection title="Zahlung">
+              <p style={textStyle}>
+                Die aktuell verfügbaren Zahlungsarten werden im Checkout bzw. im
+                Anfrageprozess angezeigt. Ist die Online-Zahlung deaktiviert,
+                erfolgt die Zahlungsabstimmung individuell nach deiner Anfrage.
+              </p>
+              <p style={{ ...textStyle, marginTop: "12px" }}>
+                Wenn Online-Zahlung später aktiviert ist, gelten die im Checkout
+                angezeigten Zahlungsarten, zum Beispiel PayPal. Versandkosten,
+                Lieferzeiten und Zahlungsart werden dann im Checkout bzw. vor
+                verbindlicher Bestellung klar angezeigt.
+              </p>
+              <p style={{ ...textStyle, marginTop: "12px" }}>
+                Solange die Online-Zahlung nicht aktiviert ist, wird kein
+                PayPal-Button und keine automatische Online-Zahlung angeboten.
               </p>
             </InfoSection>
 
             <InfoSection title="Preise und Kleinunternehmerregelung">
-              <p style={textStyle}>Alle angegebenen Preise sind Endpreise.</p>
+              <p style={textStyle}>
+                Alle angegebenen Produktpreise sind Endpreise. Gegebenenfalls
+                anfallende Versandkosten werden vor einer verbindlichen
+                Bestätigung bzw. im aktivierten Checkout klar mitgeteilt.
+              </p>
               <p style={{ ...textStyle, marginTop: "12px" }}>
                 Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.
               </p>
