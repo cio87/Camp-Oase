@@ -769,12 +769,12 @@ export const adminTitleStyle = {
 
 export const adminProductStyle = {
   background: "white",
-  padding: "18px",
-  borderRadius: "18px",
+  padding: "14px 16px",
+  borderRadius: "16px",
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "center",
-  gap: "16px",
+  alignItems: "flex-start",
+  gap: "12px",
   flexWrap: "wrap",
   boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
 };
@@ -792,8 +792,8 @@ export const adminAvailabilityBadgeStyle = {
 
 export const adminActionRowStyle = {
   display: "flex",
-  gap: "10px",
-  marginTop: "16px",
+  gap: "8px",
+  marginTop: "4px",
   flexWrap: "wrap",
 };
 

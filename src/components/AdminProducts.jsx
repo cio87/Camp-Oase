@@ -42,6 +42,75 @@ import {
   smallDeleteButtonStyle,
 } from "../styles";
 
+const accordionStyle = {
+  border: "1px solid #e7dfd0",
+  borderRadius: "18px",
+  background: "#fbfaf6",
+  margin: "12px 0",
+  overflow: "hidden",
+};
+
+const accordionSummaryStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "12px",
+  padding: "13px 16px",
+  cursor: "pointer",
+  color: "#435749",
+  fontWeight: "bold",
+};
+
+const accordionMetaStyle = {
+  color: "#7f8f82",
+  fontSize: "13px",
+  fontWeight: "bold",
+  whiteSpace: "nowrap",
+};
+
+const accordionContentStyle = {
+  padding: "0 16px 16px",
+};
+
+const compactInputStyle = {
+  ...inputStyle,
+  padding: "11px 12px",
+  marginTop: "7px",
+  marginBottom: "8px",
+  fontSize: "15px",
+};
+
+const compactHintStyle = {
+  ...adminHintStyle,
+  margin: "6px 0 10px",
+  fontSize: "13px",
+};
+
+const compactBoxStyle = {
+  ...adminExtrasBoxStyle,
+  padding: "13px",
+  margin: "10px 0",
+  borderRadius: "14px",
+};
+
+const compactCardStyle = {
+  ...customExtraCardStyle,
+  padding: "12px",
+  border: "1px solid #eee7da",
+};
+
+function AccordionSection({ title, meta, defaultOpen = false, children }) {
+  return (
+    <details style={accordionStyle} open={defaultOpen}>
+      <summary style={accordionSummaryStyle}>
+        <span>{title}</span>
+        {meta && <span style={accordionMetaStyle}>{meta}</span>}
+      </summary>
+      <div style={accordionContentStyle}>{children}</div>
+    </details>
+  );
+}
+
 export default function AdminProducts({
   products,
   newProduct,
@@ -133,16 +202,37 @@ export default function AdminProducts({
     setNewProduct({ ...newProduct, product_variants: nextVariants });
   }
 
+  const galleryCount = Math.min(
+    3,
+    galleryImages.filter(Boolean).length + galleryFiles.filter(Boolean).length
+  );
+  const extrasCount = (newProduct.custom_extras || []).filter((extra) =>
+    String(extra.name || "").trim()
+  ).length;
+  const variantsCount = productVariants.filter((variant) =>
+    String(variant.name || "").trim()
+  ).length;
+  const badgesCount = selectedProductBadges.length;
+  const discountMeta = newProduct.discount_enabled ? "aktiv" : "inaktiv";
+  const visibilityMeta = [
+    getAvailabilityLabel(newProduct),
+    badgesCount > 0 ? `${badgesCount} Hinweise` : "",
+    newProduct.extras_enabled ? "Extras aktiv" : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <>
       <form onSubmit={onSubmit} style={formStyle}>
         <h2>{editingId ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}</h2>
 
+        <AccordionSection title="Grunddaten" defaultOpen>
         <input
           placeholder="Produktname"
           value={newProduct.title}
           onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
-          style={inputStyle}
+          style={compactInputStyle}
         />
 
         <textarea
@@ -151,9 +241,9 @@ export default function AdminProducts({
           onChange={(e) =>
             setNewProduct({ ...newProduct, description: e.target.value })
           }
-          style={{ ...inputStyle, minHeight: "120px" }}
+          style={{ ...compactInputStyle, minHeight: "100px" }}
         />
-        <p style={adminHintStyle}>
+        <p style={compactHintStyle}>
           Markdown möglich: <strong>**fett**</strong>, <em>*kursiv*</em>, -
           Listen möglich
         </p>
@@ -162,7 +252,7 @@ export default function AdminProducts({
           placeholder="Preis z.B. 14,99 €"
           value={newProduct.price}
           onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-          style={inputStyle}
+          style={compactInputStyle}
         />
 
         <label style={adminExtraLabelStyle}>Reihenfolge</label>
@@ -174,7 +264,7 @@ export default function AdminProducts({
           onChange={(e) =>
             setNewProduct({ ...newProduct, sort_order: e.target.value })
           }
-          style={inputStyle}
+          style={compactInputStyle}
         />
 
         <label style={adminExtraLabelStyle}>Bestand / Stückzahl</label>
@@ -187,10 +277,17 @@ export default function AdminProducts({
           onChange={(e) =>
             setNewProduct({ ...newProduct, stock_quantity: e.target.value })
           }
-          style={inputStyle}
+          style={compactInputStyle}
         />
 
-        <div style={adminExtrasBoxStyle}>
+        </AccordionSection>
+
+        <AccordionSection
+          title="Preis & Rabatt"
+          meta={discountMeta}
+          defaultOpen={Boolean(newProduct.discount_enabled)}
+        >
+        <div style={compactBoxStyle}>
           <label style={checkboxRowStyle}>
             <input
               type="checkbox"
@@ -221,7 +318,7 @@ export default function AdminProducts({
                     discount_percent: e.target.value,
                   })
                 }
-                style={inputStyle}
+                style={compactInputStyle}
               />
 
               <label style={adminExtraLabelStyle}>Rabatt-Label optional</label>
@@ -234,12 +331,19 @@ export default function AdminProducts({
                     discount_label: e.target.value,
                   })
                 }
-                style={inputStyle}
+                style={compactInputStyle}
               />
             </>
           )}
         </div>
 
+        </AccordionSection>
+
+        <AccordionSection
+          title="Sichtbarkeit & Hinweise"
+          meta={visibilityMeta}
+          defaultOpen={editingId && (badgesCount > 0 || newProduct.extras_enabled)}
+        >
         <label style={adminExtraLabelStyle}>Verfügbarkeit</label>
         <select
           value={newProduct.availability_status || "available"}
@@ -249,7 +353,7 @@ export default function AdminProducts({
               availability_status: e.target.value,
             })
           }
-          style={inputStyle}
+          style={compactInputStyle}
         >
           {AVAILABILITY_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -258,9 +362,9 @@ export default function AdminProducts({
           ))}
         </select>
 
-        <div style={adminExtrasBoxStyle}>
+        <div style={compactBoxStyle}>
           <strong style={{ color: "#435749" }}>Produkt-Hinweise</strong>
-          <p style={adminHintStyle}>
+          <p style={compactHintStyle}>
             Diese Hinweise erscheinen dezent auf der Produktkarte und bei der
             Produktdetailseite. Sie sind unabhängig von den Extras.
           </p>
@@ -279,8 +383,26 @@ export default function AdminProducts({
               </label>
             ))}
           </div>
+
+          <label style={{ ...checkboxRowStyle, marginTop: "12px" }}>
+            <input
+              type="checkbox"
+              checked={newProduct.extras_enabled}
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, extras_enabled: e.target.checked })
+              }
+            />
+            Extras für dieses Produkt aktivieren
+          </label>
         </div>
 
+        </AccordionSection>
+
+        <AccordionSection
+          title="Bilder & Galerie"
+          meta={`${galleryCount}/3`}
+          defaultOpen={editingId && (Boolean(newProduct.image) || galleryCount > 0)}
+        >
         {editingId && newProduct.image && (
           <div style={adminImagePreviewBoxStyle}>
             <button
@@ -322,12 +444,12 @@ export default function AdminProducts({
           onChange={(e) =>
             setNewProduct({ ...newProduct, file: e.target.files[0] })
           }
-          style={inputStyle}
+          style={compactInputStyle}
         />
 
-        <div style={adminExtrasBoxStyle}>
+        <div style={compactBoxStyle}>
           <strong style={{ color: "#435749" }}>Produktgalerie</strong>
-          <p style={adminHintStyle}>
+          <p style={compactHintStyle}>
             Optional bis zu 3 zusätzliche Bilder. Das Hauptbild bleibt weiterhin
             das Bild für Produktkarten und Übersicht.
           </p>
@@ -376,7 +498,7 @@ export default function AdminProducts({
                       type="file"
                       accept="image/*"
                       onChange={(e) => updateGalleryFile(index, e.target.files[0])}
-                      style={inputStyle}
+          style={compactInputStyle}
                     />
 
                     {(image || file) && (
@@ -395,9 +517,16 @@ export default function AdminProducts({
           </div>
         </div>
 
-        <div style={adminExtrasBoxStyle}>
+        </AccordionSection>
+
+        <AccordionSection
+          title="Produktvarianten"
+          meta={`${variantsCount}`}
+          defaultOpen={editingId && variantsCount > 0}
+        >
+        <div style={compactBoxStyle}>
           <strong style={{ color: "#435749" }}>Produktvarianten</strong>
-          <p style={adminHintStyle}>
+          <p style={compactHintStyle}>
             Optional: Varianten mit eigenem Bild und Preisaufschlag oder
             Preisabschlag. Ohne Varianten bleibt das Produkt wie bisher.
           </p>
@@ -405,7 +534,7 @@ export default function AdminProducts({
           {productVariants.length > 0 && (
             <div style={{ display: "grid", gap: "14px" }}>
               {productVariants.map((variant, index) => (
-                <div key={variant.id || index} style={customExtraCardStyle}>
+                <div key={variant.id || index} style={compactCardStyle}>
                   <div style={customExtraHeaderStyle}>
                     <strong>Variante {index + 1}</strong>
                     <button
@@ -435,7 +564,7 @@ export default function AdminProducts({
                     onChange={(e) =>
                       updateProductVariant(index, "name", e.target.value)
                     }
-                    style={inputStyle}
+                    style={compactInputStyle}
                   />
 
                   <label style={adminExtraLabelStyle}>Beschreibung optional</label>
@@ -445,7 +574,7 @@ export default function AdminProducts({
                     onChange={(e) =>
                       updateProductVariant(index, "description", e.target.value)
                     }
-                    style={{ ...inputStyle, minHeight: "80px" }}
+                    style={{ ...compactInputStyle, minHeight: "70px" }}
                   />
 
                   <label style={adminExtraLabelStyle}>
@@ -463,7 +592,7 @@ export default function AdminProducts({
                         e.target.value
                       )
                     }
-                    style={inputStyle}
+                    style={compactInputStyle}
                   />
 
                   {(variant.image_url || variant.image_file) && (
@@ -506,7 +635,7 @@ export default function AdminProducts({
                     onChange={(e) =>
                       updateProductVariant(index, "image_file", e.target.files[0])
                     }
-                    style={inputStyle}
+                    style={compactInputStyle}
                   />
 
                   {variant.image_url && (
@@ -532,28 +661,31 @@ export default function AdminProducts({
           </button>
         </div>
 
-        <div style={adminExtrasBoxStyle}>
-          <label style={checkboxRowStyle}>
-            <input
-              type="checkbox"
-              checked={newProduct.extras_enabled}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, extras_enabled: e.target.checked })
-              }
-            />
-            Extras für dieses Produkt aktivieren
-          </label>
+        </AccordionSection>
+
+        <AccordionSection
+          title="Extras"
+          meta={newProduct.extras_enabled ? `${extrasCount}` : "inaktiv"}
+          defaultOpen={editingId && newProduct.extras_enabled}
+        >
+        <div style={compactBoxStyle}>
+          {!newProduct.extras_enabled && (
+            <p style={compactHintStyle}>
+              Extras sind aktuell deaktiviert. Du kannst sie im Bereich
+              Sichtbarkeit & Hinweise aktivieren.
+            </p>
+          )}
 
           {newProduct.extras_enabled && (
             <>
-              <p style={adminHintStyle}>
+              <p style={compactHintStyle}>
                 Lege hier frei fest, welche Extras dieses Produkt haben kann.
                 Name, Beschreibung und Aufpreis sind pro Extra komplett anpassbar.
               </p>
 
               <div style={{ display: "grid", gap: "14px" }}>
                 {(newProduct.custom_extras || []).map((extra, index) => (
-                  <div key={index} style={customExtraCardStyle}>
+                  <div key={index} style={compactCardStyle}>
                     <div style={customExtraHeaderStyle}>
                       <strong>Extra {index + 1}</strong>
                       <button
@@ -570,7 +702,7 @@ export default function AdminProducts({
                       placeholder="z. B. Versiegelung, NFC, Logo-Druck"
                       value={extra.name}
                       onChange={(e) => onUpdateExtra(index, "name", e.target.value)}
-                      style={inputStyle}
+                      style={compactInputStyle}
                     />
 
                     <label style={adminExtraLabelStyle}>Beschreibung</label>
@@ -580,7 +712,7 @@ export default function AdminProducts({
                       onChange={(e) =>
                         onUpdateExtra(index, "description", e.target.value)
                       }
-                      style={{ ...inputStyle, minHeight: "80px" }}
+                      style={{ ...compactInputStyle, minHeight: "70px" }}
                     />
 
                     <label style={adminExtraLabelStyle}>Aufpreis</label>
@@ -590,7 +722,7 @@ export default function AdminProducts({
                       placeholder="z. B. 3.50"
                       value={extra.price}
                       onChange={(e) => onUpdateExtra(index, "price", e.target.value)}
-                      style={inputStyle}
+                      style={compactInputStyle}
                     />
 
                     <label style={checkboxRowStyle}>
@@ -627,7 +759,7 @@ export default function AdminProducts({
                               e.target.value
                             )
                           }
-                          style={inputStyle}
+                          style={compactInputStyle}
                         />
 
                         <label style={adminExtraLabelStyle}>
@@ -643,7 +775,7 @@ export default function AdminProducts({
                               e.target.value
                             )
                           }
-                          style={inputStyle}
+                          style={compactInputStyle}
                         />
                       </>
                     )}
@@ -657,6 +789,8 @@ export default function AdminProducts({
             </>
           )}
         </div>
+
+        </AccordionSection>
 
         <button style={buttonStyle}>
           {editingId ? "Änderungen speichern" : "Produkt speichern"}
