@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { formatEuro, parsePrice } from "../utils/price";
 import {
   adminSelectedExtrasStyle,
@@ -72,14 +72,19 @@ export default function AdminInquiries({
       : [];
 
     if (cartPositions.length > 0) {
-      return cartPositions.map((position) => ({
-        title: position.product_title || "Position",
-        variant: position.variant || null,
-        quantity: Number(position.quantity || 1),
-        unitLabel: position.unit_total_label || formatEuro(position.unit_total),
-        lineLabel: position.line_total_label || formatEuro(position.line_total),
-        extras: Array.isArray(position.extras) ? position.extras : [],
-      }));
+      return cartPositions.map((position) => {
+        const quantity = Number(position.quantity || 1);
+        const basePrice = Number(position.base_price || 0);
+
+        return {
+          title: position.product_title || "Position",
+          variant: position.variant || null,
+          quantity,
+          unitLabel: position.base_price_label || formatEuro(basePrice),
+          lineLabel: formatEuro(basePrice * quantity),
+          extras: Array.isArray(position.extras) ? position.extras : [],
+        };
+      });
     }
 
     if (selectedItems.length > 0) {
@@ -88,15 +93,15 @@ export default function AdminInquiries({
         0
       );
       const estimatedTotal = parsePrice(inquiry?.estimated_total);
-      const unitTotal = estimatedTotal || extrasTotal;
+      const baseTotal = Math.max(0, (estimatedTotal || extrasTotal) - extrasTotal);
 
       return [
         {
           title: inquiry?.product_title || "Anfrage",
           variant: inquiry?.selected_extras?.selected_variant || null,
           quantity: 1,
-          unitLabel: inquiry?.estimated_total || formatEuro(unitTotal),
-          lineLabel: inquiry?.estimated_total || formatEuro(unitTotal),
+          unitLabel: formatEuro(baseTotal),
+          lineLabel: formatEuro(baseTotal),
           extras: selectedItems,
         },
       ];
@@ -666,70 +671,116 @@ export default function AdminInquiries({
                     </thead>
                     <tbody>
                       {positions.map((position, index) => (
-                        <tr
-                          key={position.title + "-" + index}
-                          className="invoice-print-row"
-                        >
-                          <td
-                            style={{
-                              padding: "12px 10px",
-                              borderBottom: "1px solid #eee7da",
-                              verticalAlign: "top",
-                            }}
-                          >
-                            <strong>{position.title}</strong>
-                            {position.variant?.name && (
-                              <div style={{ marginTop: "4px", color: "#667" }}>
-                                Variante: {position.variant.name}
-                                {position.variant.description
-                                  ? " · " + position.variant.description
-                                  : ""}
-                              </div>
-                            )}
-                            {position.extras.length > 0 && (
-                              <div style={{ marginTop: "6px", color: "#667" }}>
-                                Extras:
-                                {position.extras.map((extra, extraIndex) => (
-                                  <div key={extra.name + "-" + extraIndex}>
-                                    {extra.name} +{formatEuro(extra.price)}
-                                    {extra.note ? " · Hinweis: " + extra.note : ""}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "right",
-                              padding: "12px 10px",
-                              borderBottom: "1px solid #eee7da",
-                              verticalAlign: "top",
-                            }}
-                          >
-                            {position.quantity}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "right",
-                              padding: "12px 10px",
-                              borderBottom: "1px solid #eee7da",
-                              verticalAlign: "top",
-                            }}
-                          >
-                            {position.unitLabel}
-                          </td>
-                          <td
-                            style={{
-                              textAlign: "right",
-                              padding: "12px 10px",
-                              borderBottom: "1px solid #eee7da",
-                              verticalAlign: "top",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {position.lineLabel}
-                          </td>
-                        </tr>
+                        <Fragment key={position.title + "-" + index}>
+                          <tr className="invoice-print-row">
+                            <td
+                              style={{
+                                padding: "12px 10px",
+                                borderBottom: "1px solid #eee7da",
+                                verticalAlign: "top",
+                              }}
+                            >
+                              <strong>{position.title}</strong>
+                              {position.variant?.name && (
+                                <div style={{ marginTop: "4px", color: "#667" }}>
+                                  Variante: {position.variant.name}
+                                  {position.variant.description
+                                    ? " · " + position.variant.description
+                                    : ""}
+                                </div>
+                              )}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "right",
+                                padding: "12px 10px",
+                                borderBottom: "1px solid #eee7da",
+                                verticalAlign: "top",
+                              }}
+                            >
+                              {position.quantity}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "right",
+                                padding: "12px 10px",
+                                borderBottom: "1px solid #eee7da",
+                                verticalAlign: "top",
+                              }}
+                            >
+                              {position.unitLabel}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "right",
+                                padding: "12px 10px",
+                                borderBottom: "1px solid #eee7da",
+                                verticalAlign: "top",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {position.lineLabel}
+                            </td>
+                          </tr>
+
+                          {position.extras.map((extra, extraIndex) => {
+                            const extraPrice = Number(extra.price || 0);
+                            const extraLineTotal = extraPrice * position.quantity;
+
+                            return (
+                              <tr
+                                key={extra.name + "-" + extraIndex}
+                                className="invoice-print-row"
+                              >
+                                <td
+                                  style={{
+                                    padding: "9px 10px 9px 26px",
+                                    borderBottom: "1px solid #f1eadf",
+                                    verticalAlign: "top",
+                                    color: "#667",
+                                  }}
+                                >
+                                  Extra: {extra.name}
+                                  {extra.note ? " · Hinweis: " + extra.note : ""}
+                                </td>
+                                <td
+                                  style={{
+                                    textAlign: "right",
+                                    padding: "9px 10px",
+                                    borderBottom: "1px solid #f1eadf",
+                                    verticalAlign: "top",
+                                    color: "#667",
+                                  }}
+                                >
+                                  {position.quantity}
+                                </td>
+                                <td
+                                  style={{
+                                    textAlign: "right",
+                                    padding: "9px 10px",
+                                    borderBottom: "1px solid #f1eadf",
+                                    verticalAlign: "top",
+                                    color: "#667",
+                                  }}
+                                >
+                                  {formatEuro(extraPrice)}
+                                </td>
+                                <td
+                                  style={{
+                                    textAlign: "right",
+                                    padding: "9px 10px",
+                                    borderBottom: "1px solid #f1eadf",
+                                    verticalAlign: "top",
+                                    color: "#667",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {formatEuro(extraLineTotal)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </Fragment>
                       ))}
                     </tbody>
                   </table>
