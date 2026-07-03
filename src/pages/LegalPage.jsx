@@ -221,6 +221,7 @@ export default function LegalPage({ type }) {
                     <li>Produktdaten</li>
                     <li>Produktbilder</li>
                     <li>Anfragen über Produkt- und Warenkorbanfragen</li>
+                    <li>Kontaktanfragen über das Kontaktformular</li>
                     <li>Name, E-Mail-Adresse und Nachrichteninhalt bei Anfragen</li>
                     <li>
                       Adressdaten, sofern diese in der Checkout-Vorschau für eine
@@ -237,12 +238,19 @@ export default function LegalPage({ type }) {
                   </p>
                 </LegalSection>
 
-                <LegalSection title="5. Kontaktaufnahme per E-Mail">
+                <LegalSection title="5. Kontaktaufnahme per E-Mail oder Kontaktformular">
                   <p style={legalTextStyle}>
-                    Wenn du uns per E-Mail kontaktierst, verarbeiten wir die von
-                    dir übermittelten Daten, zum Beispiel deine E-Mail-Adresse,
-                    deinen Namen und den Inhalt deiner Nachricht. Diese Daten
-                    verwenden wir ausschließlich zur Bearbeitung deiner Anfrage.
+                    Wenn du uns per E-Mail oder über das Kontaktformular
+                    kontaktierst, verarbeiten wir die von dir übermittelten
+                    Daten, zum Beispiel deinen Namen, deine E-Mail-Adresse und
+                    den Inhalt deiner Nachricht. Diese Daten verwenden wir
+                    ausschließlich zur Bearbeitung deiner Anfrage.
+                  </p>
+                  <p style={{ ...legalTextStyle, marginTop: "12px" }}>
+                    Kontaktanfragen über das Formular werden in Supabase
+                    gespeichert. Eine Weitergabe an Dritte erfolgt nicht, außer
+                    soweit dies technisch zur Bereitstellung der Website und
+                    Dienste erforderlich ist.
                   </p>
                   <p style={{ ...legalTextStyle, marginTop: "12px" }}>
                     Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit.

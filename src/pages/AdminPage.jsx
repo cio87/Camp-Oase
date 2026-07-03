@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import AdminContactMessages from "../components/AdminContactMessages";
 import AdminInquiries from "../components/AdminInquiries";
 import AdminProducts from "../components/AdminProducts";
 import AdminSiteSettings from "../components/AdminSiteSettings";
@@ -30,6 +31,7 @@ import {
 export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [inquiries, setInquiries] = useState([]);
+  const [contactMessages, setContactMessages] = useState([]);
   const [adminTab, setAdminTab] = useState("products");
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState("all");
   const [session, setSession] = useState(null);
@@ -61,6 +63,7 @@ export default function AdminPage() {
 
       if (data.session) {
         loadInquiries();
+        loadContactMessages();
         loadSiteSettings();
       }
     });
@@ -72,6 +75,7 @@ export default function AdminPage() {
 
       if (session) {
         loadInquiries();
+        loadContactMessages();
         loadSiteSettings();
       }
     });
@@ -164,18 +168,36 @@ export default function AdminPage() {
     setInquiries(data || []);
   }
 
+  async function loadContactMessages() {
+    const { data, error } = await supabase
+      .from("contact_messages")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    setContactMessages(data || []);
+  }
+
   async function login(e) {
     e.preventDefault();
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) alert("Login fehlgeschlagen: " + error.message);
-    else await loadInquiries();
+    else {
+      await loadInquiries();
+      await loadContactMessages();
+    }
   }
 
   async function logout() {
     await supabase.auth.signOut();
     setInquiries([]);
+    setContactMessages([]);
     setAdminTab("products");
   }
 
@@ -400,6 +422,37 @@ export default function AdminPage() {
     await loadInquiries();
   }
 
+  async function updateContactMessageStatus(id, status) {
+    const { error } = await supabase
+      .from("contact_messages")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) {
+      alert("Kontaktstatus konnte nicht aktualisiert werden: " + error.message);
+      return;
+    }
+
+    await loadContactMessages();
+  }
+
+  async function deleteContactMessage(id) {
+    const ok = confirm("Kontaktanfrage wirklich löschen?");
+    if (!ok) return;
+
+    const { error } = await supabase
+      .from("contact_messages")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      alert("Kontaktanfrage konnte nicht gelöscht werden: " + error.message);
+      return;
+    }
+
+    await loadContactMessages();
+  }
+
   function editProduct(product) {
     setEditingId(product.id);
     setNewProduct({
@@ -509,6 +562,23 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => {
+                  setAdminTab("contact");
+                  loadContactMessages();
+                }}
+                style={{
+                  ...adminTabButtonStyle,
+                  ...(adminTab === "contact" ? adminTabActiveStyle : {}),
+                }}
+              >
+                Kontakt{" "}
+                {contactMessages.length > 0 && (
+                  <span style={inquiryBadgeStyle}>{contactMessages.length}</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setAdminTab("website");
                   loadSiteSettings();
                 }}
@@ -544,6 +614,14 @@ export default function AdminPage() {
                 setStatusFilter={setInquiryStatusFilter}
                 onUpdateStatus={updateInquiryStatus}
                 onDeleteInquiry={deleteInquiry}
+              />
+            )}
+
+            {adminTab === "contact" && (
+              <AdminContactMessages
+                messages={contactMessages}
+                onUpdateStatus={updateContactMessageStatus}
+                onDeleteMessage={deleteContactMessage}
               />
             )}
 
