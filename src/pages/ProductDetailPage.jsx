@@ -86,6 +86,7 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState("");
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [brokenPartnerImages, setBrokenPartnerImages] = useState({});
   const { id } = useParams();
 
   useEffect(() => {
@@ -97,6 +98,7 @@ export default function ProductDetailPage() {
     setSelectedImage("");
     setSelectedVariantId("");
     setLightboxOpen(false);
+    setBrokenPartnerImages({});
   }, [id]);
 
   useEffect(() => {
@@ -670,7 +672,8 @@ export default function ProductDetailPage() {
                                 "linear-gradient(135deg, #fffdf8, #f4efe3)",
                             }}
                           >
-                            {extra.partner_image_url && (
+                            {extra.partner_image_url &&
+                              !brokenPartnerImages[extra.partner_image_url] && (
                               <img
                                 src={extra.partner_image_url}
                                 alt={
@@ -691,8 +694,46 @@ export default function ProductDetailPage() {
                                   padding: "8px",
                                   boxSizing: "border-box",
                                 }}
+                                onError={() =>
+                                  setBrokenPartnerImages((current) => ({
+                                    ...current,
+                                    [extra.partner_image_url]: true,
+                                  }))
+                                }
                               />
                             )}
+
+                            {extra.partner_image_url &&
+                              brokenPartnerImages[extra.partner_image_url] && (
+                                <div
+                                  aria-hidden="true"
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: isDesktopDetailLayout
+                                      ? "150px"
+                                      : "100%",
+                                    maxWidth: "100%",
+                                    minHeight: isDesktopDetailLayout
+                                      ? "82px"
+                                      : "58px",
+                                    maxHeight: isDesktopDetailLayout
+                                      ? "120px"
+                                      : "80px",
+                                    borderRadius: "16px",
+                                    background: "#f5f1e8",
+                                    border: "1px dashed #d8cdb9",
+                                    color: "#7f8f82",
+                                    fontSize: "13px",
+                                    fontWeight: "bold",
+                                    boxSizing: "border-box",
+                                    padding: "8px",
+                                  }}
+                                >
+                                  Handmade
+                                </div>
+                              )}
 
                             <div>
                               <small

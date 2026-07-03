@@ -874,6 +874,34 @@ export default function AdminProducts({
                       />
 
                       <label style={adminExtraLabelStyle}>
+                        Partnerbild / Logo hochladen
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          onUpdateExtra(
+                            index,
+                            "partner_image_file",
+                            e.target.files[0] || null
+                          )
+                        }
+                        style={compactInputStyle}
+                      />
+                      {extra.partner_image_file && (
+                        <p style={adminImagePreviewTextStyle}>
+                          Neue Datei ausgewÃ¤hlt:{" "}
+                          <strong>{extra.partner_image_file.name}</strong>
+                        </p>
+                      )}
+                      {extra.partner_image_url && (
+                        <p style={adminImagePreviewTextStyle}>
+                          Aktuelles Partnerbild wird Ã¼ber die Bild-URL geladen.
+                          Ein neuer Upload ersetzt diese URL beim Speichern.
+                        </p>
+                      )}
+
+                      <label style={adminExtraLabelStyle}>
                         Link-URL optional
                       </label>
                       <input

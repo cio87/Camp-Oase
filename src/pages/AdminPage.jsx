@@ -289,9 +289,19 @@ export default function AdminPage() {
       }
     }
 
-    const cleanedExtras = (newProduct.custom_extras || [])
-      .filter((extra) => String(extra.name || "").trim())
-      .map((extra) => ({
+    const cleanedExtras = [];
+
+    for (const extra of newProduct.custom_extras || []) {
+      if (!String(extra.name || "").trim()) continue;
+
+      let partnerImageUrl = String(extra.partner_image_url || "").trim();
+
+      if (extra.partner_image_file) {
+        partnerImageUrl = await uploadProductImage(extra.partner_image_file);
+        if (!partnerImageUrl) return;
+      }
+
+      cleanedExtras.push({
         name: String(extra.name || "").trim(),
         description: String(extra.description || "").trim(),
         price: Number(extra.price || 0),
@@ -301,10 +311,11 @@ export default function AdminPage() {
         partner_enabled: Boolean(extra.partner_enabled),
         partner_name: String(extra.partner_name || "").trim(),
         partner_text: String(extra.partner_text || "").trim(),
-        partner_image_url: String(extra.partner_image_url || "").trim(),
+        partner_image_url: partnerImageUrl,
         partner_link_url: String(extra.partner_link_url || "").trim(),
         partner_link_label: String(extra.partner_link_label || "").trim(),
-      }));
+      });
+    }
     const cleanedVariants = await getCleanedProductVariants();
 
     if (!cleanedVariants) return;
@@ -371,6 +382,7 @@ export default function AdminPage() {
           partner_name: "",
           partner_text: "",
           partner_image_url: "",
+          partner_image_file: null,
           partner_link_url: "",
           partner_link_label: "",
         },
@@ -499,6 +511,7 @@ export default function AdminPage() {
         partner_name: extra.partner_name || "",
         partner_text: extra.partner_text || "",
         partner_image_url: extra.partner_image_url || "",
+        partner_image_file: null,
         partner_link_url: extra.partner_link_url || "",
         partner_link_label: extra.partner_link_label || "",
       })),
