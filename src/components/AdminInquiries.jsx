@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatEuro, parsePrice } from "../utils/price";
 import {
   adminSelectedExtrasStyle,
@@ -149,7 +150,46 @@ export default function AdminInquiries({
           }
 
           .invoice-print-table {
-            min-width: 640px;
+            min-width: 720px;
+            table-layout: auto;
+          }
+
+          .invoice-print-table th,
+          .invoice-print-table td {
+            overflow-wrap: normal;
+            word-break: normal;
+          }
+
+          .invoice-position-col {
+            min-width: 260px;
+            white-space: normal;
+          }
+
+          .invoice-quantity-col {
+            width: 90px;
+            min-width: 90px;
+            text-align: right;
+            white-space: nowrap;
+          }
+
+          .invoice-price-col {
+            width: 132px;
+            min-width: 132px;
+            text-align: right;
+            white-space: nowrap;
+          }
+
+          .invoice-total-row {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 22px;
+          }
+
+          .invoice-total-box {
+            width: min(280px, 100%);
+            box-sizing: border-box;
+            text-align: right;
           }
 
           @media (max-width: 640px) {
@@ -167,10 +207,58 @@ export default function AdminInquiries({
             html,
             body {
               background: white !important;
+              height: auto !important;
+              min-height: 0 !important;
+              overflow: visible !important;
+              margin: 0 !important;
             }
 
             body * {
               visibility: hidden !important;
+            }
+
+            body > #root {
+              display: none !important;
+            }
+
+            body > .invoice-print-portal {
+              display: none !important;
+              visibility: hidden !important;
+            }
+
+            body > .invoice-print-portal.invoice-print-portal-active {
+              display: block !important;
+              visibility: visible !important;
+              position: static !important;
+              width: auto !important;
+              height: auto !important;
+              min-height: 0 !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: white !important;
+              overflow: visible !important;
+            }
+
+            body > .invoice-print-portal.invoice-print-portal-active * {
+              visibility: visible !important;
+            }
+
+            .invoice-preview-overlay {
+              position: static !important;
+              inset: auto !important;
+              width: auto !important;
+              height: auto !important;
+              min-height: 0 !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background: white !important;
+              overflow: visible !important;
+            }
+
+            .invoice-preview-inner {
+              width: 100% !important;
+              max-width: none !important;
+              margin: 0 !important;
             }
 
             .invoice-print-area,
@@ -179,8 +267,8 @@ export default function AdminInquiries({
             }
 
             .invoice-print-area {
-              position: absolute !important;
-              inset: 0 auto auto 0 !important;
+              position: static !important;
+              inset: auto !important;
               width: 100% !important;
               max-width: none !important;
               margin: 0 !important;
@@ -198,12 +286,42 @@ export default function AdminInquiries({
             .invoice-print-table {
               width: 100% !important;
               min-width: 0 !important;
+              table-layout: auto !important;
+              font-size: 12px !important;
               page-break-inside: auto;
             }
 
             .invoice-screen-table-wrap {
               overflow: visible !important;
               margin-bottom: 22px !important;
+            }
+
+            .invoice-position-col {
+              min-width: 0 !important;
+              width: auto !important;
+            }
+
+            .invoice-quantity-col {
+              width: 18mm !important;
+              min-width: 18mm !important;
+              white-space: nowrap !important;
+            }
+
+            .invoice-price-col {
+              width: 30mm !important;
+              min-width: 30mm !important;
+              white-space: nowrap !important;
+            }
+
+            .invoice-total-row {
+              width: 100% !important;
+              display: flex !important;
+              justify-content: flex-end !important;
+            }
+
+            .invoice-total-box {
+              width: 62mm !important;
+              max-width: 62mm !important;
             }
 
             .invoice-print-row {
@@ -529,8 +647,12 @@ export default function AdminInquiries({
             customerLocation,
           ].filter(Boolean);
 
-          return (
+          return createPortal(
             <div
+              className="invoice-print-portal invoice-print-portal-active"
+              data-invoice-id={String(invoiceInquiry.id || "")}
+            >
+              <div
               className="invoice-preview-overlay"
               style={{
                 position: "fixed",
@@ -704,16 +826,28 @@ export default function AdminInquiries({
                     >
                     <thead>
                       <tr style={{ background: "#eef3ea", color: "#435749" }}>
-                        <th style={{ textAlign: "left", padding: "10px" }}>
+                        <th
+                          className="invoice-position-col"
+                          style={{ textAlign: "left", padding: "10px" }}
+                        >
                           Position
                         </th>
-                        <th style={{ textAlign: "right", padding: "10px" }}>
+                        <th
+                          className="invoice-quantity-col"
+                          style={{ textAlign: "right", padding: "10px" }}
+                        >
                           Menge
                         </th>
-                        <th style={{ textAlign: "right", padding: "10px" }}>
+                        <th
+                          className="invoice-price-col"
+                          style={{ textAlign: "right", padding: "10px" }}
+                        >
                           Einzelpreis
                         </th>
-                        <th style={{ textAlign: "right", padding: "10px" }}>
+                        <th
+                          className="invoice-price-col"
+                          style={{ textAlign: "right", padding: "10px" }}
+                        >
                           Zwischensumme
                         </th>
                       </tr>
@@ -723,6 +857,7 @@ export default function AdminInquiries({
                         <Fragment key={position.title + "-" + index}>
                           <tr className="invoice-print-row">
                             <td
+                              className="invoice-position-col"
                               style={{
                                 padding: "12px 10px",
                                 borderBottom: "1px solid #eee7da",
@@ -740,6 +875,7 @@ export default function AdminInquiries({
                               )}
                             </td>
                             <td
+                              className="invoice-quantity-col"
                               style={{
                                 textAlign: "right",
                                 padding: "12px 10px",
@@ -750,6 +886,7 @@ export default function AdminInquiries({
                               {position.quantity}
                             </td>
                             <td
+                              className="invoice-price-col"
                               style={{
                                 textAlign: "right",
                                 padding: "12px 10px",
@@ -760,6 +897,7 @@ export default function AdminInquiries({
                               {position.unitLabel}
                             </td>
                             <td
+                              className="invoice-price-col"
                               style={{
                                 textAlign: "right",
                                 padding: "12px 10px",
@@ -782,6 +920,7 @@ export default function AdminInquiries({
                                 className="invoice-print-row"
                               >
                                 <td
+                                  className="invoice-position-col"
                                   style={{
                                     padding: "9px 10px 9px 26px",
                                     borderBottom: "1px solid #f1eadf",
@@ -793,6 +932,7 @@ export default function AdminInquiries({
                                   {extra.note ? " · Hinweis: " + extra.note : ""}
                                 </td>
                                 <td
+                                  className="invoice-quantity-col"
                                   style={{
                                     textAlign: "right",
                                     padding: "9px 10px",
@@ -804,6 +944,7 @@ export default function AdminInquiries({
                                   {position.quantity}
                                 </td>
                                 <td
+                                  className="invoice-price-col"
                                   style={{
                                     textAlign: "right",
                                     padding: "9px 10px",
@@ -815,6 +956,7 @@ export default function AdminInquiries({
                                   {formatEuro(extraPrice)}
                                 </td>
                                 <td
+                                  className="invoice-price-col"
                                   style={{
                                     textAlign: "right",
                                     padding: "9px 10px",
@@ -835,17 +977,10 @@ export default function AdminInquiries({
                     </table>
                   </div>
 
-                  <section
-                    style={{
-                      display: "grid",
-                      justifyContent: "end",
-                      gap: "10px",
-                      marginBottom: "22px",
-                    }}
-                  >
+                  <section className="invoice-total-row">
                     <div
+                      className="invoice-total-box"
                       style={{
-                        minWidth: "260px",
                         background: "#f5f1e8",
                         border: "1px solid #e4dac7",
                         borderRadius: "14px",
@@ -892,6 +1027,8 @@ export default function AdminInquiries({
                 </article>
               </div>
             </div>
+            </div>,
+            document.body
           );
         })()}
     </>
