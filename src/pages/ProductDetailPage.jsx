@@ -657,9 +657,10 @@ export default function ProductDetailPage() {
                             key={`${extra.name}-partner-${index}`}
                             style={{
                               display: "grid",
-                              gridTemplateColumns: extra.partner_image_url
-                                ? "74px 1fr"
-                                : "1fr",
+                              gridTemplateColumns:
+                                extra.partner_image_url && isDesktopDetailLayout
+                                  ? "minmax(110px, 160px) 1fr"
+                                  : "1fr",
                               gap: "14px",
                               alignItems: "center",
                               padding: "15px",
@@ -677,11 +678,18 @@ export default function ProductDetailPage() {
                                   "Handmade-Partner von Camp Oase"
                                 }
                                 style={{
-                                  width: "74px",
-                                  height: "74px",
-                                  objectFit: "cover",
+                                  width: isDesktopDetailLayout
+                                    ? "150px"
+                                    : "100%",
+                                  maxWidth: "100%",
+                                  maxHeight: isDesktopDetailLayout
+                                    ? "120px"
+                                    : "80px",
+                                  objectFit: "contain",
                                   borderRadius: "16px",
                                   background: "#f5f1e8",
+                                  padding: "8px",
+                                  boxSizing: "border-box",
                                 }}
                               />
                             )}

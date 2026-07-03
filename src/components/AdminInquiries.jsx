@@ -27,6 +27,73 @@ import {
   statusFilterRowStyle,
 } from "../styles";
 
+const requestSummaryStyle = {
+  ...adminSelectedExtrasStyle,
+  display: "grid",
+  gap: "12px",
+};
+
+const requestProductSummaryStyle = {
+  border: "1px solid #e7dfd0",
+  borderRadius: "16px",
+  background: "linear-gradient(135deg, #fffdf8, #f7f2e7)",
+  padding: "13px 14px",
+};
+
+const requestProductHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: "12px",
+  flexWrap: "wrap",
+};
+
+const requestSummaryMetaStyle = {
+  display: "flex",
+  gap: "8px",
+  flexWrap: "wrap",
+  marginTop: "8px",
+};
+
+const requestChipStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  borderRadius: "999px",
+  background: "#eef3ea",
+  border: "1px solid #d8e1d3",
+  color: "#435749",
+  padding: "5px 9px",
+  fontSize: "13px",
+  fontWeight: "bold",
+};
+
+const requestPriceSummaryStyle = {
+  display: "grid",
+  gap: "3px",
+  textAlign: "right",
+  color: "#556b5d",
+  fontSize: "13px",
+};
+
+const requestExtrasListStyle = {
+  display: "grid",
+  gap: "7px",
+  marginTop: "10px",
+  paddingLeft: "12px",
+};
+
+const requestExtraRowStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: "10px",
+  flexWrap: "wrap",
+  borderLeft: "3px solid #d8e1d3",
+  background: "#fbfaf6",
+  borderRadius: "0 12px 12px 0",
+  padding: "8px 10px",
+  color: "#637064",
+};
+
 export default function AdminInquiries({
   inquiries,
   statusFilter,
@@ -424,131 +491,47 @@ export default function AdminInquiries({
                     </p>
                   )}
 
-                  {selectedVariant?.name && (
-                    <div style={adminSelectedExtrasStyle}>
-                      <strong>Variante:</strong>
-                      <p>
-                        {selectedVariant.name}
-                        {selectedVariant.description && (
-                          <>
-                            <br />
-                            <small>{selectedVariant.description}</small>
-                          </>
-                        )}
-                      </p>
-                    </div>
-                  )}
+                  {(selectedVariant?.name || selectedItems.length > 0) &&
+                    cartPositions.length === 0 && (
+                      <div style={requestSummaryStyle}>
+                        <strong>Auswahl-Zusammenfassung:</strong>
 
-                  {selectedItems.length > 0 && (
-                    <div style={adminSelectedExtrasStyle}>
-                      <strong>Ausgewählte Extras:</strong>
+                        <div style={requestProductSummaryStyle}>
+                          <div style={requestProductHeaderStyle}>
+                            <div>
+                              <strong>{inquiry.product_title}</strong>
 
-                      {selectedItems.map((extra, index) => (
-                        <p key={extra.name + "-" + index}>
-                          {extra.name} ·{" "}
-                          {extra.has_discount && (
-                            <>
-                              <span style={{ textDecoration: "line-through" }}>
-                                +{formatEuro(extra.original_price)}
-                              </span>{" "}
-                            </>
-                          )}
-                          +{formatEuro(extra.price)}
-                          {extra.has_discount && (
-                            <>
-                              <br />
-                              <small>
-                                Rabatt:{" "}
-                                {extra.discount_label ||
-                                  extra.discount_percent + " % Rabatt"}
-                              </small>
-                            </>
-                          )}
-                          {extra.note && (
-                            <>
-                              <br />
-                              <small>Hinweis: {extra.note}</small>
-                            </>
-                          )}
-                        </p>
-                      ))}
-                    </div>
-                  )}
+                              {selectedVariant?.name && (
+                                <div style={requestSummaryMetaStyle}>
+                                  <span style={requestChipStyle}>
+                                    Variante: {selectedVariant.name}
+                                  </span>
+                                </div>
+                              )}
 
-                  {cartPositions.length > 0 && (
-                    <div style={adminSelectedExtrasStyle}>
-                      <strong>Warenkorb-Positionen:</strong>
-
-                      {cartPositions.map((position, index) => (
-                        <div key={(position.product_title || "position") + "-" + index}>
-                          <p>
-                            <strong>{position.product_title}</strong>
-                            {position.is_preorder && (
-                              <>
-                                <br />
-                                <small>Vorbestellung</small>
-                              </>
-                            )}
-                            {position.variant?.name && (
-                              <>
-                                <br />
-                                <small>
-                                  Variante: {position.variant.name}
-                                  {position.variant.description
-                                    ? " · " + position.variant.description
-                                    : ""}
+                              {selectedVariant?.description && (
+                                <small style={{ color: "#637064" }}>
+                                  {selectedVariant.description}
                                 </small>
-                              </>
-                            )}
-                            <br />
-                            Menge: {position.quantity} · Basispreis:{" "}
-                            {position.base_price_label ||
-                              formatEuro(position.base_price)}
-                            {position.discount_percent > 0 && (
-                              <>
-                                <br />
-                                Rabatt:{" "}
-                                {position.discount_label ||
-                                  position.discount_percent + " % Rabatt"}
-                                {position.original_base_price_label && (
-                                  <>
-                                    {" · "}vorher{" "}
-                                    {position.original_base_price_label}
-                                  </>
-                                )}
-                              </>
-                            )}
-                            <br />
-                            Einzelpreis:{" "}
-                            {position.unit_total_label ||
-                              formatEuro(position.unit_total)}
-                            {" · "}Zwischensumme:{" "}
-                            {position.line_total_label ||
-                              formatEuro(position.line_total)}
-                          </p>
+                              )}
+                            </div>
+                          </div>
 
-                          {Array.isArray(position.extras) &&
-                            position.extras.length > 0 && (
-                              <div>
-                                <small>
-                                  <strong>Extras:</strong>
-                                </small>
-                                {position.extras.map((extra, extraIndex) => (
-                                  <p
-                                    key={extra.name + "-" + extraIndex}
-                                    style={{ marginLeft: "10px" }}
-                                  >
-                                    {extra.name} ·{" "}
-                                    {extra.has_discount && (
+                          {selectedItems.length > 0 && (
+                            <div style={requestExtrasListStyle}>
+                              {selectedItems.map((extra, index) => (
+                                <div
+                                  key={extra.name + "-" + index}
+                                  style={requestExtraRowStyle}
+                                >
+                                  <span>
+                                    <strong>Extra:</strong> {extra.name}
+                                    {extra.note && (
                                       <>
-                                        <span
-                                          style={{ textDecoration: "line-through" }}
-                                        >
-                                          +{formatEuro(extra.original_price)}
-                                        </span>{" "}
+                                        <br />
+                                        <small>Hinweis: {extra.note}</small>
                                       </>
                                     )}
-                                    +{formatEuro(extra.price)}
                                     {extra.has_discount && (
                                       <>
                                         <br />
@@ -559,18 +542,150 @@ export default function AdminInquiries({
                                         </small>
                                       </>
                                     )}
-                                    {extra.note && (
+                                  </span>
+
+                                  <strong style={{ whiteSpace: "nowrap" }}>
+                                    {extra.has_discount && (
                                       <>
-                                        <br />
-                                        <small>Hinweis: {extra.note}</small>
+                                        <span
+                                          style={{
+                                            textDecoration: "line-through",
+                                            fontWeight: "normal",
+                                            color: "#8b8170",
+                                          }}
+                                        >
+                                          +{formatEuro(extra.original_price)}
+                                        </span>{" "}
                                       </>
                                     )}
-                                  </p>
+                                    +{formatEuro(extra.price)}
+                                  </strong>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {cartPositions.length > 0 && (
+                    <div style={requestSummaryStyle}>
+                      <strong>Warenkorb-Positionen:</strong>
+
+                      {cartPositions.map((position, index) => {
+                        const extras = Array.isArray(position.extras)
+                          ? position.extras
+                          : [];
+                        const basePrice =
+                          position.base_price_label ||
+                          formatEuro(position.base_price);
+                        const unitTotal =
+                          position.unit_total_label ||
+                          formatEuro(position.unit_total);
+                        const lineTotal =
+                          position.line_total_label ||
+                          formatEuro(position.line_total);
+
+                        return (
+                          <div
+                            key={(position.product_title || "position") + "-" + index}
+                            style={requestProductSummaryStyle}
+                          >
+                            <div style={requestProductHeaderStyle}>
+                              <div>
+                                <strong>{position.product_title}</strong>
+
+                                <div style={requestSummaryMetaStyle}>
+                                  <span style={requestChipStyle}>
+                                    Menge: {position.quantity}
+                                  </span>
+                                  {position.is_preorder && (
+                                    <span style={requestChipStyle}>
+                                      Vorbestellung
+                                    </span>
+                                  )}
+                                  {position.variant?.name && (
+                                    <span style={requestChipStyle}>
+                                      Variante: {position.variant.name}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {position.variant?.description && (
+                                  <small style={{ color: "#637064" }}>
+                                    {position.variant.description}
+                                  </small>
+                                )}
+                              </div>
+
+                              <div style={requestPriceSummaryStyle}>
+                                <span>Basispreis: {basePrice}</span>
+                                {position.discount_percent > 0 && (
+                                  <span>
+                                    Rabatt:{" "}
+                                    {position.discount_label ||
+                                      position.discount_percent + " % Rabatt"}
+                                    {position.original_base_price_label
+                                      ? " · vorher " +
+                                        position.original_base_price_label
+                                      : ""}
+                                  </span>
+                                )}
+                                <span>Einzelpreis: {unitTotal}</span>
+                                <strong>Positionssumme: {lineTotal}</strong>
+                              </div>
+                            </div>
+
+                            {extras.length > 0 && (
+                              <div style={requestExtrasListStyle}>
+                                {extras.map((extra, extraIndex) => (
+                                  <div
+                                    key={extra.name + "-" + extraIndex}
+                                    style={requestExtraRowStyle}
+                                  >
+                                    <span>
+                                      <strong>Extra:</strong> {extra.name}
+                                      {extra.note && (
+                                        <>
+                                          <br />
+                                          <small>Hinweis: {extra.note}</small>
+                                        </>
+                                      )}
+                                      {extra.has_discount && (
+                                        <>
+                                          <br />
+                                          <small>
+                                            Rabatt:{" "}
+                                            {extra.discount_label ||
+                                              extra.discount_percent + " % Rabatt"}
+                                          </small>
+                                        </>
+                                      )}
+                                    </span>
+
+                                    <strong style={{ whiteSpace: "nowrap" }}>
+                                      {extra.has_discount && (
+                                        <>
+                                          <span
+                                            style={{
+                                              textDecoration: "line-through",
+                                              fontWeight: "normal",
+                                              color: "#8b8170",
+                                            }}
+                                          >
+                                            +{formatEuro(extra.original_price)}
+                                          </span>{" "}
+                                        </>
+                                      )}
+                                      +{formatEuro(extra.price)}
+                                    </strong>
+                                  </div>
                                 ))}
                               </div>
                             )}
-                        </div>
-                      ))}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 
