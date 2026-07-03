@@ -86,6 +86,9 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState("");
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState("");
+  const [lightboxAlt, setLightboxAlt] = useState("");
+  const [lightboxType, setLightboxType] = useState("product");
   const [brokenPartnerImages, setBrokenPartnerImages] = useState({});
   const { id } = useParams();
 
@@ -98,6 +101,9 @@ export default function ProductDetailPage() {
     setSelectedImage("");
     setSelectedVariantId("");
     setLightboxOpen(false);
+    setLightboxImage("");
+    setLightboxAlt("");
+    setLightboxType("product");
     setBrokenPartnerImages({});
   }, [id]);
 
@@ -337,13 +343,32 @@ export default function ProductDetailPage() {
   const selectedImageIndex = Math.max(0, productImages.indexOf(displayImage));
 
   function showLightboxImage(direction) {
-    if (productImages.length <= 1) return;
+    if (lightboxType !== "product" || productImages.length <= 1) return;
 
     const nextIndex =
       (selectedImageIndex + direction + productImages.length) %
       productImages.length;
 
     setSelectedImage(productImages[nextIndex]);
+    setLightboxImage(productImages[nextIndex]);
+  }
+
+  function openProductImageLightbox() {
+    setLightboxType("product");
+    setLightboxImage(displayImage);
+    setLightboxAlt(`${product.title} vergrößert`);
+    setLightboxOpen(true);
+  }
+
+  function openPartnerImageLightbox(extra) {
+    setLightboxType("partner");
+    setLightboxImage(extra.partner_image_url);
+    setLightboxAlt(
+      extra.partner_name
+        ? `Handmade-Partner ${extra.partner_name}`
+        : "Handmade-Partner von Camp Oase"
+    );
+    setLightboxOpen(true);
   }
 
   if (!product) {
@@ -369,7 +394,7 @@ export default function ProductDetailPage() {
             >
               <button
                 type="button"
-                onClick={() => setLightboxOpen(true)}
+                onClick={openProductImageLightbox}
                 style={{
                   position: "relative",
                   display: "block",
@@ -674,33 +699,67 @@ export default function ProductDetailPage() {
                           >
                             {extra.partner_image_url &&
                               !brokenPartnerImages[extra.partner_image_url] && (
-                              <img
-                                src={extra.partner_image_url}
-                                alt={
-                                  extra.partner_name ||
-                                  "Handmade-Partner von Camp Oase"
-                                }
+                              <button
+                                type="button"
+                                onClick={() => openPartnerImageLightbox(extra)}
                                 style={{
+                                  position: "relative",
+                                  display: "block",
                                   width: isDesktopDetailLayout
                                     ? "150px"
                                     : "100%",
                                   maxWidth: "100%",
-                                  maxHeight: isDesktopDetailLayout
-                                    ? "120px"
-                                    : "80px",
-                                  objectFit: "contain",
-                                  borderRadius: "16px",
-                                  background: "#f5f1e8",
-                                  padding: "8px",
-                                  boxSizing: "border-box",
+                                  border: "none",
+                                  padding: 0,
+                                  background: "transparent",
+                                  cursor: "zoom-in",
                                 }}
-                                onError={() =>
-                                  setBrokenPartnerImages((current) => ({
-                                    ...current,
-                                    [extra.partner_image_url]: true,
-                                  }))
-                                }
-                              />
+                                aria-label="Handmade-Partner-Bild vergrößern"
+                              >
+                                <img
+                                  src={extra.partner_image_url}
+                                  alt={
+                                    extra.partner_name ||
+                                    "Handmade-Partner von Camp Oase"
+                                  }
+                                  style={{
+                                    display: "block",
+                                    width: "100%",
+                                    maxWidth: "100%",
+                                    maxHeight: isDesktopDetailLayout
+                                      ? "120px"
+                                      : "80px",
+                                    objectFit: "contain",
+                                    borderRadius: "16px",
+                                    background: "#f5f1e8",
+                                    padding: "8px",
+                                    boxSizing: "border-box",
+                                  }}
+                                  onError={() =>
+                                    setBrokenPartnerImages((current) => ({
+                                      ...current,
+                                      [extra.partner_image_url]: true,
+                                    }))
+                                  }
+                                />
+                                <span
+                                  style={{
+                                    position: "absolute",
+                                    right: "6px",
+                                    bottom: "6px",
+                                    background: "rgba(255,255,255,0.9)",
+                                    color: "#556b5d",
+                                    border: "1px solid #d8e1d3",
+                                    borderRadius: "999px",
+                                    padding: "4px 7px",
+                                    fontSize: "11px",
+                                    fontWeight: "bold",
+                                    boxShadow: "0 5px 12px rgba(0,0,0,0.08)",
+                                  }}
+                                >
+                                  Vergrößern
+                                </span>
+                              </button>
                             )}
 
                             {extra.partner_image_url &&
@@ -940,7 +999,7 @@ export default function ProductDetailPage() {
               ×
             </button>
 
-            {productImages.length > 1 && (
+            {lightboxType === "product" && productImages.length > 1 && (
               <>
                 <button
                   type="button"
@@ -993,8 +1052,8 @@ export default function ProductDetailPage() {
             )}
 
             <img
-              src={displayImage}
-              alt={`${product.title} vergrößert`}
+              src={lightboxImage || displayImage}
+              alt={lightboxAlt || `${product.title} vergrößert`}
               style={{
                 display: "block",
                 width: "100%",
@@ -1002,6 +1061,16 @@ export default function ProductDetailPage() {
                 objectFit: "contain",
                 borderRadius: "18px",
                 background: "#f5f1e8",
+              }}
+              onError={() => {
+                if (lightboxType === "partner" && lightboxImage) {
+                  setBrokenPartnerImages((current) => ({
+                    ...current,
+                    [lightboxImage]: true,
+                  }));
+                }
+
+                setLightboxOpen(false);
               }}
             />
           </div>
