@@ -800,6 +800,111 @@ export default function AdminProducts({
                         />
                       </>
                     )}
+
+                    <details style={{ ...compactBoxStyle, background: "#fffdf8" }}>
+                      <summary
+                        style={{
+                          cursor: "pointer",
+                          color: "#556b5d",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Handmade-Partner
+                        {extra.partner_enabled ? " · aktiv" : ""}
+                      </summary>
+
+                      <p style={compactHintStyle}>
+                        Optionaler Hinweis, falls dieses Extra von einem
+                        Handmade-Partner für Camp Oase gefertigt wird.
+                      </p>
+
+                      <label style={checkboxRowStyle}>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(extra.partner_enabled)}
+                          onChange={(e) =>
+                            onUpdateExtra(
+                              index,
+                              "partner_enabled",
+                              e.target.checked
+                            )
+                          }
+                        />
+                        Partner-Extra aktiv
+                      </label>
+
+                      <label style={adminExtraLabelStyle}>
+                        Partnername / Handmade-Name
+                      </label>
+                      <input
+                        placeholder="z. B. Handmade by ..."
+                        value={extra.partner_name || ""}
+                        onChange={(e) =>
+                          onUpdateExtra(index, "partner_name", e.target.value)
+                        }
+                        style={compactInputStyle}
+                      />
+
+                      <label style={adminExtraLabelStyle}>
+                        Kurzer Partnertext
+                      </label>
+                      <textarea
+                        placeholder="z. B. Handgemacht für Camp Oase"
+                        value={extra.partner_text || ""}
+                        onChange={(e) =>
+                          onUpdateExtra(index, "partner_text", e.target.value)
+                        }
+                        style={{ ...compactInputStyle, minHeight: "64px" }}
+                      />
+
+                      <label style={adminExtraLabelStyle}>
+                        Logo-/Bild-URL optional
+                      </label>
+                      <input
+                        placeholder="https://..."
+                        value={extra.partner_image_url || ""}
+                        onChange={(e) =>
+                          onUpdateExtra(
+                            index,
+                            "partner_image_url",
+                            e.target.value
+                          )
+                        }
+                        style={compactInputStyle}
+                      />
+
+                      <label style={adminExtraLabelStyle}>
+                        Link-URL optional
+                      </label>
+                      <input
+                        placeholder="https://instagram.com/..."
+                        value={extra.partner_link_url || ""}
+                        onChange={(e) =>
+                          onUpdateExtra(
+                            index,
+                            "partner_link_url",
+                            e.target.value
+                          )
+                        }
+                        style={compactInputStyle}
+                      />
+
+                      <label style={adminExtraLabelStyle}>
+                        Button-Text optional
+                      </label>
+                      <input
+                        placeholder="z. B. Instagram ansehen"
+                        value={extra.partner_link_label || ""}
+                        onChange={(e) =>
+                          onUpdateExtra(
+                            index,
+                            "partner_link_label",
+                            e.target.value
+                          )
+                        }
+                        style={compactInputStyle}
+                      />
+                    </details>
                   </div>
                 ))}
               </div>

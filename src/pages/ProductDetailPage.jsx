@@ -64,6 +64,14 @@ import {
   taxHintStyle,
 } from "../styles";
 
+function getSafeExternalUrl(value) {
+  const url = String(value || "").trim();
+
+  if (!/^https?:\/\//i.test(url)) return "";
+
+  return url;
+}
+
 export default function ProductDetailPage() {
   const [products, setProducts] = useState([]);
   const [inquiryProduct, setInquiryProduct] = useState(null);
@@ -296,6 +304,16 @@ export default function ProductDetailPage() {
     : [];
   const displayImage = selectedImage || variantImage || product?.image;
   const productExtras = getProductExtras(product);
+  const partnerExtras = productExtras.filter((extra) => {
+    if (!extra.partner_enabled) return false;
+
+    return Boolean(
+      extra.partner_name ||
+        extra.partner_text ||
+        extra.partner_image_url ||
+        extra.partner_link_url
+    );
+  });
   const productBadges = getProductBadges(product);
   const productIsAvailable = isProductAvailable(product);
   const isPreorder = getAvailabilityStatus(product) === "preorder";
@@ -621,12 +639,162 @@ export default function ProductDetailPage() {
                     })}
                   </div>
 
+                  {partnerExtras.length > 0 && (
+                    <div
+                      style={{
+                        display: "grid",
+                        gap: "12px",
+                        marginTop: "16px",
+                      }}
+                    >
+                      {partnerExtras.map((extra, index) => {
+                        const partnerLink = getSafeExternalUrl(
+                          extra.partner_link_url
+                        );
+
+                        return (
+                          <div
+                            key={`${extra.name}-partner-${index}`}
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: extra.partner_image_url
+                                ? "74px 1fr"
+                                : "1fr",
+                              gap: "14px",
+                              alignItems: "center",
+                              padding: "15px",
+                              borderRadius: "18px",
+                              border: "1px solid #eadfcb",
+                              background:
+                                "linear-gradient(135deg, #fffdf8, #f4efe3)",
+                            }}
+                          >
+                            {extra.partner_image_url && (
+                              <img
+                                src={extra.partner_image_url}
+                                alt={
+                                  extra.partner_name ||
+                                  "Handmade-Partner von Camp Oase"
+                                }
+                                style={{
+                                  width: "74px",
+                                  height: "74px",
+                                  objectFit: "cover",
+                                  borderRadius: "16px",
+                                  background: "#f5f1e8",
+                                }}
+                              />
+                            )}
+
+                            <div>
+                              <small
+                                style={{
+                                  display: "inline-block",
+                                  marginBottom: "5px",
+                                  color: "#8a6f35",
+                                  fontWeight: "bold",
+                                  letterSpacing: "0.02em",
+                                }}
+                              >
+                                Handmade-Partner
+                              </small>
+                              <strong
+                                style={{
+                                  display: "block",
+                                  color: "#435749",
+                                  marginBottom: "5px",
+                                }}
+                              >
+                                {extra.partner_name
+                                  ? `Dieses Extra wird in Zusammenarbeit mit ${extra.partner_name} gefertigt.`
+                                  : "Dieses Extra wird von einem Handmade-Partner gefertigt."}
+                              </strong>
+                              {extra.partner_text && (
+                                <p
+                                  style={{
+                                    margin: "0 0 8px",
+                                    color: "#637064",
+                                    lineHeight: 1.55,
+                                  }}
+                                >
+                                  {extra.partner_text}
+                                </p>
+                              )}
+                              <p
+                                style={{
+                                  margin: partnerLink ? "0 0 10px" : 0,
+                                  color: "#637064",
+                                  lineHeight: 1.55,
+                                }}
+                              >
+                                Anfrage, Bestellung und Kundenservice laufen
+                                weiterhin über Camp Oase.
+                              </p>
+
+                              {partnerLink && (
+                                <a
+                                  href={partnerLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    borderRadius: "999px",
+                                    padding: "8px 12px",
+                                    background: "#edf2e8",
+                                    color: "#435749",
+                                    fontWeight: "bold",
+                                    textDecoration: "none",
+                                    border: "1px solid #d8e1d3",
+                                  }}
+                                >
+                                  {extra.partner_link_label ||
+                                    "Partner ansehen"}
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   <div style={detailTotalBoxStyle}>
                     <span>Voraussichtlicher Gesamtpreis</span>
                     <strong>{detailEstimatedTotal}</strong>
                   </div>
                 </div>
               )}
+
+              <details
+                style={{
+                  marginTop: "16px",
+                  padding: "14px 16px",
+                  borderRadius: "18px",
+                  border: "1px solid #e6ddcb",
+                  background: "#fbfaf6",
+                  color: "#637064",
+                  lineHeight: 1.55,
+                }}
+              >
+                <summary
+                  style={{
+                    cursor: "pointer",
+                    color: "#435749",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Produkthinweis
+                </summary>
+                <p style={{ margin: "10px 0 0" }}>
+                  Hinweis: Unsere Produkte richten sich an erwachsene Camper,
+                  Campingfreunde und kreative Alltagsnutzer. Sie sind kein
+                  Spielzeug und nicht für Kinder unter 14 Jahren bestimmt. Bitte
+                  Kleinteile, Bänder, Anhänger und Zubehör nicht unbeaufsichtigt
+                  kleinen Kindern überlassen. Handmade-Artikel können leichte
+                  Abweichungen in Farbe, Form und Verarbeitung aufweisen.
+                </p>
+              </details>
 
               <div style={detailActionRowStyle}>
                 <button

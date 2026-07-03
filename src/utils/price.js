@@ -61,6 +61,12 @@ export function getProductExtras(product) {
             ? discountLabel || `${discountPercent}% Rabatt`
             : "",
         has_discount: discountPercent > 0,
+        partner_enabled: Boolean(extra.partner_enabled),
+        partner_name: String(extra.partner_name || "").trim(),
+        partner_text: String(extra.partner_text || "").trim(),
+        partner_image_url: String(extra.partner_image_url || "").trim(),
+        partner_link_url: String(extra.partner_link_url || "").trim(),
+        partner_link_label: String(extra.partner_link_label || "").trim(),
       };
     });
 }
@@ -168,6 +174,9 @@ export function buildSelectedExtras(product, form) {
       discount_label: extra.discount_label || "",
       has_discount: Boolean(extra.has_discount),
       note: extra.note,
+      partner_enabled: Boolean(extra.partner_enabled),
+      partner_name: extra.partner_name || "",
+      partner_text: extra.partner_text || "",
     }));
 
   return {

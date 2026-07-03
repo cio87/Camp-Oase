@@ -298,6 +298,12 @@ export default function AdminPage() {
         discount_enabled: Boolean(extra.discount_enabled),
         discount_percent: clampDiscountPercent(extra.discount_percent),
         discount_label: String(extra.discount_label || "").trim(),
+        partner_enabled: Boolean(extra.partner_enabled),
+        partner_name: String(extra.partner_name || "").trim(),
+        partner_text: String(extra.partner_text || "").trim(),
+        partner_image_url: String(extra.partner_image_url || "").trim(),
+        partner_link_url: String(extra.partner_link_url || "").trim(),
+        partner_link_label: String(extra.partner_link_label || "").trim(),
       }));
     const cleanedVariants = await getCleanedProductVariants();
 
@@ -361,6 +367,12 @@ export default function AdminPage() {
           discount_enabled: false,
           discount_percent: "",
           discount_label: "",
+          partner_enabled: false,
+          partner_name: "",
+          partner_text: "",
+          partner_image_url: "",
+          partner_link_url: "",
+          partner_link_label: "",
         },
       ],
     });
@@ -483,6 +495,12 @@ export default function AdminPage() {
         discount_enabled: Boolean(extra.has_discount),
         discount_percent: String(extra.discount_percent ?? 0),
         discount_label: extra.discount_label || "",
+        partner_enabled: Boolean(extra.partner_enabled),
+        partner_name: extra.partner_name || "",
+        partner_text: extra.partner_text || "",
+        partner_image_url: extra.partner_image_url || "",
+        partner_link_url: extra.partner_link_url || "",
+        partner_link_label: extra.partner_link_label || "",
       })),
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
