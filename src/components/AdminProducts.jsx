@@ -99,9 +99,25 @@ const compactCardStyle = {
   border: "1px solid #eee7da",
 };
 
-function AccordionSection({ title, meta, defaultOpen = false, children }) {
+function AccordionSection({
+  title,
+  meta,
+  defaultOpen = false,
+  resetKey,
+  children,
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  useEffect(() => {
+    setIsOpen(defaultOpen);
+  }, [defaultOpen, resetKey]);
+
   return (
-    <details style={accordionStyle} open={defaultOpen}>
+    <details
+      style={accordionStyle}
+      open={isOpen}
+      onToggle={(event) => setIsOpen(event.currentTarget.open)}
+    >
       <summary style={accordionSummaryStyle}>
         <span>{title}</span>
         {meta && <span style={accordionMetaStyle}>{meta}</span>}
@@ -221,13 +237,18 @@ export default function AdminProducts({
   ]
     .filter(Boolean)
     .join(" · ");
+  const accordionResetKey = editingId || "new-product";
 
   return (
     <>
       <form onSubmit={onSubmit} style={formStyle}>
         <h2>{editingId ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}</h2>
 
-        <AccordionSection title="Grunddaten" defaultOpen>
+        <AccordionSection
+          title="Grunddaten"
+          defaultOpen
+          resetKey={accordionResetKey}
+        >
         <input
           placeholder="Produktname"
           value={newProduct.title}
@@ -285,7 +306,7 @@ export default function AdminProducts({
         <AccordionSection
           title="Preis & Rabatt"
           meta={discountMeta}
-          defaultOpen={Boolean(newProduct.discount_enabled)}
+          resetKey={accordionResetKey}
         >
         <div style={compactBoxStyle}>
           <label style={checkboxRowStyle}>
@@ -342,7 +363,7 @@ export default function AdminProducts({
         <AccordionSection
           title="Sichtbarkeit & Hinweise"
           meta={visibilityMeta}
-          defaultOpen={editingId && (badgesCount > 0 || newProduct.extras_enabled)}
+          resetKey={accordionResetKey}
         >
         <label style={adminExtraLabelStyle}>Verfügbarkeit</label>
         <select
@@ -401,7 +422,7 @@ export default function AdminProducts({
         <AccordionSection
           title="Bilder & Galerie"
           meta={`${galleryCount}/3`}
-          defaultOpen={editingId && (Boolean(newProduct.image) || galleryCount > 0)}
+          resetKey={accordionResetKey}
         >
         {editingId && newProduct.image && (
           <div style={adminImagePreviewBoxStyle}>
@@ -522,7 +543,7 @@ export default function AdminProducts({
         <AccordionSection
           title="Produktvarianten"
           meta={`${variantsCount}`}
-          defaultOpen={editingId && variantsCount > 0}
+          resetKey={accordionResetKey}
         >
         <div style={compactBoxStyle}>
           <strong style={{ color: "#435749" }}>Produktvarianten</strong>
@@ -666,7 +687,7 @@ export default function AdminProducts({
         <AccordionSection
           title="Extras"
           meta={newProduct.extras_enabled ? `${extrasCount}` : "inaktiv"}
-          defaultOpen={editingId && newProduct.extras_enabled}
+          resetKey={accordionResetKey}
         >
         <div style={compactBoxStyle}>
           {!newProduct.extras_enabled && (
