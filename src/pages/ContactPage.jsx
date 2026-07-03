@@ -109,12 +109,15 @@ export default function ContactPage() {
 
     setSending(true);
     setStatus("");
+    const contactPayload = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      message: form.message.trim(),
+    };
 
     const { error } = await supabase.from("contact_messages").insert([
       {
-        name: form.name.trim(),
-        email: form.email.trim(),
-        message: form.message.trim(),
+        ...contactPayload,
         status: "neu",
       },
     ]);
@@ -125,6 +128,26 @@ export default function ContactPage() {
       console.log(error);
       setStatus("error");
       return;
+    }
+
+    try {
+      const response = await fetch("/api/contact-notification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(contactPayload),
+      });
+
+      if (!response.ok) {
+        console.warn(
+          "Kontaktanfrage gespeichert, aber E-Mail-Benachrichtigung fehlgeschlagen."
+        );
+      }
+    } catch {
+      console.warn(
+        "Kontaktanfrage gespeichert, aber E-Mail-Benachrichtigung fehlgeschlagen."
+      );
     }
 
     setForm(emptyContactForm);
