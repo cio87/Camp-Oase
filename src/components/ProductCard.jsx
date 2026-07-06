@@ -45,7 +45,7 @@ export default function ProductCard({ product }) {
         ...productCardStyle,
         ...(isHovered
           ? {
-              boxShadow: "0 18px 42px rgba(0,0,0,0.12)",
+              boxShadow: "0 16px 34px rgba(72, 54, 34, 0.1)",
               transform: "translateY(-3px)",
             }
           : {}),
@@ -102,7 +102,7 @@ export default function ProductCard({ product }) {
               </strong>
             </span>
 
-            <span style={productCardHintStyle}>Details ansehen →</span>
+            <span style={productCardHintStyle}>Details ansehen</span>
           </div>
           <p style={taxHintStyle}>
             Endpreis. Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.

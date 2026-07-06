@@ -119,7 +119,7 @@ export default function HomePage() {
 
         <section style={homeBrandSectionStyle}>
           <div style={homeBrandIntroStyle}>
-            <p style={{ color: "#7f9b76", fontWeight: "bold", margin: 0 }}>
+            <p style={{ color: "#6f8069", fontWeight: "bold", margin: 0 }}>
               Kleine Dinge, die unterwegs Freude machen
             </p>
 
@@ -152,7 +152,7 @@ export default function HomePage() {
 
         <section id="produkte" style={sectionStyle}>
           <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-            <p style={{ color: "#7f9b76", fontWeight: "bold" }}>
+            <p style={{ color: "#6f8069", fontWeight: "bold" }}>
               Produktübersicht
             </p>
 

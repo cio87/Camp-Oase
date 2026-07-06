@@ -1,8 +1,8 @@
 export const siteStyle = {
-  background: "#F7F1E8",
+  background: "#f5efe3",
   minHeight: "100vh",
   fontFamily: "Arial, sans-serif",
-  color: "#2F3A34",
+  color: "#3b3329",
 };
 
 export const pageStyle = {
@@ -36,7 +36,7 @@ export const logoStyle = {
 
 export const brandTextStyle = {
   fontSize: "clamp(22px, 5vw, 26px)",
-  color: "#2F3A34",
+  color: "#344238",
 };
 
 export const headerNavStyle = {
@@ -223,15 +223,15 @@ export const pillBackLinkStyle = {
 export const heroStyle = {
   padding: "clamp(46px, 8vw, 90px) 20px",
   textAlign: "center",
-  background: "linear-gradient(120deg, #E8F1EF 0%, #F7F1E8 60%, #F3E7D8 100%)",
+  background: "linear-gradient(120deg, #eef2e8 0%, #f7f1e6 58%, #efe0cd 100%)",
 };
 
 export const badgeStyle = {
   display: "inline-block",
-  background: "white",
+  background: "rgba(255, 250, 243, 0.9)",
   padding: "8px 16px",
   borderRadius: "999px",
-  color: "#2F3A34",
+  color: "#465740",
   marginBottom: "20px",
   fontSize: "clamp(13px, 3vw, 16px)",
 };
@@ -239,7 +239,7 @@ export const badgeStyle = {
 export const heroTitleStyle = {
   fontSize: "clamp(34px, 8vw, 64px)",
   margin: "0",
-  color: "#2F3A34",
+  color: "#344238",
   lineHeight: "1.08",
 };
 
@@ -247,7 +247,7 @@ export const heroTextStyle = {
   fontSize: "clamp(16px, 4vw, 20px)",
   maxWidth: "700px",
   margin: "24px auto 0",
-  color: "#52615A",
+  color: "#5f594e",
   lineHeight: "1.6",
 };
 
@@ -262,23 +262,23 @@ export const homeBrandSectionStyle = {
 };
 
 export const homeBrandIntroStyle = {
-  background: "linear-gradient(135deg, rgba(255,255,255,0.92), #E8F1EF)",
-  border: "1px solid #E8F1EF",
+  background: "linear-gradient(135deg, rgba(255,250,243,0.94), #efe6d7)",
+  border: "1px solid #eadfcd",
   borderRadius: "24px",
   padding: "clamp(16px, 4vw, 28px)",
-  boxShadow: "0 12px 28px rgba(0,0,0,0.06)",
+  boxShadow: "0 12px 28px rgba(72, 54, 34, 0.055)",
 };
 
 export const homeBrandTitleStyle = {
   margin: "10px 0 0",
-  color: "#2F3A34",
+  color: "#344238",
   fontSize: "clamp(25px, 5vw, 34px)",
   lineHeight: "1.15",
 };
 
 export const homeBrandTextStyle = {
   margin: "clamp(8px, 2vw, 14px) 0 0",
-  color: "#52615A",
+  color: "#5f594e",
   lineHeight: "1.6",
   fontSize: "clamp(15px, 3vw, 17px)",
 };
@@ -290,13 +290,13 @@ export const homeBrandCardGridStyle = {
 };
 
 export const homeBrandCardStyle = {
-  background: "rgba(255,255,255,0.82)",
-  border: "1px solid #E8F1EF",
+  background: "rgba(255,250,243,0.86)",
+  border: "1px solid #eadfcd",
   borderRadius: "20px",
   padding: "clamp(13px, 3vw, 18px)",
-  color: "#2F3A34",
+  color: "#3b3329",
   lineHeight: "1.45",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+  boxShadow: "0 8px 20px rgba(72, 54, 34, 0.045)",
 };
 
 export const sectionStyle = {
@@ -320,11 +320,11 @@ export const productCardStyle = {
   display: "flex",
   flexDirection: "column",
   height: "100%",
-  background: "linear-gradient(180deg, #ffffff 0%, #F7F1E8 100%)",
-  border: "1px solid #E8F1EF",
-  borderRadius: "28px",
+  background: "linear-gradient(180deg, #fffaf3 0%, #f7efe2 100%)",
+  border: "1px solid #eadfcd",
+  borderRadius: "26px",
   overflow: "hidden",
-  boxShadow: "0 14px 34px rgba(0,0,0,0.075)",
+  boxShadow: "0 12px 28px rgba(72, 54, 34, 0.065)",
   cursor: "pointer",
   transition: "transform 180ms ease, box-shadow 180ms ease",
 };
@@ -346,13 +346,13 @@ export const productAvailabilityBadgeStyle = {
 
 export const productImageStyle = {
   width: "100%",
-  height: "clamp(200px, 55vw, 240px)",
+  height: "clamp(210px, 55vw, 248px)",
   objectFit: "contain",
-  background: "linear-gradient(135deg, #F7F1E8, #E8F1EF)",
+  background: "linear-gradient(135deg, #f7f1e6, #efe6d7)",
 };
 
 export const productCardContentStyle = {
-  padding: "22px 24px 0",
+  padding: "24px 24px 0",
   display: "flex",
   flex: "1 1 auto",
   flexDirection: "column",
@@ -364,14 +364,14 @@ export const productCardMetaRowStyle = {
   alignItems: "flex-start",
   gap: "8px",
   flexWrap: "wrap",
-  marginBottom: "8px",
+  marginBottom: "10px",
 };
 
 export const productExtrasBadgeStyle = {
   display: "inline-block",
-  background: "#E8F1EF",
-  color: "#2F3A34",
-  border: "1px solid #D8E0D2",
+  background: "#eef2e8",
+  color: "#465740",
+  border: "1px solid #d8e0d2",
   padding: "6px 10px",
   borderRadius: "999px",
   fontSize: "12px",
@@ -381,12 +381,12 @@ export const productExtrasBadgeStyle = {
 export const productTitleStyle = {
   fontSize: "clamp(21px, 5vw, 24px)",
   margin: "0 0 10px",
-  color: "#2F3A34",
+  color: "#344238",
   lineHeight: "1.2",
 };
 
 export const productPreviewTextStyle = {
-  color: "#666",
+  color: "#665e52",
   lineHeight: "1.6",
   display: "-webkit-box",
   WebkitLineClamp: 3,
@@ -396,11 +396,11 @@ export const productPreviewTextStyle = {
 };
 
 export const priceRowStyle = {
-  marginTop: "20px",
-  background: "#F7F1E8",
-  border: "1px solid #E8F1EF",
+  marginTop: "22px",
+  background: "#f4eadb",
+  border: "1px solid #e4d7c3",
   borderRadius: "18px",
-  padding: "12px 14px",
+  padding: "13px 15px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -410,7 +410,7 @@ export const priceRowStyle = {
 
 export const productPriceStyle = {
   fontSize: "clamp(20px, 5vw, 22px)",
-  color: "#2F3A34",
+  color: "#344238",
 };
 
 export const productPriceStackStyle = {
@@ -426,11 +426,11 @@ export const productOldPriceStyle = {
 
 export const productActionPriceStyle = {
   ...productPriceStyle,
-  color: "#8A5A3C",
+  color: "#7a4f35",
 };
 
 export const productCardHintStyle = {
-  color: "#2F3A34",
+  color: "#465740",
   fontSize: "14px",
   fontWeight: "bold",
   letterSpacing: "0.01em",
@@ -577,8 +577,8 @@ export const detailActionRowStyle = {
 };
 
 export const detailRequestButtonStyle = {
-  background: "#D8E0D2",
-  color: "#2F3A34",
+  background: "#6f8069",
+  color: "#fffaf3",
   border: "none",
   borderRadius: "14px",
   cursor: "pointer",
@@ -755,8 +755,8 @@ export const inputStyle = {
 };
 
 export const buttonStyle = {
-  background: "#D8E0D2",
-  color: "#2F3A34",
+  background: "#6f8069",
+  color: "#fffaf3",
   border: "none",
   padding: "12px 18px",
   borderRadius: "14px",
@@ -776,8 +776,8 @@ export const secondaryButtonStyle = {
 };
 
 export const requestButtonStyle = {
-  background: "#D8E0D2",
-  color: "#2F3A34",
+  background: "#6f8069",
+  color: "#fffaf3",
   border: "none",
   padding: "10px 16px",
   borderRadius: "14px",
@@ -804,8 +804,8 @@ export const smallDeleteButtonStyle = {
 };
 
 export const editButtonStyle = {
-  background: "#D8E0D2",
-  color: "#2F3A34",
+  background: "#6f8069",
+  color: "#fffaf3",
   border: "none",
   padding: "10px 14px",
   borderRadius: "12px",

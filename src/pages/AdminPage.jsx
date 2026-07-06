@@ -208,10 +208,10 @@ export default function AdminPage() {
       .replaceAll("ö", "oe")
       .replaceAll("ü", "ue")
       .replaceAll("ß", "ss")
-      .replaceAll("Ã¤", "ae")
-      .replaceAll("Ã¶", "oe")
-      .replaceAll("Ã¼", "ue")
-      .replaceAll("ÃŸ", "ss")
+      .replaceAll("ä", "ae")
+      .replaceAll("ö", "oe")
+      .replaceAll("ü", "ue")
+      .replaceAll("ß", "ss")
       .replace(/[^a-z0-9.-]/g, "-");
 
     const uniquePart = Date.now() + "-" + Math.random().toString(16).slice(2);

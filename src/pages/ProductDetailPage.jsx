@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import InquiryModal from "../components/InquiryModal";
 import SiteFooter from "../components/SiteFooter";
@@ -380,7 +380,7 @@ export default function ProductDetailPage() {
       <div style={siteStyle}>
         <header style={headerStyle}>
           <Link to="/" style={pillBackLinkStyle}>
-            ← Zur Produktübersicht
+            Zur Produktübersicht
           </Link>
         </header>
 
@@ -913,7 +913,7 @@ export default function ProductDetailPage() {
                     background: cartButtonDisabled
                       ? "#a7b0a8"
                       : detailRequestButtonStyle.background,
-                    color: cartButtonDisabled ? "#E8F1EF" : "#2F3A34",
+                    color: cartButtonDisabled ? "#E8F1EF" : "#fffaf3",
                     opacity: cartButtonDisabled ? 0.72 : 1,
                     cursor: cartButtonDisabled ? "not-allowed" : "pointer",
                     boxShadow: cartButtonDisabled
