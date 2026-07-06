@@ -72,15 +72,32 @@ function getSafeExternalUrl(value) {
 }
 
 function getProductIntro(product) {
+  const shortDescription = stripMarkdown(product?.short_description || "");
   const description = stripMarkdown(product?.description || "");
 
+  if (shortDescription) return shortDescription;
   if (!description) return "";
 
-  const firstParagraph = description.split(/\s{2,}/).find(Boolean) || "";
+  const paragraphs = description.split(/\s{2,}/).filter(Boolean);
+  const firstParagraph = paragraphs[0] || "";
+  const sentences =
+    firstParagraph.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((sentence) =>
+      sentence.trim()
+    ) || [];
   const firstSentence =
-    firstParagraph.match(/.*?[.!?](\s|$)/)?.[0]?.trim() || firstParagraph;
+    sentences.find(
+      (sentence) => !/^kennst du das[?!.]?$/i.test(sentence.trim())
+    ) ||
+    paragraphs.find(
+      (paragraph) => !/^kennst du das[?!.]?$/i.test(paragraph.trim())
+    ) ||
+    firstParagraph;
 
   return firstSentence;
+}
+
+function normalizeProductText(value) {
+  return stripMarkdown(value || "").replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 export default function ProductDetailPage() {
@@ -310,6 +327,10 @@ export default function ProductDetailPage() {
   const product = products.find((item) => String(item.id) === id);
   const variantSelectId = product ? `variant-select-${product.id}` : undefined;
   const productIntro = getProductIntro(product);
+  const shortDescriptionMatchesLongDescription =
+    normalizeProductText(product?.short_description) &&
+    normalizeProductText(product?.short_description) ===
+      normalizeProductText(product?.description);
   const activeVariants = getProductVariants(product, { onlyEnabled: true });
   const selectedVariant =
     activeVariants.find((variant) => variant.id === selectedVariantId) ||
@@ -539,7 +560,9 @@ export default function ProductDetailPage() {
                     fontSize: isDesktopDetailLayout ? "16px" : "14px",
                   }}
                 >
-                  <MarkdownText text={product.description} />
+                  {!shortDescriptionMatchesLongDescription && (
+                    <MarkdownText text={product.description} />
+                  )}
                   {activeVariants.some((variant) => variant.description) && (
                     <div style={{ marginTop: "18px" }}>
                       <strong style={{ color: "#2F3A34" }}>

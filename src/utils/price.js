@@ -3,6 +3,7 @@ import { getVariantPriceAdjustment, serializeProductVariant } from "./productVar
 export function getEmptyProduct() {
   return {
     title: "",
+    short_description: "",
     description: "",
     price: "",
     image: "",

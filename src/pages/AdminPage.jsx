@@ -322,6 +322,7 @@ export default function AdminPage() {
 
     const productPayload = {
       title: newProduct.title,
+      short_description: String(newProduct.short_description || "").trim(),
       description: newProduct.description,
       price: newProduct.price,
       image: imageUrl,
@@ -481,6 +482,7 @@ export default function AdminPage() {
     setEditingId(product.id);
     setNewProduct({
       title: product.title,
+      short_description: product.short_description || "",
       description: product.description,
       price: product.price,
       image: product.image,

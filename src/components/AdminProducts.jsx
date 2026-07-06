@@ -256,14 +256,39 @@ export default function AdminProducts({
           style={compactInputStyle}
         />
 
+        <label style={adminExtraLabelStyle}>
+          Kurzbeschreibung / Verkaufseinstieg
+        </label>
         <textarea
-          placeholder="Beschreibung"
+          placeholder="Kurzer, warmer Einstieg für die Produktseite"
+          value={newProduct.short_description || ""}
+          onChange={(e) =>
+            setNewProduct({
+              ...newProduct,
+              short_description: e.target.value,
+            })
+          }
+          style={{ ...compactInputStyle, minHeight: "76px" }}
+        />
+        <p style={compactHintStyle}>
+          Wird oben auf der Produktseite angezeigt. Kurz, emotional und
+          verkaufsstark.
+        </p>
+
+        <label style={adminExtraLabelStyle}>
+          Ausführliche Produktbeschreibung
+        </label>
+        <textarea
+          placeholder="Ausführliche Produktbeschreibung"
           value={newProduct.description}
           onChange={(e) =>
             setNewProduct({ ...newProduct, description: e.target.value })
           }
           style={{ ...compactInputStyle, minHeight: "100px" }}
         />
+        <p style={compactHintStyle}>
+          Wird im Bereich ‚Mehr zum Produkt anzeigen‘ angezeigt.
+        </p>
         <p style={compactHintStyle}>
           Markdown möglich: <strong>**fett**</strong>, <em>*kursiv*</em>, -
           Listen möglich
