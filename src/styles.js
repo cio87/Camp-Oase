@@ -87,20 +87,22 @@ export const menuOverlayStyle = {
   position: "fixed",
   inset: 0,
   zIndex: 9998,
-  background: "rgba(47, 58, 52, 0.34)",
-  backdropFilter: "blur(5px)",
+  background: "rgba(47, 58, 52, 0.3)",
+  backdropFilter: "blur(4px)",
   display: "flex",
   alignItems: "flex-start",
   justifyContent: "center",
-  padding: "clamp(86px, 18vh, 118px) 18px 24px",
+  padding: "clamp(96px, 18vh, 128px) 18px 24px",
 };
 
 export const menuPanelStyle = {
-  width: "min(460px, 100%)",
+  width: "min(430px, 100%)",
+  maxHeight: "calc(100vh - 124px)",
+  overflowY: "auto",
   background: "linear-gradient(145deg, #fffdf8 0%, #F7F1E8 100%)",
   border: "1px solid #D8E0D2",
-  borderRadius: "28px",
-  boxShadow: "0 20px 54px rgba(47, 58, 52, 0.18)",
+  borderRadius: "26px",
+  boxShadow: "0 18px 42px rgba(47, 58, 52, 0.14)",
   padding: "clamp(20px, 6vw, 28px)",
   display: "flex",
   flexDirection: "column",
@@ -115,8 +117,8 @@ export const menuHeaderStyle = {
 };
 
 export const menuCloseButtonStyle = {
-  width: "40px",
-  height: "40px",
+  width: "42px",
+  height: "42px",
   borderRadius: "999px",
   border: "1px solid #D8E0D2",
   background: "#fffaf3",
@@ -127,19 +129,17 @@ export const menuCloseButtonStyle = {
 };
 
 export const menuLinkStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: "12px",
+  display: "block",
   color: "#2F3A34",
   textDecoration: "none",
-  fontSize: "18px",
+  fontSize: "19px",
   fontWeight: 700,
-  padding: "16px 18px",
+  padding: "17px 18px",
   borderRadius: "18px",
-  background: "rgba(255,255,255,0.68)",
-  border: "1px solid rgba(216, 224, 210, 0.86)",
-  boxShadow: "0 8px 20px rgba(47, 58, 52, 0.05)",
+  background: "rgba(255, 250, 243, 0.82)",
+  border: "1px solid rgba(216, 224, 210, 0.82)",
+  boxShadow: "0 6px 16px rgba(47, 58, 52, 0.035)",
+  textAlign: "center",
 };
 
 export const announcementBannerStyle = {

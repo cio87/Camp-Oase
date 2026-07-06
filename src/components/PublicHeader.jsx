@@ -21,7 +21,11 @@ const DESKTOP_MEDIA_QUERY = "(min-width: 900px)";
 export default function PublicHeader() {
   const [cartCount, setCartCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia(DESKTOP_MEDIA_QUERY).matches
+      : false
+  );
   const menuButtonRef = useRef(null);
   const menuCloseButtonRef = useRef(null);
 
@@ -126,10 +130,10 @@ export default function PublicHeader() {
       )}
 
       {menuOpen && !isDesktop && (
-        <div style={menuOverlayStyle} onMouseDown={closeMenu}>
+        <div style={menuOverlayStyle} onClick={closeMenu}>
           <section
             style={menuPanelStyle}
-            onMouseDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
             aria-label="Mobiles Hauptmenü"
           >
             <div style={menuHeaderStyle}>
@@ -146,7 +150,7 @@ export default function PublicHeader() {
             </div>
 
             <nav
-              style={{ display: "grid", gap: "10px", marginTop: "10px" }}
+              style={{ display: "grid", gap: "12px", marginTop: "12px" }}
               aria-label="Hauptnavigation"
             >
               {menuLinks.map((link) => (
@@ -156,8 +160,7 @@ export default function PublicHeader() {
                   style={menuLinkStyle}
                   onClick={closeMenu}
                 >
-                  <span>{link.label}</span>
-                  <span aria-hidden="true">→</span>
+                  {link.label}
                 </Link>
               ))}
             </nav>
