@@ -89,7 +89,13 @@ export default function ProductCard({ product }) {
           <p style={productPreviewTextStyle}>{stripMarkdown(product.description)}</p>
         </div>
 
-        <div style={{ padding: "0 24px 24px", marginTop: "auto" }}>
+        <div
+          style={{
+            padding:
+              "0 clamp(18px, 5vw, 24px) clamp(18px, 5vw, 24px)",
+            marginTop: "auto",
+          }}
+        >
           <div style={priceRowStyle}>
             <span style={productPriceStackStyle}>
               {discountActive && (

@@ -536,7 +536,14 @@ export default function ProductDetailPage() {
                 <div style={extrasPreviewBoxStyle}>
                   <div style={detailExtraSectionHeaderStyle}>
                     <span>Variante auswählen</span>
-                    <small>Bild und Preis passen sich deiner Auswahl an</small>
+                    <small
+                      style={{
+                        fontSize: isDesktopDetailLayout ? "13px" : "12px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Bild und Preis passen sich deiner Auswahl an
+                    </small>
                   </div>
 
                   <select
@@ -569,7 +576,13 @@ export default function ProductDetailPage() {
                   )}
 
                   {selectedVariantAdjustment !== 0 && (
-                    <p style={{ margin: "10px 0 0", color: "#2F3A34" }}>
+                    <p
+                      style={{
+                        margin: "8px 0 0",
+                        color: "#2F3A34",
+                        fontSize: isDesktopDetailLayout ? "15px" : "14px",
+                      }}
+                    >
                       Variantenpreis:{" "}
                       <strong>
                         {selectedVariantAdjustment > 0 ? "+" : ""}
@@ -591,7 +604,14 @@ export default function ProductDetailPage() {
                 <div style={extrasPreviewBoxStyle}>
                   <div style={detailExtraSectionHeaderStyle}>
                     <span>Extras auswählen</span>
-                    <small>Optional und passend zum Produkt</small>
+                    <small
+                      style={{
+                        fontSize: isDesktopDetailLayout ? "13px" : "12px",
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      Optional und passend zum Produkt
+                    </small>
                   </div>
 
                   <div style={detailExtraGridStyle}>
@@ -670,8 +690,8 @@ export default function ProductDetailPage() {
                     <div
                       style={{
                         display: "grid",
-                        gap: "12px",
-                        marginTop: "16px",
+                        gap: isDesktopDetailLayout ? "12px" : "10px",
+                        marginTop: isDesktopDetailLayout ? "16px" : "12px",
                       }}
                     >
                       {partnerExtras.map((extra, index) => {
@@ -688,9 +708,9 @@ export default function ProductDetailPage() {
                                 extra.partner_image_url && isDesktopDetailLayout
                                   ? "minmax(110px, 160px) 1fr"
                                   : "1fr",
-                              gap: "14px",
+                              gap: isDesktopDetailLayout ? "14px" : "10px",
                               alignItems: "center",
-                              padding: "15px",
+                              padding: isDesktopDetailLayout ? "15px" : "12px",
                               borderRadius: "18px",
                               border: "1px solid #E8F1EF",
                               background:
@@ -802,6 +822,9 @@ export default function ProductDetailPage() {
                                   color: "#8a6f35",
                                   fontWeight: "bold",
                                   letterSpacing: "0.02em",
+                                  fontSize: isDesktopDetailLayout
+                                    ? "12px"
+                                    : "11px",
                                 }}
                               >
                                 Handmade-Partner
@@ -811,6 +834,10 @@ export default function ProductDetailPage() {
                                   display: "block",
                                   color: "#2F3A34",
                                   marginBottom: "5px",
+                                  fontSize: isDesktopDetailLayout
+                                    ? "16px"
+                                    : "14px",
+                                  lineHeight: 1.35,
                                 }}
                               >
                                 {extra.partner_name
@@ -822,7 +849,12 @@ export default function ProductDetailPage() {
                                   style={{
                                     margin: "0 0 8px",
                                     color: "#637064",
-                                    lineHeight: 1.55,
+                                    lineHeight: isDesktopDetailLayout
+                                      ? 1.55
+                                      : 1.45,
+                                    fontSize: isDesktopDetailLayout
+                                      ? "15px"
+                                      : "13px",
                                   }}
                                 >
                                   {extra.partner_text}
@@ -832,7 +864,12 @@ export default function ProductDetailPage() {
                                 style={{
                                   margin: partnerLink ? "0 0 10px" : 0,
                                   color: "#637064",
-                                  lineHeight: 1.55,
+                                  lineHeight: isDesktopDetailLayout
+                                    ? 1.55
+                                    : 1.45,
+                                  fontSize: isDesktopDetailLayout
+                                    ? "15px"
+                                    : "13px",
                                 }}
                               >
                                 Anfrage, Bestellung und Kundenservice laufen
@@ -848,10 +885,15 @@ export default function ProductDetailPage() {
                                     display: "inline-flex",
                                     alignItems: "center",
                                     borderRadius: "999px",
-                                    padding: "8px 12px",
+                                    padding: isDesktopDetailLayout
+                                      ? "8px 12px"
+                                      : "7px 10px",
                                     background: "#E8F1EF",
                                     color: "#2F3A34",
                                     fontWeight: "bold",
+                                    fontSize: isDesktopDetailLayout
+                                      ? "14px"
+                                      : "13px",
                                     textDecoration: "none",
                                     border: "1px solid #D8E0D2",
                                   }}

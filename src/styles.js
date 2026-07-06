@@ -352,19 +352,19 @@ export const productImageStyle = {
 };
 
 export const productCardContentStyle = {
-  padding: "24px 24px 0",
+  padding: "clamp(18px, 5vw, 24px) clamp(18px, 5vw, 24px) 0",
   display: "flex",
   flex: "1 1 auto",
   flexDirection: "column",
 };
 
 export const productCardMetaRowStyle = {
-  minHeight: "30px",
+  minHeight: "clamp(26px, 7vw, 30px)",
   display: "flex",
   alignItems: "flex-start",
   gap: "8px",
   flexWrap: "wrap",
-  marginBottom: "10px",
+  marginBottom: "clamp(8px, 2.5vw, 10px)",
 };
 
 export const productExtrasBadgeStyle = {
@@ -372,35 +372,36 @@ export const productExtrasBadgeStyle = {
   background: "#eef2e8",
   color: "#465740",
   border: "1px solid #d8e0d2",
-  padding: "6px 10px",
+  padding: "clamp(5px, 1.8vw, 6px) clamp(8px, 2.5vw, 10px)",
   borderRadius: "999px",
-  fontSize: "12px",
+  fontSize: "clamp(11px, 2.7vw, 12px)",
   fontWeight: "bold",
 };
 
 export const productTitleStyle = {
-  fontSize: "clamp(21px, 5vw, 24px)",
-  margin: "0 0 10px",
+  fontSize: "clamp(19px, 5vw, 24px)",
+  margin: "0 0 clamp(8px, 2.5vw, 10px)",
   color: "#344238",
   lineHeight: "1.2",
 };
 
 export const productPreviewTextStyle = {
   color: "#665e52",
-  lineHeight: "1.6",
+  fontSize: "clamp(14px, 3.7vw, 16px)",
+  lineHeight: "1.55",
   display: "-webkit-box",
   WebkitLineClamp: 3,
   WebkitBoxOrient: "vertical",
   overflow: "hidden",
-  minHeight: "78px",
+  minHeight: "clamp(66px, 17vw, 78px)",
 };
 
 export const priceRowStyle = {
-  marginTop: "22px",
+  marginTop: "clamp(16px, 4vw, 22px)",
   background: "#f4eadb",
   border: "1px solid #e4d7c3",
   borderRadius: "18px",
-  padding: "13px 15px",
+  padding: "clamp(11px, 3vw, 13px) clamp(12px, 3.5vw, 15px)",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -409,7 +410,7 @@ export const priceRowStyle = {
 };
 
 export const productPriceStyle = {
-  fontSize: "clamp(20px, 5vw, 22px)",
+  fontSize: "clamp(18px, 5vw, 22px)",
   color: "#344238",
 };
 
@@ -431,7 +432,7 @@ export const productActionPriceStyle = {
 
 export const productCardHintStyle = {
   color: "#465740",
-  fontSize: "14px",
+  fontSize: "clamp(13px, 3.4vw, 14px)",
   fontWeight: "bold",
   letterSpacing: "0.01em",
   whiteSpace: "nowrap",
@@ -445,7 +446,7 @@ export const taxHintStyle = {
  };
 
 export const detailSectionStyle = {
-  padding: "clamp(28px, 6vw, 64px) clamp(18px, 5vw, 40px)",
+  padding: "clamp(22px, 6vw, 64px) clamp(16px, 5vw, 40px)",
 };
 
 export const detailLayoutStyle = {
@@ -476,7 +477,7 @@ export const detailInfoPanelStyle = {
   background: "rgba(255,255,255,0.82)",
   border: "1px solid #E8F1EF",
   borderRadius: "clamp(22px, 5vw, 30px)",
-  padding: "clamp(22px, 5vw, 34px)",
+  padding: "clamp(18px, 5vw, 34px)",
   boxShadow: "0 16px 36px rgba(0,0,0,0.07)",
 };
 
@@ -490,33 +491,33 @@ export const detailImageStyle = {
 };
 
 export const detailTitleStyle = {
-  fontSize: "clamp(30px, 7vw, 46px)",
+  fontSize: "clamp(26px, 7vw, 46px)",
   color: "#2F3A34",
   lineHeight: "1.1",
-  margin: "16px 0 0",
+  margin: "clamp(12px, 3.5vw, 16px) 0 0",
 };
 
 export const detailDescriptionStyle = {
-  fontSize: "clamp(16px, 4vw, 18px)",
-  lineHeight: "1.75",
+  fontSize: "clamp(15px, 4vw, 18px)",
+  lineHeight: "1.65",
   color: "#5f5f5f",
-  margin: "18px 0 0",
+  margin: "clamp(14px, 4vw, 18px) 0 0",
 };
 
 export const availabilityNoticeStyle = {
-  marginTop: "20px",
+  marginTop: "clamp(16px, 4vw, 20px)",
   display: "block",
   background: "linear-gradient(135deg, #F7F1E8, #F3E7D8)",
   color: "#2F3A34",
   border: "1px solid #F6D8BE",
-  padding: "14px 16px",
+  padding: "clamp(12px, 3.5vw, 14px) clamp(13px, 4vw, 16px)",
   borderRadius: "18px",
   fontWeight: "bold",
-  lineHeight: "1.5",
+  lineHeight: "1.45",
 };
 
 export const detailPriceStyle = {
-  fontSize: "clamp(25px, 6vw, 34px)",
+  fontSize: "clamp(22px, 6vw, 34px)",
   color: "#2F3A34",
   lineHeight: "1.1",
 };
@@ -534,11 +535,11 @@ export const detailOldPriceStyle = {
 };
 
 export const detailPriceSummaryStyle = {
-  marginTop: "22px",
+  marginTop: "clamp(16px, 4vw, 22px)",
   background: "#F7F1E8",
   border: "1px solid #E8F1EF",
   borderRadius: "20px",
-  padding: "16px 18px",
+  padding: "clamp(13px, 3.5vw, 16px) clamp(14px, 4vw, 18px)",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -551,9 +552,9 @@ export const detailPriceSummaryStyle = {
 
 export const detailTrustRowStyle = {
   display: "flex",
-  gap: "8px",
+  gap: "7px",
   flexWrap: "wrap",
-  marginTop: "20px",
+  marginTop: "clamp(14px, 4vw, 20px)",
 };
 
 export const detailTrustPillStyle = {
@@ -564,16 +565,16 @@ export const detailTrustPillStyle = {
   color: "#2F3A34",
   border: "1px solid #D8E0D2",
   borderRadius: "999px",
-  padding: "7px 11px",
-  fontSize: "13px",
+  padding: "6px 10px",
+  fontSize: "clamp(12px, 3vw, 13px)",
   fontWeight: "bold",
 };
 
 export const detailActionRowStyle = {
   display: "flex",
-  gap: "12px",
+  gap: "10px",
   flexWrap: "wrap",
-  marginTop: "22px",
+  marginTop: "clamp(16px, 4vw, 22px)",
 };
 
 export const detailRequestButtonStyle = {
@@ -583,14 +584,14 @@ export const detailRequestButtonStyle = {
   borderRadius: "14px",
   cursor: "pointer",
   flex: "1 1 220px",
-  fontSize: "16px",
-  padding: "14px 22px",
+  fontSize: "clamp(15px, 3.8vw, 16px)",
+  padding: "clamp(12px, 3.5vw, 14px) clamp(16px, 5vw, 22px)",
 };
 
 export const extrasPreviewBoxStyle = {
-  marginTop: "22px",
+  marginTop: "clamp(16px, 4vw, 22px)",
   background: "#F7F1E8",
-  padding: "clamp(16px, 4vw, 20px)",
+  padding: "clamp(14px, 4vw, 20px)",
   borderRadius: "22px",
   border: "1px solid #E8F1EF",
 };
@@ -606,16 +607,16 @@ export const detailExtraSectionHeaderStyle = {
 };
 
 export const detailExtraGridStyle = {
-  marginTop: "14px",
+  marginTop: "clamp(10px, 3vw, 14px)",
   display: "grid",
-  gap: "12px",
+  gap: "10px",
 };
 
 export const detailExtraChoiceCardStyle = {
   background: "white",
   border: "1px solid #ece4d8",
   borderRadius: "18px",
-  padding: "14px",
+  padding: "clamp(12px, 3vw, 14px)",
   boxShadow: "0 8px 18px rgba(0,0,0,0.04)",
   transition: "border-color 160ms ease, box-shadow 160ms ease",
 };
@@ -638,6 +639,7 @@ export const detailExtraDescriptionStyle = {
   display: "block",
   color: "#666",
   marginTop: "4px",
+  fontSize: "clamp(13px, 3.4vw, 14px)",
   lineHeight: "1.4",
 };
 
@@ -648,10 +650,10 @@ export const detailExtraPriceStyle = {
 };
 
 export const detailTotalBoxStyle = {
-  marginTop: "16px",
+  marginTop: "clamp(12px, 3.5vw, 16px)",
   background: "linear-gradient(135deg, #E8F1EF, #F7F1E8)",
   color: "#2F3A34",
-  padding: "15px 16px",
+  padding: "clamp(12px, 3.5vw, 15px) clamp(13px, 4vw, 16px)",
   borderRadius: "18px",
   border: "1px solid #D8E0D2",
   display: "flex",
@@ -1367,21 +1369,27 @@ export const errorBoxStyle = {
 };
 
 export const footerStyle = {
-  padding: "28px 20px",
+  padding: "clamp(22px, 6vw, 28px) 18px",
   textAlign: "center",
   color: "#7f8f82",
   fontSize: "13px",
-  lineHeight: "2",
+  lineHeight: "1.9",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexWrap: "wrap",
+  gap: "4px 0",
 };
 
 export const footerDotStyle = {
-  margin: "0 8px",
+  margin: "0 7px",
   color: "#a1a89f",
 };
 
 export const footerLinkStyle = {
   color: "#7f8f82",
   textDecoration: "none",
+  whiteSpace: "nowrap",
 };
 
 export const legalContentStyle = {

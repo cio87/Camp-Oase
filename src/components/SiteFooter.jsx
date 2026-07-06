@@ -16,10 +16,10 @@ const footerLinks = [
 export default function SiteFooter() {
   return (
     <footer style={footerStyle}>
-      <span>{"\u00a9"} Camp Oase</span>
+      <span style={{ whiteSpace: "nowrap" }}>{"\u00a9"} Camp Oase</span>
 
       {footerLinks.map((link) => (
-        <span key={link.to}>
+        <span key={link.to} style={{ whiteSpace: "nowrap" }}>
           <span style={footerDotStyle}>{"\u00b7"}</span>
           <Link to={link.to} style={footerLinkStyle}>
             {link.label}
