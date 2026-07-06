@@ -1,8 +1,8 @@
 export const siteStyle = {
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   minHeight: "100vh",
   fontFamily: "Arial, sans-serif",
-  color: "#2f3e34",
+  color: "#2F3A34",
 };
 
 export const pageStyle = {
@@ -36,7 +36,7 @@ export const logoStyle = {
 
 export const brandTextStyle = {
   fontSize: "clamp(22px, 5vw, 26px)",
-  color: "#556b5d",
+  color: "#2F3A34",
 };
 
 export const headerNavStyle = {
@@ -47,25 +47,25 @@ export const headerNavStyle = {
 };
 
 export const headerNavLinkStyle = {
-  color: "#556b5d",
+  color: "#2F3A34",
   textDecoration: "none",
   fontSize: "14px",
   fontWeight: "bold",
   padding: "8px 10px",
   borderRadius: "999px",
-  background: "rgba(255,255,255,0.55)",
+  background: "rgba(220,232,231,0.58)",
 };
 
 export const announcementBannerStyle = {
   maxWidth: "1120px",
   margin: "clamp(18px, 4vw, 30px) auto 0",
   padding: "0 clamp(14px, 5vw, 32px)",
-  color: "#435749",
+  color: "#2F3A34",
 };
 
 export const announcementBannerInnerStyle = {
-  background: "linear-gradient(135deg, #fff8e8, #eef3ea)",
-  border: "1px solid #ead7a5",
+  background: "linear-gradient(135deg, #F7F1E8, #E8F1EF)",
+  border: "1px solid #D8E0D2",
   borderRadius: "22px",
   boxShadow: "0 14px 34px rgba(0,0,0,0.07)",
   padding: "clamp(14px, 3vw, 20px) clamp(16px, 4vw, 24px)",
@@ -76,7 +76,7 @@ export const announcementBannerInnerStyle = {
 };
 
 export const announcementBannerLinkStyle = {
-  color: "#435749",
+  color: "#2F3A34",
   textDecoration: "none",
   minWidth: 0,
   flex: "1 1 auto",
@@ -94,8 +94,8 @@ export const announcementBannerTextWrapStyle = {
 
 export const announcementBannerBadgeStyle = {
   flex: "0 0 auto",
-  background: "#d9c7a2",
-  color: "#2f3e34",
+  background: "#F6D8BE",
+  color: "#2F3A34",
   padding: "6px 10px",
   borderRadius: "999px",
   fontSize: "12px",
@@ -123,21 +123,21 @@ export const pillBackLinkStyle = {
   display: "inline-flex",
   alignItems: "center",
   width: "fit-content",
-  color: "#556b5d",
+  color: "#2F3A34",
   textDecoration: "none",
   fontSize: "14px",
   fontWeight: "bold",
   padding: "9px 13px",
   borderRadius: "999px",
   background: "rgba(255,255,255,0.72)",
-  border: "1px solid #d8e1d3",
+  border: "1px solid #D8E0D2",
   boxShadow: "0 6px 16px rgba(0,0,0,0.05)",
 };
 
 export const heroStyle = {
   padding: "clamp(46px, 8vw, 90px) 20px",
   textAlign: "center",
-  background: "linear-gradient(135deg, #dfe8df, #f5f1e8, #efe2c6)",
+  background: "linear-gradient(120deg, #E8F1EF 0%, #F7F1E8 60%, #F3E7D8 100%)",
 };
 
 export const badgeStyle = {
@@ -145,7 +145,7 @@ export const badgeStyle = {
   background: "white",
   padding: "8px 16px",
   borderRadius: "999px",
-  color: "#556b5d",
+  color: "#2F3A34",
   marginBottom: "20px",
   fontSize: "clamp(13px, 3vw, 16px)",
 };
@@ -153,7 +153,7 @@ export const badgeStyle = {
 export const heroTitleStyle = {
   fontSize: "clamp(34px, 8vw, 64px)",
   margin: "0",
-  color: "#435749",
+  color: "#2F3A34",
   lineHeight: "1.08",
 };
 
@@ -161,7 +161,7 @@ export const heroTextStyle = {
   fontSize: "clamp(16px, 4vw, 20px)",
   maxWidth: "700px",
   margin: "24px auto 0",
-  color: "#6b756d",
+  color: "#52615A",
   lineHeight: "1.6",
 };
 
@@ -176,8 +176,8 @@ export const homeBrandSectionStyle = {
 };
 
 export const homeBrandIntroStyle = {
-  background: "linear-gradient(135deg, rgba(255,255,255,0.9), #f7efe0)",
-  border: "1px solid #e8dfcf",
+  background: "linear-gradient(135deg, rgba(255,255,255,0.92), #E8F1EF)",
+  border: "1px solid #E8F1EF",
   borderRadius: "24px",
   padding: "clamp(16px, 4vw, 28px)",
   boxShadow: "0 12px 28px rgba(0,0,0,0.06)",
@@ -185,14 +185,14 @@ export const homeBrandIntroStyle = {
 
 export const homeBrandTitleStyle = {
   margin: "10px 0 0",
-  color: "#435749",
+  color: "#2F3A34",
   fontSize: "clamp(25px, 5vw, 34px)",
   lineHeight: "1.15",
 };
 
 export const homeBrandTextStyle = {
   margin: "clamp(8px, 2vw, 14px) 0 0",
-  color: "#5f665f",
+  color: "#52615A",
   lineHeight: "1.6",
   fontSize: "clamp(15px, 3vw, 17px)",
 };
@@ -205,10 +205,10 @@ export const homeBrandCardGridStyle = {
 
 export const homeBrandCardStyle = {
   background: "rgba(255,255,255,0.82)",
-  border: "1px solid #e8dfcf",
+  border: "1px solid #E8F1EF",
   borderRadius: "20px",
   padding: "clamp(13px, 3vw, 18px)",
-  color: "#435749",
+  color: "#2F3A34",
   lineHeight: "1.45",
   boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
 };
@@ -234,8 +234,8 @@ export const productCardStyle = {
   display: "flex",
   flexDirection: "column",
   height: "100%",
-  background: "linear-gradient(180deg, #ffffff 0%, #fbfaf6 100%)",
-  border: "1px solid #e8dfcf",
+  background: "linear-gradient(180deg, #ffffff 0%, #F7F1E8 100%)",
+  border: "1px solid #E8F1EF",
   borderRadius: "28px",
   overflow: "hidden",
   boxShadow: "0 14px 34px rgba(0,0,0,0.075)",
@@ -248,21 +248,21 @@ export const productAvailabilityBadgeStyle = {
   top: "14px",
   left: "14px",
   zIndex: 1,
-  background: "rgba(255, 248, 232, 0.94)",
-  color: "#6d5a2f",
-  border: "1px solid #ead7a5",
-  padding: "7px 12px",
+  background: "rgba(246, 216, 190, 0.92)",
+  color: "#3A2B1F",
+  border: "1px solid rgba(120, 85, 50, 0.18)",
+  padding: "0.45rem 0.7rem",
   borderRadius: "999px",
-  fontSize: "13px",
-  fontWeight: "bold",
-  boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
+  fontSize: "0.78rem",
+  fontWeight: 700,
+  boxShadow: "0 6px 14px rgba(50, 35, 20, 0.12)",
 };
 
 export const productImageStyle = {
   width: "100%",
   height: "clamp(200px, 55vw, 240px)",
   objectFit: "contain",
-  background: "linear-gradient(135deg, #f5f1e8, #f8f4eb)",
+  background: "linear-gradient(135deg, #F7F1E8, #E8F1EF)",
 };
 
 export const productCardContentStyle = {
@@ -283,9 +283,9 @@ export const productCardMetaRowStyle = {
 
 export const productExtrasBadgeStyle = {
   display: "inline-block",
-  background: "#eef3ea",
-  color: "#556b5d",
-  border: "1px solid #d8e1d3",
+  background: "#E8F1EF",
+  color: "#2F3A34",
+  border: "1px solid #D8E0D2",
   padding: "6px 10px",
   borderRadius: "999px",
   fontSize: "12px",
@@ -295,7 +295,7 @@ export const productExtrasBadgeStyle = {
 export const productTitleStyle = {
   fontSize: "clamp(21px, 5vw, 24px)",
   margin: "0 0 10px",
-  color: "#435749",
+  color: "#2F3A34",
   lineHeight: "1.2",
 };
 
@@ -311,8 +311,8 @@ export const productPreviewTextStyle = {
 
 export const priceRowStyle = {
   marginTop: "20px",
-  background: "#f5f1e8",
-  border: "1px solid #e4dac7",
+  background: "#F7F1E8",
+  border: "1px solid #E8F1EF",
   borderRadius: "18px",
   padding: "12px 14px",
   display: "flex",
@@ -324,7 +324,7 @@ export const priceRowStyle = {
 
 export const productPriceStyle = {
   fontSize: "clamp(20px, 5vw, 22px)",
-  color: "#556b5d",
+  color: "#2F3A34",
 };
 
 export const productPriceStackStyle = {
@@ -340,11 +340,11 @@ export const productOldPriceStyle = {
 
 export const productActionPriceStyle = {
   ...productPriceStyle,
-  color: "#8a4f37",
+  color: "#8A5A3C",
 };
 
 export const productCardHintStyle = {
-  color: "#556b5d",
+  color: "#2F3A34",
   fontSize: "14px",
   fontWeight: "bold",
   letterSpacing: "0.01em",
@@ -373,8 +373,8 @@ export const detailLayoutStyle = {
 };
 
 export const detailMediaPanelStyle = {
-  background: "linear-gradient(135deg, #ffffff, #f8f2e6)",
-  border: "1px solid #eadfcb",
+  background: "linear-gradient(135deg, #ffffff, #F7F1E8)",
+  border: "1px solid #E8F1EF",
   borderRadius: "clamp(22px, 5vw, 34px)",
   padding: "clamp(12px, 3vw, 18px)",
   boxShadow: "0 18px 42px rgba(0,0,0,0.08)",
@@ -388,7 +388,7 @@ export const detailMediaStickyStyle = {
 
 export const detailInfoPanelStyle = {
   background: "rgba(255,255,255,0.82)",
-  border: "1px solid #e8dfcf",
+  border: "1px solid #E8F1EF",
   borderRadius: "clamp(22px, 5vw, 30px)",
   padding: "clamp(22px, 5vw, 34px)",
   boxShadow: "0 16px 36px rgba(0,0,0,0.07)",
@@ -398,14 +398,14 @@ export const detailImageStyle = {
   width: "100%",
   maxHeight: "min(560px, 70vh)",
   objectFit: "contain",
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   borderRadius: "clamp(18px, 4vw, 26px)",
   display: "block",
 };
 
 export const detailTitleStyle = {
   fontSize: "clamp(30px, 7vw, 46px)",
-  color: "#435749",
+  color: "#2F3A34",
   lineHeight: "1.1",
   margin: "16px 0 0",
 };
@@ -420,9 +420,9 @@ export const detailDescriptionStyle = {
 export const availabilityNoticeStyle = {
   marginTop: "20px",
   display: "block",
-  background: "linear-gradient(135deg, #fff8e8, #f7ecd0)",
-  color: "#6d5a2f",
-  border: "1px solid #ead7a5",
+  background: "linear-gradient(135deg, #F7F1E8, #F3E7D8)",
+  color: "#2F3A34",
+  border: "1px solid #F6D8BE",
   padding: "14px 16px",
   borderRadius: "18px",
   fontWeight: "bold",
@@ -431,7 +431,7 @@ export const availabilityNoticeStyle = {
 
 export const detailPriceStyle = {
   fontSize: "clamp(25px, 6vw, 34px)",
-  color: "#556b5d",
+  color: "#2F3A34",
   lineHeight: "1.1",
 };
 
@@ -449,8 +449,8 @@ export const detailOldPriceStyle = {
 
 export const detailPriceSummaryStyle = {
   marginTop: "22px",
-  background: "#f5f1e8",
-  border: "1px solid #e4dac7",
+  background: "#F7F1E8",
+  border: "1px solid #E8F1EF",
   borderRadius: "20px",
   padding: "16px 18px",
   display: "flex",
@@ -474,9 +474,9 @@ export const detailTrustPillStyle = {
   display: "inline-flex",
   alignItems: "center",
   width: "fit-content",
-  background: "#eef3ea",
-  color: "#556b5d",
-  border: "1px solid #d8e1d3",
+  background: "#E8F1EF",
+  color: "#2F3A34",
+  border: "1px solid #D8E0D2",
   borderRadius: "999px",
   padding: "7px 11px",
   fontSize: "13px",
@@ -491,8 +491,8 @@ export const detailActionRowStyle = {
 };
 
 export const detailRequestButtonStyle = {
-  background: "#2f3e34",
-  color: "white",
+  background: "#D8E0D2",
+  color: "#2F3A34",
   border: "none",
   borderRadius: "14px",
   cursor: "pointer",
@@ -503,10 +503,10 @@ export const detailRequestButtonStyle = {
 
 export const extrasPreviewBoxStyle = {
   marginTop: "22px",
-  background: "#fbfaf6",
+  background: "#F7F1E8",
   padding: "clamp(16px, 4vw, 20px)",
   borderRadius: "22px",
-  border: "1px solid #e8dfcf",
+  border: "1px solid #E8F1EF",
 };
 
 export const detailExtraSectionHeaderStyle = {
@@ -515,7 +515,7 @@ export const detailExtraSectionHeaderStyle = {
   alignItems: "baseline",
   gap: "10px",
   flexWrap: "wrap",
-  color: "#435749",
+  color: "#2F3A34",
   fontWeight: "bold",
 };
 
@@ -535,7 +535,7 @@ export const detailExtraChoiceCardStyle = {
 };
 
 export const detailExtraCardSelectedStyle = {
-  borderColor: "#8da382",
+  borderColor: "#D8E0D2",
   boxShadow: "0 10px 22px rgba(85,107,93,0.13)",
 };
 
@@ -545,7 +545,7 @@ export const detailExtraLineStyle = {
   justifyContent: "space-between",
   gap: "12px",
   flexWrap: "wrap",
-  color: "#435749",
+  color: "#2F3A34",
 };
 
 export const detailExtraDescriptionStyle = {
@@ -556,18 +556,18 @@ export const detailExtraDescriptionStyle = {
 };
 
 export const detailExtraPriceStyle = {
-  color: "#556b5d",
+  color: "#2F3A34",
   fontWeight: "bold",
   whiteSpace: "nowrap",
 };
 
 export const detailTotalBoxStyle = {
   marginTop: "16px",
-  background: "linear-gradient(135deg, #eef3ea, #f7f1e3)",
-  color: "#435749",
+  background: "linear-gradient(135deg, #E8F1EF, #F7F1E8)",
+  color: "#2F3A34",
   padding: "15px 16px",
   borderRadius: "18px",
-  border: "1px solid #dbe4d4",
+  border: "1px solid #D8E0D2",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -584,7 +584,7 @@ export const cartPageStyle = {
 
 export const cartItemStyle = {
   background: "rgba(255,255,255,0.86)",
-  border: "1px solid #e8dfcf",
+  border: "1px solid #E8F1EF",
   borderRadius: "22px",
   padding: "clamp(16px, 4vw, 22px)",
   display: "grid",
@@ -599,7 +599,7 @@ export const cartImageStyle = {
   maxWidth: "160px",
   aspectRatio: "1 / 1",
   objectFit: "contain",
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   borderRadius: "18px",
 };
 
@@ -613,10 +613,10 @@ export const cartQuantityRowStyle = {
 export const cartQuantityButtonStyle = {
   width: "40px",
   height: "40px",
-  border: "1px solid #d8e1d3",
+  border: "1px solid #D8E0D2",
   borderRadius: "12px",
-  background: "#eef3ea",
-  color: "#435749",
+  background: "#E8F1EF",
+  color: "#2F3A34",
   cursor: "pointer",
   fontSize: "18px",
   fontWeight: "bold",
@@ -624,8 +624,8 @@ export const cartQuantityButtonStyle = {
 
 export const cartSummaryStyle = {
   marginTop: "18px",
-  background: "linear-gradient(135deg, #eef3ea, #f7f1e3)",
-  border: "1px solid #dbe4d4",
+  background: "linear-gradient(135deg, #E8F1EF, #F7F1E8)",
+  border: "1px solid #D8E0D2",
   borderRadius: "22px",
   padding: "clamp(18px, 4vw, 24px)",
   display: "flex",
@@ -633,12 +633,12 @@ export const cartSummaryStyle = {
   alignItems: "center",
   gap: "18px",
   flexWrap: "wrap",
-  color: "#435749",
+  color: "#2F3A34",
 };
 
 export const cartEmptyStyle = {
   background: "rgba(255,255,255,0.86)",
-  border: "1px solid #e8dfcf",
+  border: "1px solid #E8F1EF",
   borderRadius: "22px",
   padding: "clamp(22px, 5vw, 32px)",
   boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
@@ -669,8 +669,8 @@ export const inputStyle = {
 };
 
 export const buttonStyle = {
-  background: "#556b5d",
-  color: "white",
+  background: "#D8E0D2",
+  color: "#2F3A34",
   border: "none",
   padding: "12px 18px",
   borderRadius: "14px",
@@ -680,8 +680,8 @@ export const buttonStyle = {
 
 export const secondaryButtonStyle = {
   background: "white",
-  color: "#556b5d",
-  border: "1px solid #cfd8cf",
+  color: "#2F3A34",
+  border: "1px solid #D8E0D2",
   padding: "12px 18px",
   borderRadius: "14px",
   cursor: "pointer",
@@ -690,8 +690,8 @@ export const secondaryButtonStyle = {
 };
 
 export const requestButtonStyle = {
-  background: "#2f3e34",
-  color: "white",
+  background: "#D8E0D2",
+  color: "#2F3A34",
   border: "none",
   padding: "10px 16px",
   borderRadius: "14px",
@@ -718,8 +718,8 @@ export const smallDeleteButtonStyle = {
 };
 
 export const editButtonStyle = {
-  background: "#d9c7a2",
-  color: "#2f3e34",
+  background: "#D8E0D2",
+  color: "#2F3A34",
   border: "none",
   padding: "10px 14px",
   borderRadius: "12px",
@@ -727,8 +727,8 @@ export const editButtonStyle = {
 };
 
 export const completeInquiryButtonStyle = {
-  background: "#556b5d",
-  color: "white",
+  background: "#D8E0D2",
+  color: "#2F3A34",
   border: "none",
   padding: "8px 12px",
   borderRadius: "10px",
@@ -737,9 +737,9 @@ export const completeInquiryButtonStyle = {
 };
 
 export const reopenInquiryButtonStyle = {
-  background: "#eef3ea",
-  color: "#435749",
-  border: "1px solid #cfd8cf",
+  background: "#E8F1EF",
+  color: "#2F3A34",
+  border: "1px solid #D8E0D2",
   padding: "8px 12px",
   borderRadius: "10px",
   cursor: "pointer",
@@ -763,7 +763,7 @@ export const compactDeleteButtonStyle = {
 export const adminTitleStyle = {
   marginTop: "30px",
   fontSize: "clamp(30px, 8vw, 42px)",
-  color: "#435749",
+  color: "#2F3A34",
   textAlign: "center",
 };
 
@@ -784,8 +784,8 @@ export const adminAvailabilityBadgeStyle = {
   marginTop: "4px",
   padding: "5px 10px",
   borderRadius: "999px",
-  background: "#eef3ea",
-  color: "#435749",
+  background: "#E8F1EF",
+  color: "#2F3A34",
   fontSize: "13px",
   fontWeight: "bold",
 };
@@ -808,7 +808,7 @@ export const adminTabsStyle = {
 
 export const adminTabButtonStyle = {
   background: "white",
-  color: "#556b5d",
+  color: "#2F3A34",
   border: "1px solid #d6d3cc",
   padding: "12px 18px",
   borderRadius: "999px",
@@ -818,9 +818,9 @@ export const adminTabButtonStyle = {
 };
 
 export const adminTabActiveStyle = {
-  background: "#556b5d",
-  color: "white",
-  border: "1px solid #556b5d",
+  background: "#D8E0D2",
+  color: "#2F3A34",
+  border: "1px solid #D8E0D2",
 };
 
 export const statusFilterRowStyle = {
@@ -837,7 +837,7 @@ export const statusFilterRowStyle = {
 
 export const statusFilterButtonStyle = {
   background: "transparent",
-  color: "#556b5d",
+  color: "#2F3A34",
   border: "none",
   padding: "8px 12px",
   borderRadius: "999px",
@@ -848,13 +848,13 @@ export const statusFilterButtonStyle = {
 
 export const statusFilterActiveStyle = {
   background: "white",
-  color: "#2f3e34",
+  color: "#2F3A34",
   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
 };
 
 export const inquiryBadgeStyle = {
-  background: "#d9c7a2",
-  color: "#2f3e34",
+  background: "#F6D8BE",
+  color: "#2F3A34",
   padding: "2px 8px",
   borderRadius: "999px",
   marginLeft: "6px",
@@ -870,7 +870,7 @@ export const inquiryCardStyle = {
 
 export const inquiryCardDoneStyle = {
   opacity: 0.72,
-  background: "#fbfaf6",
+  background: "#F7F1E8",
 };
 
 export const inquiryListStyle = {
@@ -891,7 +891,7 @@ export const inquiryHeaderStyle = {
 
 export const inquiryTitleStyle = {
   margin: 0,
-  color: "#435749",
+  color: "#2F3A34",
   fontSize: "clamp(18px, 4vw, 22px)",
   lineHeight: "1.25",
 };
@@ -904,7 +904,7 @@ export const inquiryInfoGridStyle = {
 };
 
 export const inquiryInfoBoxStyle = {
-  background: "#fbfaf6",
+  background: "#F7F1E8",
   border: "1px solid #eee7da",
   borderRadius: "12px",
   padding: "10px 12px",
@@ -926,8 +926,8 @@ export const statusBadgeStyle = {
   display: "inline-block",
   padding: "5px 9px",
   borderRadius: "999px",
-  background: "#eef3ea",
-  color: "#435749",
+  background: "#E8F1EF",
+  color: "#2F3A34",
   fontSize: "12px",
   fontWeight: "bold",
 };
@@ -946,7 +946,7 @@ export const inquiryMetaStyle = {
 export const inquiryMessageStyle = {
   marginTop: "12px",
   padding: "12px 14px",
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   borderRadius: "12px",
   color: "#444",
   whiteSpace: "pre-line",
@@ -973,7 +973,7 @@ export const emptyBoxStyle = {
 };
 
 export const adminExtrasBoxStyle = {
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   borderRadius: "18px",
   padding: "18px",
   margin: "16px 0",
@@ -983,7 +983,7 @@ export const adminImagePreviewBoxStyle = {
   display: "flex",
   alignItems: "center",
   gap: "14px",
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   borderRadius: "16px",
   padding: "12px",
   margin: "12px 0",
@@ -1014,8 +1014,8 @@ export const adminImagePreviewModalStyle = {
   position: "relative",
   maxWidth: "min(920px, 100%)",
   maxHeight: "min(82vh, 760px)",
-  background: "linear-gradient(135deg, #ffffff, #f8f2e6)",
-  border: "1px solid #eadfcb",
+  background: "linear-gradient(135deg, #ffffff, #F7F1E8)",
+  border: "1px solid #E8F1EF",
   borderRadius: "24px",
   padding: "clamp(12px, 3vw, 18px)",
   boxShadow: "0 22px 70px rgba(0,0,0,0.28)",
@@ -1027,7 +1027,7 @@ export const adminImagePreviewModalImageStyle = {
   maxHeight: "76vh",
   objectFit: "contain",
   borderRadius: "18px",
-  background: "#f5f1e8",
+  background: "#F7F1E8",
 };
 
 export const adminImagePreviewTextStyle = {
@@ -1053,7 +1053,7 @@ export const customExtraHeaderStyle = {
 
 export const adminExtraLabelStyle = {
   display: "block",
-  color: "#435749",
+  color: "#2F3A34",
   fontWeight: "bold",
   marginTop: "10px",
   marginBottom: "-4px",
@@ -1063,7 +1063,7 @@ export const checkboxRowStyle = {
   display: "flex",
   alignItems: "center",
   gap: "10px",
-  color: "#435749",
+  color: "#2F3A34",
   fontWeight: "bold",
 };
 
@@ -1082,8 +1082,8 @@ export const adminProductExtrasInfoStyle = {
 
 export const adminTotalStyle = {
   marginTop: "14px",
-  color: "#435749",
-  background: "#eef3ea",
+  color: "#2F3A34",
+  background: "#E8F1EF",
   display: "inline-block",
   padding: "8px 12px",
   borderRadius: "999px",
@@ -1093,7 +1093,7 @@ export const adminSelectedExtrasStyle = {
   marginTop: "14px",
   padding: "14px",
   borderRadius: "14px",
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   color: "#444",
   lineHeight: "1.6",
 };
@@ -1129,7 +1129,7 @@ export const modalCloseButtonStyle = {
   background: "transparent",
   fontSize: "34px",
   cursor: "pointer",
-  color: "#556b5d",
+  color: "#2F3A34",
 };
 
 export const modalHeaderStyle = {
@@ -1138,8 +1138,8 @@ export const modalHeaderStyle = {
 
 export const modalBadgeStyle = {
   display: "inline-block",
-  background: "#f5f1e8",
-  color: "#556b5d",
+  background: "#F7F1E8",
+  color: "#2F3A34",
   padding: "7px 13px",
   borderRadius: "999px",
   fontSize: "13px",
@@ -1149,7 +1149,7 @@ export const modalBadgeStyle = {
 
 export const modalTitleStyle = {
   margin: "0",
-  color: "#435749",
+  color: "#2F3A34",
   fontSize: "clamp(26px, 6vw, 34px)",
   lineHeight: "1.15",
 };
@@ -1161,7 +1161,7 @@ export const modalIntroStyle = {
 };
 
 export const modalProductBoxStyle = {
-  background: "linear-gradient(135deg, #f5f1e8, #eef3ea)",
+  background: "linear-gradient(135deg, #F7F1E8, #E8F1EF)",
   border: "1px solid #e2ded3",
   borderRadius: "20px",
   padding: "18px",
@@ -1181,20 +1181,20 @@ export const modalProductLabelStyle = {
 };
 
 export const modalProductTitleStyle = {
-  color: "#435749",
+  color: "#2F3A34",
   fontSize: "18px",
 };
 
 export const modalProductPriceStyle = {
   background: "white",
-  color: "#556b5d",
+  color: "#2F3A34",
   padding: "8px 12px",
   borderRadius: "999px",
   fontWeight: "bold",
 };
 
 export const extrasBoxStyle = {
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   border: "1px solid #e2ded3",
   borderRadius: "20px",
   padding: "18px",
@@ -1213,7 +1213,7 @@ export const extraOptionStyle = {
   gap: "10px",
   alignItems: "center",
   margin: "0",
-  color: "#435749",
+  color: "#2F3A34",
   fontWeight: "bold",
 };
 
@@ -1227,14 +1227,14 @@ export const extraDescriptionStyle = {
 export const totalBoxStyle = {
   marginTop: "16px",
   background: "white",
-  color: "#435749",
+  color: "#2F3A34",
   padding: "12px 14px",
   borderRadius: "14px",
 };
 
 export const labelStyle = {
   display: "block",
-  color: "#435749",
+  color: "#2F3A34",
   fontWeight: "bold",
   marginTop: "14px",
   marginBottom: "-4px",
@@ -1263,7 +1263,7 @@ export const disabledButtonStyle = {
 export const successBoxStyle = {
   marginTop: "16px",
   background: "#eef5ee",
-  color: "#435749",
+  color: "#2F3A34",
   border: "1px solid #cddfcd",
   padding: "14px",
   borderRadius: "14px",
@@ -1317,7 +1317,7 @@ export const legalContentStyle = {
 };
 
 export const legalTitleStyle = {
-  color: "#435749",
+  color: "#2F3A34",
   fontSize: "clamp(32px, 8vw, 42px)",
 };
 
@@ -1341,8 +1341,8 @@ export const aboutIntroStyle = {
 
 export const aboutStoryStyle = {
   maxWidth: "760px",
-  background: "#f5f1e8",
-  borderLeft: "4px solid #d9c7a2",
+  background: "#F7F1E8",
+  borderLeft: "4px solid #F6D8BE",
   borderRadius: "18px",
   padding: "18px 20px",
   color: "#5f665f",
@@ -1359,10 +1359,10 @@ export const aboutCardGridStyle = {
 
 export const aboutCardStyle = {
   background: "rgba(255,255,255,0.82)",
-  border: "1px solid #e8dfcf",
+  border: "1px solid #E8F1EF",
   borderRadius: "20px",
   padding: "20px",
-  color: "#435749",
+  color: "#2F3A34",
   lineHeight: "1.6",
   boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
 };
@@ -1374,18 +1374,18 @@ export const aboutCardIconStyle = {
   width: "38px",
   height: "38px",
   borderRadius: "999px",
-  background: "#f5f1e8",
+  background: "#F7F1E8",
   marginBottom: "8px",
   fontSize: "20px",
 };
 
 export const aboutNoteStyle = {
   marginTop: "26px",
-  background: "#eef3ea",
-  border: "1px solid #d7e2d2",
+  background: "#E8F1EF",
+  border: "1px solid #D8E0D2",
   borderRadius: "20px",
   padding: "18px 20px",
-  color: "#435749",
+  color: "#2F3A34",
   lineHeight: "1.7",
   fontWeight: "bold",
 };
@@ -1393,10 +1393,10 @@ export const aboutNoteStyle = {
 export const contactInfoStyle = {
   marginTop: "22px",
   background: "rgba(255,255,255,0.86)",
-  border: "1px solid #e8dfcf",
+  border: "1px solid #E8F1EF",
   borderRadius: "20px",
   padding: "18px 20px",
-  color: "#435749",
+  color: "#2F3A34",
   lineHeight: "1.7",
 };
 

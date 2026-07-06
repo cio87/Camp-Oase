@@ -417,8 +417,8 @@ export default function ProductDetailPage() {
                     right: "14px",
                     bottom: "14px",
                     background: "rgba(255,255,255,0.88)",
-                    color: "#556b5d",
-                    border: "1px solid #d8e1d3",
+                    color: "#2F3A34",
+                    border: "1px solid #D8E0D2",
                     borderRadius: "999px",
                     padding: "7px 11px",
                     fontSize: "13px",
@@ -453,9 +453,9 @@ export default function ProductDetailPage() {
                           padding: "4px",
                           borderRadius: "14px",
                           border: isSelected
-                            ? "2px solid #556b5d"
-                            : "1px solid #e4dac7",
-                          background: isSelected ? "#eef3ea" : "white",
+                            ? "2px solid #2F3A34"
+                            : "1px solid #E8F1EF",
+                          background: isSelected ? "#E8F1EF" : "white",
                           cursor: "pointer",
                         }}
                         aria-label={`Produktbild ${index + 1} anzeigen`}
@@ -468,7 +468,7 @@ export default function ProductDetailPage() {
                             height: "100%",
                             objectFit: "cover",
                             borderRadius: "10px",
-                            background: "#f5f1e8",
+                            background: "#F7F1E8",
                           }}
                         />
                       </button>
@@ -569,7 +569,7 @@ export default function ProductDetailPage() {
                   )}
 
                   {selectedVariantAdjustment !== 0 && (
-                    <p style={{ margin: "10px 0 0", color: "#556b5d" }}>
+                    <p style={{ margin: "10px 0 0", color: "#2F3A34" }}>
                       Variantenpreis:{" "}
                       <strong>
                         {selectedVariantAdjustment > 0 ? "+" : ""}
@@ -692,9 +692,9 @@ export default function ProductDetailPage() {
                               alignItems: "center",
                               padding: "15px",
                               borderRadius: "18px",
-                              border: "1px solid #eadfcb",
+                              border: "1px solid #E8F1EF",
                               background:
-                                "linear-gradient(135deg, #fffdf8, #f4efe3)",
+                                "linear-gradient(135deg, #ffffff, #E8F1EF)",
                             }}
                           >
                             {extra.partner_image_url &&
@@ -731,7 +731,7 @@ export default function ProductDetailPage() {
                                       : "80px",
                                     objectFit: "contain",
                                     borderRadius: "16px",
-                                    background: "#f5f1e8",
+                                    background: "#F7F1E8",
                                     padding: "8px",
                                     boxSizing: "border-box",
                                   }}
@@ -748,8 +748,8 @@ export default function ProductDetailPage() {
                                     right: "6px",
                                     bottom: "6px",
                                     background: "rgba(255,255,255,0.9)",
-                                    color: "#556b5d",
-                                    border: "1px solid #d8e1d3",
+                                    color: "#2F3A34",
+                                    border: "1px solid #D8E0D2",
                                     borderRadius: "999px",
                                     padding: "4px 7px",
                                     fontSize: "11px",
@@ -781,7 +781,7 @@ export default function ProductDetailPage() {
                                       ? "120px"
                                       : "80px",
                                     borderRadius: "16px",
-                                    background: "#f5f1e8",
+                                    background: "#F7F1E8",
                                     border: "1px dashed #d8cdb9",
                                     color: "#7f8f82",
                                     fontSize: "13px",
@@ -809,7 +809,7 @@ export default function ProductDetailPage() {
                               <strong
                                 style={{
                                   display: "block",
-                                  color: "#435749",
+                                  color: "#2F3A34",
                                   marginBottom: "5px",
                                 }}
                               >
@@ -849,11 +849,11 @@ export default function ProductDetailPage() {
                                     alignItems: "center",
                                     borderRadius: "999px",
                                     padding: "8px 12px",
-                                    background: "#edf2e8",
-                                    color: "#435749",
+                                    background: "#E8F1EF",
+                                    color: "#2F3A34",
                                     fontWeight: "bold",
                                     textDecoration: "none",
-                                    border: "1px solid #d8e1d3",
+                                    border: "1px solid #D8E0D2",
                                   }}
                                 >
                                   {extra.partner_link_label ||
@@ -880,7 +880,7 @@ export default function ProductDetailPage() {
                   padding: "14px 16px",
                   borderRadius: "18px",
                   border: "1px solid #e6ddcb",
-                  background: "#fbfaf6",
+                  background: "#F7F1E8",
                   color: "#637064",
                   lineHeight: 1.55,
                 }}
@@ -888,7 +888,7 @@ export default function ProductDetailPage() {
                 <summary
                   style={{
                     cursor: "pointer",
-                    color: "#435749",
+                    color: "#2F3A34",
                     fontWeight: "bold",
                   }}
                 >
@@ -913,7 +913,7 @@ export default function ProductDetailPage() {
                     background: cartButtonDisabled
                       ? "#a7b0a8"
                       : detailRequestButtonStyle.background,
-                    color: cartButtonDisabled ? "#eef3ea" : "white",
+                    color: cartButtonDisabled ? "#E8F1EF" : "#2F3A34",
                     opacity: cartButtonDisabled ? 0.72 : 1,
                     cursor: cartButtonDisabled ? "not-allowed" : "pointer",
                     boxShadow: cartButtonDisabled
@@ -928,8 +928,8 @@ export default function ProductDetailPage() {
                   onClick={() => openProductQuestion(product)}
                   style={{
                     ...detailRequestButtonStyle,
-                    background: "#d9c7a2",
-                    color: "#2f3e34",
+                    background: "#E8F1EF",
+                    color: "#2F3A34",
                   }}
                 >
                   Frage zum Produkt stellen
@@ -967,8 +967,8 @@ export default function ProductDetailPage() {
               position: "relative",
               width: "min(980px, 100%)",
               maxHeight: "90vh",
-              background: "linear-gradient(135deg, #ffffff, #f8f2e6)",
-              border: "1px solid #eadfcb",
+              background: "linear-gradient(135deg, #ffffff, #F7F1E8)",
+              border: "1px solid #E8F1EF",
               borderRadius: "24px",
               padding: "clamp(12px, 3vw, 18px)",
               boxShadow: "0 22px 70px rgba(0,0,0,0.32)",
@@ -985,7 +985,7 @@ export default function ProductDetailPage() {
                 zIndex: 2,
                 border: "none",
                 background: "rgba(255,255,255,0.9)",
-                color: "#556b5d",
+                color: "#2F3A34",
                 borderRadius: "999px",
                 width: "40px",
                 height: "40px",
@@ -1012,7 +1012,7 @@ export default function ProductDetailPage() {
                     transform: "translateY(-50%)",
                     border: "none",
                     background: "rgba(255,255,255,0.9)",
-                    color: "#556b5d",
+                    color: "#2F3A34",
                     borderRadius: "999px",
                     width: "42px",
                     height: "42px",
@@ -1036,7 +1036,7 @@ export default function ProductDetailPage() {
                     transform: "translateY(-50%)",
                     border: "none",
                     background: "rgba(255,255,255,0.9)",
-                    color: "#556b5d",
+                    color: "#2F3A34",
                     borderRadius: "999px",
                     width: "42px",
                     height: "42px",
@@ -1060,7 +1060,7 @@ export default function ProductDetailPage() {
                 maxHeight: "82vh",
                 objectFit: "contain",
                 borderRadius: "18px",
-                background: "#f5f1e8",
+                background: "#F7F1E8",
               }}
               onError={() => {
                 if (lightboxType === "partner" && lightboxImage) {
