@@ -308,6 +308,7 @@ export default function ProductDetailPage() {
   }
 
   const product = products.find((item) => String(item.id) === id);
+  const variantSelectId = product ? `variant-select-${product.id}` : undefined;
   const productIntro = getProductIntro(product);
   const activeVariants = getProductVariants(product, { onlyEnabled: true });
   const selectedVariant =
@@ -602,7 +603,7 @@ export default function ProductDetailPage() {
               {activeVariants.length > 0 && (
                 <div style={extrasPreviewBoxStyle}>
                   <div style={detailExtraSectionHeaderStyle}>
-                    <span>Variante auswählen</span>
+                    <label htmlFor={variantSelectId}>Variante auswählen</label>
                     <small
                       style={{
                         fontSize: isDesktopDetailLayout ? "13px" : "12px",
@@ -615,6 +616,8 @@ export default function ProductDetailPage() {
                   </div>
 
                   <select
+                    id={variantSelectId}
+                    name="variant"
                     value={selectedVariant?.id || ""}
                     onChange={(e) => selectVariant(e.target.value)}
                     style={inputStyle}
