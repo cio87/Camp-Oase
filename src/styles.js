@@ -41,19 +41,22 @@ export const brandTextStyle = {
 
 export const headerNavStyle = {
   display: "flex",
-  gap: "8px",
+  gap: "10px",
   flexWrap: "wrap",
   justifyContent: "flex-end",
+  alignItems: "center",
 };
 
 export const headerNavLinkStyle = {
   color: "#2F3A34",
   textDecoration: "none",
   fontSize: "14px",
-  fontWeight: "bold",
-  padding: "8px 10px",
+  fontWeight: 700,
+  padding: "9px 13px",
   borderRadius: "999px",
-  background: "rgba(220,232,231,0.58)",
+  background: "rgba(255,255,255,0.58)",
+  border: "1px solid rgba(216, 224, 210, 0.78)",
+  boxShadow: "0 6px 16px rgba(47, 58, 52, 0.04)",
 };
 
 export const headerBrandLinkStyle = {
@@ -69,7 +72,7 @@ export const hamburgerButtonStyle = {
   height: "46px",
   borderRadius: "999px",
   border: "1px solid #D8E0D2",
-  background: "rgba(255,255,255,0.82)",
+  background: "rgba(255,255,255,0.9)",
   color: "#2F3A34",
   cursor: "pointer",
   fontSize: "24px",
@@ -84,41 +87,24 @@ export const menuOverlayStyle = {
   position: "fixed",
   inset: 0,
   zIndex: 9998,
-  background: "rgba(47, 58, 52, 0.28)",
-  backdropFilter: "blur(3px)",
-  opacity: 0,
-  pointerEvents: "none",
-  transition: "opacity 220ms ease",
-};
-
-export const menuOverlayOpenStyle = {
-  opacity: 1,
-  pointerEvents: "auto",
+  background: "rgba(47, 58, 52, 0.34)",
+  backdropFilter: "blur(5px)",
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "center",
+  padding: "clamp(86px, 18vh, 118px) 18px 24px",
 };
 
 export const menuPanelStyle = {
-  position: "fixed",
-  top: "14px",
-  right: "14px",
-  bottom: "14px",
-  zIndex: 9999,
-  width: "min(360px, calc(100vw - 28px))",
-  background: "linear-gradient(145deg, #ffffff 0%, #F7F1E8 100%)",
+  width: "min(460px, 100%)",
+  background: "linear-gradient(145deg, #fffdf8 0%, #F7F1E8 100%)",
   border: "1px solid #D8E0D2",
   borderRadius: "28px",
-  boxShadow: "0 24px 70px rgba(47, 58, 52, 0.22)",
-  padding: "22px",
+  boxShadow: "0 20px 54px rgba(47, 58, 52, 0.18)",
+  padding: "clamp(20px, 6vw, 28px)",
   display: "flex",
   flexDirection: "column",
   gap: "18px",
-  transform: "translateX(calc(100% + 28px))",
-  transition: "transform 260ms ease",
-  pointerEvents: "none",
-};
-
-export const menuPanelOpenStyle = {
-  transform: "translateX(0)",
-  pointerEvents: "auto",
 };
 
 export const menuHeaderStyle = {
@@ -133,7 +119,7 @@ export const menuCloseButtonStyle = {
   height: "40px",
   borderRadius: "999px",
   border: "1px solid #D8E0D2",
-  background: "#E8F1EF",
+  background: "#fffaf3",
   color: "#2F3A34",
   cursor: "pointer",
   fontSize: "24px",
@@ -149,10 +135,11 @@ export const menuLinkStyle = {
   textDecoration: "none",
   fontSize: "18px",
   fontWeight: 700,
-  padding: "14px 16px",
+  padding: "16px 18px",
   borderRadius: "18px",
-  background: "rgba(232, 241, 239, 0.64)",
-  border: "1px solid rgba(216, 224, 210, 0.92)",
+  background: "rgba(255,255,255,0.68)",
+  border: "1px solid rgba(216, 224, 210, 0.86)",
+  boxShadow: "0 8px 20px rgba(47, 58, 52, 0.05)",
 };
 
 export const announcementBannerStyle = {
@@ -1395,13 +1382,6 @@ export const footerDotStyle = {
 export const footerLinkStyle = {
   color: "#7f8f82",
   textDecoration: "none",
-};
-
-export const footerLoginStyle = {
-  color: "#9aa79b",
-  textDecoration: "none",
-  opacity: 0.65,
-  fontSize: "12px",
 };
 
 export const legalContentStyle = {

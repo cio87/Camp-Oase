@@ -1,24 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { CART_UPDATED_EVENT, getCartItemCount } from "../utils/cart";
 import {
   brandTextStyle,
   hamburgerButtonStyle,
   headerBrandLinkStyle,
+  headerNavLinkStyle,
+  headerNavStyle,
   headerStyle,
   logoStyle,
   menuCloseButtonStyle,
   menuHeaderStyle,
   menuLinkStyle,
-  menuOverlayOpenStyle,
   menuOverlayStyle,
-  menuPanelOpenStyle,
   menuPanelStyle,
 } from "../styles";
+
+const DESKTOP_MEDIA_QUERY = "(min-width: 900px)";
 
 export default function PublicHeader() {
   const [cartCount, setCartCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const menuButtonRef = useRef(null);
+  const menuCloseButtonRef = useRef(null);
 
   useEffect(() => {
     function updateCartCount() {
@@ -36,18 +41,51 @@ export default function PublicHeader() {
   }, []);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia(DESKTOP_MEDIA_QUERY);
+
+    function updateDesktopState() {
+      const matchesDesktop = mediaQuery.matches;
+      setIsDesktop(matchesDesktop);
+
+      if (matchesDesktop) {
+        setMenuOpen(false);
+      }
+    }
+
+    updateDesktopState();
+    mediaQuery.addEventListener("change", updateDesktopState);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateDesktopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return undefined;
+    }
+
     function closeOnEscape(event) {
       if (event.key === "Escape") {
         setMenuOpen(false);
       }
     }
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", closeOnEscape);
+    window.setTimeout(() => menuCloseButtonRef.current?.focus(), 0);
 
     return () => {
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, []);
+  }, [menuOpen]);
+
+  function closeMenu() {
+    setMenuOpen(false);
+    window.setTimeout(() => menuButtonRef.current?.focus(), 0);
+  }
 
   const menuLinks = [
     { to: "/#produkte", label: "Produkte" },
@@ -66,61 +104,66 @@ export default function PublicHeader() {
         <strong style={brandTextStyle}>Camp Oase</strong>
       </Link>
 
-      <button
-        type="button"
-        style={hamburgerButtonStyle}
-        onClick={() => setMenuOpen(true)}
-        aria-label="Menü öffnen"
-        aria-expanded={menuOpen}
-      >
-        ☰
-      </button>
-
-      <div
-        style={{
-          ...menuOverlayStyle,
-          ...(menuOpen ? menuOverlayOpenStyle : {}),
-        }}
-        onClick={() => setMenuOpen(false)}
-        aria-hidden="true"
-      />
-
-      <aside
-        style={{
-          ...menuPanelStyle,
-          ...(menuOpen ? menuPanelOpenStyle : {}),
-        }}
-        aria-hidden={!menuOpen}
-      >
-        <div style={menuHeaderStyle}>
-          <strong style={brandTextStyle}>Menü</strong>
-          <button
-            type="button"
-            style={menuCloseButtonStyle}
-            onClick={() => setMenuOpen(false)}
-            aria-label="Menü schließen"
-          >
-            ×
-          </button>
-        </div>
-
-        <nav
-          style={{ display: "grid", gap: "10px", marginTop: "8px" }}
-          aria-label="Hauptnavigation"
-        >
+      {isDesktop ? (
+        <nav style={headerNavStyle} aria-label="Hauptnavigation">
           {menuLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              style={menuLinkStyle}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span>{link.label}</span>
-              <span aria-hidden="true">→</span>
+            <Link key={link.to} to={link.to} style={headerNavLinkStyle}>
+              {link.label}
             </Link>
           ))}
         </nav>
-      </aside>
+      ) : (
+        <button
+          ref={menuButtonRef}
+          type="button"
+          style={hamburgerButtonStyle}
+          onClick={() => setMenuOpen(true)}
+          aria-label="Menü öffnen"
+          aria-expanded={menuOpen}
+        >
+          ☰
+        </button>
+      )}
+
+      {menuOpen && !isDesktop && (
+        <div style={menuOverlayStyle} onMouseDown={closeMenu}>
+          <section
+            style={menuPanelStyle}
+            onMouseDown={(event) => event.stopPropagation()}
+            aria-label="Mobiles Hauptmenü"
+          >
+            <div style={menuHeaderStyle}>
+              <strong style={brandTextStyle}>Menü</strong>
+              <button
+                ref={menuCloseButtonRef}
+                type="button"
+                style={menuCloseButtonStyle}
+                onClick={closeMenu}
+                aria-label="Menü schließen"
+              >
+                ×
+              </button>
+            </div>
+
+            <nav
+              style={{ display: "grid", gap: "10px", marginTop: "10px" }}
+              aria-label="Hauptnavigation"
+            >
+              {menuLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  style={menuLinkStyle}
+                  onClick={closeMenu}
+                >
+                  <span>{link.label}</span>
+                  <span aria-hidden="true">→</span>
+                </Link>
+              ))}
+            </nav>
+          </section>
+        </div>
+      )}
     </header>
   );
 }
