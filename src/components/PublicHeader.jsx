@@ -3,14 +3,22 @@ import { Link } from "react-router-dom";
 import { CART_UPDATED_EVENT, getCartItemCount } from "../utils/cart";
 import {
   brandTextStyle,
-  headerNavLinkStyle,
-  headerNavStyle,
+  hamburgerButtonStyle,
+  headerBrandLinkStyle,
   headerStyle,
   logoStyle,
+  menuCloseButtonStyle,
+  menuHeaderStyle,
+  menuLinkStyle,
+  menuOverlayOpenStyle,
+  menuOverlayStyle,
+  menuPanelOpenStyle,
+  menuPanelStyle,
 } from "../styles";
 
 export default function PublicHeader() {
   const [cartCount, setCartCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     function updateCartCount() {
@@ -27,36 +35,92 @@ export default function PublicHeader() {
     };
   }, []);
 
+  useEffect(() => {
+    function closeOnEscape(event) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  const menuLinks = [
+    { to: "/#produkte", label: "Produkte" },
+    { to: "/ueber-uns", label: "Über uns" },
+    { to: "/kontakt", label: "Kontakt" },
+    {
+      to: "/warenkorb",
+      label: `Warenkorb${cartCount > 0 ? ` (${cartCount})` : ""}`,
+    },
+  ];
+
   return (
     <header style={headerStyle}>
-      <Link
-        to="/"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "14px",
-          color: "inherit",
-          textDecoration: "none",
-        }}
-      >
+      <Link to="/" style={headerBrandLinkStyle}>
         <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
         <strong style={brandTextStyle}>Camp Oase</strong>
       </Link>
 
-      <nav style={headerNavStyle} aria-label="Hauptnavigation">
-        <Link to="/#produkte" style={headerNavLinkStyle}>
-          Produkte
-        </Link>
-        <Link to="/ueber-uns" style={headerNavLinkStyle}>
-          Über uns
-        </Link>
-        <Link to="/kontakt" style={headerNavLinkStyle}>
-          Kontakt
-        </Link>
-        <Link to="/warenkorb" style={headerNavLinkStyle}>
-          Warenkorb{cartCount > 0 ? ` (${cartCount})` : ""}
-        </Link>
-      </nav>
+      <button
+        type="button"
+        style={hamburgerButtonStyle}
+        onClick={() => setMenuOpen(true)}
+        aria-label="Menü öffnen"
+        aria-expanded={menuOpen}
+      >
+        ☰
+      </button>
+
+      <div
+        style={{
+          ...menuOverlayStyle,
+          ...(menuOpen ? menuOverlayOpenStyle : {}),
+        }}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      <aside
+        style={{
+          ...menuPanelStyle,
+          ...(menuOpen ? menuPanelOpenStyle : {}),
+        }}
+        aria-hidden={!menuOpen}
+      >
+        <div style={menuHeaderStyle}>
+          <strong style={brandTextStyle}>Menü</strong>
+          <button
+            type="button"
+            style={menuCloseButtonStyle}
+            onClick={() => setMenuOpen(false)}
+            aria-label="Menü schließen"
+          >
+            ×
+          </button>
+        </div>
+
+        <nav
+          style={{ display: "grid", gap: "10px", marginTop: "8px" }}
+          aria-label="Hauptnavigation"
+        >
+          {menuLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              style={menuLinkStyle}
+              onClick={() => setMenuOpen(false)}
+            >
+              <span>{link.label}</span>
+              <span aria-hidden="true">→</span>
+            </Link>
+          ))}
+        </nav>
+      </aside>
     </header>
   );
 }

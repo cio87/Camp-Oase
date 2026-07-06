@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import {
   footerDotStyle,
   footerLinkStyle,
-  footerLoginStyle,
   footerStyle,
 } from "../styles";
 
@@ -28,11 +27,6 @@ export default function SiteFooter() {
         </span>
       ))}
 
-      <span style={footerDotStyle}>{"\u00b7"}</span>
-
-      <Link to="/admin" style={footerLoginStyle}>
-        Login
-      </Link>
     </footer>
   );
 }

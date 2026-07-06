@@ -56,6 +56,105 @@ export const headerNavLinkStyle = {
   background: "rgba(220,232,231,0.58)",
 };
 
+export const headerBrandLinkStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "14px",
+  color: "inherit",
+  textDecoration: "none",
+};
+
+export const hamburgerButtonStyle = {
+  width: "46px",
+  height: "46px",
+  borderRadius: "999px",
+  border: "1px solid #D8E0D2",
+  background: "rgba(255,255,255,0.82)",
+  color: "#2F3A34",
+  cursor: "pointer",
+  fontSize: "24px",
+  lineHeight: 1,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  boxShadow: "0 8px 22px rgba(47, 58, 52, 0.08)",
+};
+
+export const menuOverlayStyle = {
+  position: "fixed",
+  inset: 0,
+  zIndex: 9998,
+  background: "rgba(47, 58, 52, 0.28)",
+  backdropFilter: "blur(3px)",
+  opacity: 0,
+  pointerEvents: "none",
+  transition: "opacity 220ms ease",
+};
+
+export const menuOverlayOpenStyle = {
+  opacity: 1,
+  pointerEvents: "auto",
+};
+
+export const menuPanelStyle = {
+  position: "fixed",
+  top: "14px",
+  right: "14px",
+  bottom: "14px",
+  zIndex: 9999,
+  width: "min(360px, calc(100vw - 28px))",
+  background: "linear-gradient(145deg, #ffffff 0%, #F7F1E8 100%)",
+  border: "1px solid #D8E0D2",
+  borderRadius: "28px",
+  boxShadow: "0 24px 70px rgba(47, 58, 52, 0.22)",
+  padding: "22px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "18px",
+  transform: "translateX(calc(100% + 28px))",
+  transition: "transform 260ms ease",
+  pointerEvents: "none",
+};
+
+export const menuPanelOpenStyle = {
+  transform: "translateX(0)",
+  pointerEvents: "auto",
+};
+
+export const menuHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "14px",
+};
+
+export const menuCloseButtonStyle = {
+  width: "40px",
+  height: "40px",
+  borderRadius: "999px",
+  border: "1px solid #D8E0D2",
+  background: "#E8F1EF",
+  color: "#2F3A34",
+  cursor: "pointer",
+  fontSize: "24px",
+  lineHeight: 1,
+};
+
+export const menuLinkStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "12px",
+  color: "#2F3A34",
+  textDecoration: "none",
+  fontSize: "18px",
+  fontWeight: 700,
+  padding: "14px 16px",
+  borderRadius: "18px",
+  background: "rgba(232, 241, 239, 0.64)",
+  border: "1px solid rgba(216, 224, 210, 0.92)",
+};
+
 export const announcementBannerStyle = {
   maxWidth: "1120px",
   margin: "clamp(18px, 4vw, 30px) auto 0",
