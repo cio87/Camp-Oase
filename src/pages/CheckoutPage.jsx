@@ -44,6 +44,8 @@ const emptyCheckoutForm = {
   shippingZip: "",
   shippingCity: "",
   shippingCountry: "Deutschland",
+  acceptedTerms: false,
+  acceptedWithdrawal: false,
   message: "",
 };
 
@@ -101,6 +103,31 @@ const paymentPreparationTitleStyle = {
   display: "block",
   color: "#435749",
   marginBottom: "4px",
+};
+
+const legalBoxStyle = {
+  border: "1px solid #dbe4d4",
+  borderRadius: "18px",
+  background: "#fffdf8",
+  padding: "16px",
+  display: "grid",
+  gap: "10px",
+  color: "#4f5d50",
+  lineHeight: 1.55,
+};
+
+const legalCheckboxLabelStyle = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "10px",
+  fontWeight: "bold",
+  color: "#435749",
+};
+
+const legalLinkStyle = {
+  color: "#435749",
+  textDecoration: "underline",
+  textUnderlineOffset: "3px",
 };
 
 export default function CheckoutPage() {
@@ -174,6 +201,16 @@ export default function CheckoutPage() {
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
     ) {
       nextErrors.email = "Bitte gib eine gültige E-Mail-Adresse ein.";
+    }
+
+    if (!form.acceptedTerms) {
+      nextErrors.acceptedTerms =
+        "Bitte akzeptiere die AGB / Anfragebedingungen.";
+    }
+
+    if (!form.acceptedWithdrawal) {
+      nextErrors.acceptedWithdrawal =
+        "Bitte bestätige, dass du die Widerrufsbelehrung zur Kenntnis genommen hast.";
     }
 
     setErrors(nextErrors);
@@ -559,6 +596,58 @@ export default function CheckoutPage() {
                   onChange={(e) => updateField("message", e.target.value)}
                   style={{ ...inputStyle, minHeight: "130px" }}
                 />
+
+                <section style={legalBoxStyle}>
+                  <h3 style={{ margin: 0, color: "#435749" }}>Rechtliches</h3>
+
+                  <label style={legalCheckboxLabelStyle}>
+                    <input
+                      type="checkbox"
+                      checked={form.acceptedTerms}
+                      onChange={(e) => updateField("acceptedTerms", e.target.checked)}
+                      style={{ width: "18px", height: "18px", marginTop: "3px" }}
+                    />
+                    <span>
+                      Ich habe die{" "}
+                      <Link to="/agb" style={legalLinkStyle}>
+                        AGB / Anfragebedingungen
+                      </Link>{" "}
+                      gelesen und akzeptiere sie.
+                    </span>
+                  </label>
+                  {errors.acceptedTerms && (
+                    <p style={fieldErrorStyle}>{errors.acceptedTerms}</p>
+                  )}
+
+                  <label style={legalCheckboxLabelStyle}>
+                    <input
+                      type="checkbox"
+                      checked={form.acceptedWithdrawal}
+                      onChange={(e) =>
+                        updateField("acceptedWithdrawal", e.target.checked)
+                      }
+                      style={{ width: "18px", height: "18px", marginTop: "3px" }}
+                    />
+                    <span>
+                      Ich habe die{" "}
+                      <Link to="/widerruf" style={legalLinkStyle}>
+                        Widerrufsbelehrung
+                      </Link>{" "}
+                      gelesen und zur Kenntnis genommen.
+                    </span>
+                  </label>
+                  {errors.acceptedWithdrawal && (
+                    <p style={fieldErrorStyle}>{errors.acceptedWithdrawal}</p>
+                  )}
+
+                  <p style={{ margin: 0, color: "#637064" }}>
+                    Informationen zur Verarbeitung deiner Daten findest du in unserer{" "}
+                    <Link to="/datenschutz" style={legalLinkStyle}>
+                      Datenschutzerklärung
+                    </Link>
+                    .
+                  </p>
+                </section>
 
                 {!settings.payment_enabled && (
                   <p style={{ color: "#6d5a2f", lineHeight: "1.6" }}>
