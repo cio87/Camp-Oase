@@ -1384,7 +1384,7 @@ export default function AdminInquiries({
                         <br />
                         Leistungs-/Lieferdatum: {invoiceDateLabel}
                         <br />
-                        Referenz Anfrage-ID: {invoiceInquiry.id}
+                        Interne Referenz: {invoiceInquiry.id}
                       </p>
                     </div>
                   </section>
