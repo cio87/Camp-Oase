@@ -324,8 +324,10 @@ export default function AdminInquiries({
   setStatusFilter,
   onUpdateStatus,
   onDeleteInquiry,
+  onPrepareInvoice,
 }) {
   const [invoiceInquiry, setInvoiceInquiry] = useState(null);
+  const [preparingInvoiceId, setPreparingInvoiceId] = useState(null);
   const [replyInquiryId, setReplyInquiryId] = useState(null);
   const [replyDraft, setReplyDraft] = useState({
     to: "",
@@ -415,15 +417,35 @@ export default function AdminInquiries({
   }
 
   function getInvoiceDate(inquiry) {
-    return inquiry?.created_at ? new Date(inquiry.created_at) : new Date();
+    return inquiry?.invoice_created_at
+      ? new Date(inquiry.invoice_created_at)
+      : inquiry?.created_at
+        ? new Date(inquiry.created_at)
+        : new Date();
   }
 
   function getInvoiceNumber(inquiry) {
+    if (inquiry?.invoice_number) return inquiry.invoice_number;
+
     const year = getInvoiceDate(inquiry).getFullYear();
     const shortId = String(inquiry?.id || "ENTWURF").replace(/-/g, "").slice(0, 8);
+    return `ENTWURF-${year}-${shortId}`;
+  }
 
-    // Later, a real invoices table should store permanent, sequential invoice numbers.
-    return `CO-${year}-${shortId}`;
+  async function openInvoice(inquiry) {
+    setPreparingInvoiceId(inquiry.id);
+
+    try {
+      const preparedInquiry = onPrepareInvoice
+        ? await onPrepareInvoice(inquiry)
+        : inquiry;
+
+      if (preparedInquiry) {
+        setInvoiceInquiry(preparedInquiry);
+      }
+    } finally {
+      setPreparingInvoiceId(null);
+    }
   }
 
   function getInvoiceCustomer(inquiry) {
@@ -1153,10 +1175,13 @@ export default function AdminInquiries({
 
                     <button
                       type="button"
-                      onClick={() => setInvoiceInquiry(inquiry)}
+                      onClick={() => openInvoice(inquiry)}
+                      disabled={preparingInvoiceId === inquiry.id}
                       style={compactEditButtonStyle}
                     >
-                      Rechnung anzeigen
+                      {preparingInvoiceId === inquiry.id
+                        ? "Rechnung wird vorbereitet..."
+                        : "Rechnung erstellen/anzeigen"}
                     </button>
 
                     <button
@@ -1347,6 +1372,12 @@ export default function AdminInquiries({
                         Rechnungsdaten
                       </h2>
                       <p style={{ margin: 0 }}>
+                        Kundennummer:{" "}
+                        <strong>{invoiceInquiry.customer_number || "Noch offen"}</strong>
+                        <br />
+                        Bestellnummer:{" "}
+                        <strong>{invoiceInquiry.order_number || "Noch offen"}</strong>
+                        <br />
                         Rechnungsnummer: <strong>{invoiceNumber}</strong>
                         <br />
                         Rechnungsdatum: {invoiceDateLabel}

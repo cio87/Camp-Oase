@@ -56,6 +56,13 @@ export default function AdminPage() {
   });
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaveStatus, setSettingsSaveStatus] = useState("");
+  const [invoiceSettings, setInvoiceSettings] = useState({
+    id: "main",
+    invoice_mode: "test",
+  });
+  const [numberSequences, setNumberSequences] = useState([]);
+  const [numberSettingsSaving, setNumberSettingsSaving] = useState(false);
+  const [numberSettingsStatus, setNumberSettingsStatus] = useState("");
 
   usePageSeo("Admin | Camp Oase", "Adminbereich von Camp Oase.");
 
@@ -69,6 +76,7 @@ export default function AdminPage() {
         loadInquiries();
         loadContactMessages();
         loadSiteSettings();
+        loadInvoiceNumberSettings();
       }
     });
 
@@ -81,6 +89,7 @@ export default function AdminPage() {
         loadInquiries();
         loadContactMessages();
         loadSiteSettings();
+        loadInvoiceNumberSettings();
       }
     });
 
@@ -124,6 +133,205 @@ export default function AdminPage() {
         maintenance_text: data.maintenance_text || "",
       });
     }
+  }
+
+  async function loadInvoiceNumberSettings() {
+    const { data: settingsData, error: settingsError } = await supabase
+      .from("invoice_settings")
+      .select("*")
+      .eq("id", "main")
+      .maybeSingle();
+
+    if (settingsError) {
+      console.log(settingsError);
+    } else if (settingsData) {
+      setInvoiceSettings({
+        id: "main",
+        invoice_mode: settingsData.invoice_mode || "test",
+      });
+    }
+
+    const { data: sequenceData, error: sequenceError } = await supabase
+      .from("number_sequences")
+      .select("*")
+      .in("id", [
+        "test_invoice",
+        "live_invoice",
+        "test_customer",
+        "live_customer",
+        "test_order",
+        "live_order",
+      ]);
+
+    if (sequenceError) {
+      console.log(sequenceError);
+      return;
+    }
+
+    setNumberSequences(sequenceData || []);
+  }
+
+  function getSequencePrefix(sequenceId) {
+    const fallbacks = {
+      test_invoice: "TEST-R",
+      live_invoice: "CO-R",
+      test_customer: "TEST-KD",
+      live_customer: "KD",
+      test_order: "TEST-B",
+      live_order: "CO-B",
+    };
+    const sequence = numberSequences.find((item) => item.id === sequenceId);
+
+    return sequence?.prefix || fallbacks[sequenceId] || "";
+  }
+
+  function formatSequenceNumber(sequenceId, nextNumber, year = new Date().getFullYear()) {
+    const prefix = getSequencePrefix(sequenceId);
+    const number = Number(nextNumber || 1);
+
+    return `${prefix}-${year}-${String(number).padStart(4, "0")}`;
+  }
+
+  function getNextSequenceLabel(sequenceId) {
+    const sequence = numberSequences.find((item) => item.id === sequenceId);
+
+    return formatSequenceNumber(sequenceId, sequence?.next_number || 1);
+  }
+
+  async function allocateSequenceNumber(sequenceId, year) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const { data: sequence, error: loadError } = await supabase
+        .from("number_sequences")
+        .select("*")
+        .eq("id", sequenceId)
+        .maybeSingle();
+
+      if (loadError || !sequence) {
+        throw new Error("Nummernkreis konnte nicht geladen werden.");
+      }
+
+      const currentNumber = Number(sequence.next_number || 1);
+      const formattedNumber = `${sequence.prefix || getSequencePrefix(sequenceId)}-${year}-${String(
+        currentNumber
+      ).padStart(4, "0")}`;
+
+      const { data: updatedRows, error: updateError } = await supabase
+        .from("number_sequences")
+        .update({
+          next_number: currentNumber + 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", sequenceId)
+        .eq("next_number", currentNumber)
+        .select("id");
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      if ((updatedRows || []).length > 0) {
+        return formattedNumber;
+      }
+    }
+
+    throw new Error("Nummernkreis wurde parallel geändert. Bitte erneut versuchen.");
+  }
+
+  async function prepareInvoiceNumbers(inquiry) {
+    const existingInquiry = inquiries.find((item) => item.id === inquiry.id) || inquiry;
+    const invoiceDate = existingInquiry.invoice_created_at
+      ? new Date(existingInquiry.invoice_created_at)
+      : new Date();
+    const year = invoiceDate.getFullYear();
+    const mode = invoiceSettings.invoice_mode === "live" ? "live" : "test";
+    const updates = {};
+
+    try {
+      if (!existingInquiry.invoice_number) {
+        updates.invoice_number = await allocateSequenceNumber(`${mode}_invoice`, year);
+      }
+
+      if (!existingInquiry.customer_number) {
+        updates.customer_number = await allocateSequenceNumber(`${mode}_customer`, year);
+      }
+
+      if (!existingInquiry.order_number) {
+        updates.order_number = await allocateSequenceNumber(`${mode}_order`, year);
+      }
+
+      if (!existingInquiry.invoice_created_at) {
+        updates.invoice_created_at = new Date().toISOString();
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return existingInquiry;
+      }
+
+      const { data, error } = await supabase
+        .from("inquiries")
+        .update(updates)
+        .eq("id", existingInquiry.id)
+        .select("*")
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      await loadInquiries();
+      await loadInvoiceNumberSettings();
+      return data;
+    } catch (error) {
+      alert("Rechnungsnummern konnten nicht erstellt werden: " + error.message);
+      await loadInvoiceNumberSettings();
+      return null;
+    }
+  }
+
+  async function updateInvoiceMode(mode) {
+    const cleanMode = mode === "live" ? "live" : "test";
+
+    setNumberSettingsSaving(true);
+    setNumberSettingsStatus("");
+
+    const { error } = await supabase.from("invoice_settings").upsert({
+      id: "main",
+      invoice_mode: cleanMode,
+      updated_at: new Date().toISOString(),
+    });
+
+    setNumberSettingsSaving(false);
+
+    if (error) {
+      alert("Rechnungsmodus konnte nicht gespeichert werden: " + error.message);
+      return;
+    }
+
+    setNumberSettingsStatus("mode-success");
+    await loadInvoiceNumberSettings();
+  }
+
+  async function resetTestNumberSequences() {
+    const ok = confirm("Test-Zähler wirklich auf 1 zurücksetzen?");
+    if (!ok) return;
+
+    setNumberSettingsSaving(true);
+    setNumberSettingsStatus("");
+
+    const { error } = await supabase
+      .from("number_sequences")
+      .update({ next_number: 1, updated_at: new Date().toISOString() })
+      .in("id", ["test_invoice", "test_customer", "test_order"]);
+
+    setNumberSettingsSaving(false);
+
+    if (error) {
+      alert("Test-Zähler konnten nicht zurückgesetzt werden: " + error.message);
+      return;
+    }
+
+    setNumberSettingsStatus("reset-success");
+    await loadInvoiceNumberSettings();
   }
 
   async function saveSiteSettings(e) {
@@ -654,6 +862,7 @@ export default function AdminPage() {
                 setStatusFilter={setInquiryStatusFilter}
                 onUpdateStatus={updateInquiryStatus}
                 onDeleteInquiry={deleteInquiry}
+                onPrepareInvoice={prepareInvoiceNumbers}
               />
             )}
 
@@ -672,6 +881,13 @@ export default function AdminPage() {
                 saving={settingsSaving}
                 saveStatus={settingsSaveStatus}
                 onSave={saveSiteSettings}
+                invoiceSettings={invoiceSettings}
+                numberSequences={numberSequences}
+                numberSettingsSaving={numberSettingsSaving}
+                numberSettingsStatus={numberSettingsStatus}
+                getNextSequenceLabel={getNextSequenceLabel}
+                onInvoiceModeChange={updateInvoiceMode}
+                onResetTestSequences={resetTestNumberSequences}
               />
             )}
           </>

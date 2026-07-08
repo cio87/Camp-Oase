@@ -14,7 +14,17 @@ export default function AdminSiteSettings({
   saving,
   saveStatus,
   onSave,
+  invoiceSettings,
+  numberSettingsSaving,
+  numberSettingsStatus,
+  getNextSequenceLabel,
+  onInvoiceModeChange,
+  onResetTestSequences,
 }) {
+  const invoiceMode = invoiceSettings?.invoice_mode === "live" ? "live" : "test";
+  const sequenceLabel = (id) =>
+    getNextSequenceLabel ? getNextSequenceLabel(id) : "Noch nicht geladen";
+
   return (
     <form onSubmit={onSave} style={formStyle}>
       <h2>Wartungsmodus</h2>
@@ -169,6 +179,90 @@ export default function AdminSiteSettings({
         }
         style={{ ...inputStyle, minHeight: "90px" }}
       />
+
+      <hr style={{ margin: "28px 0", border: "none", borderTop: "1px solid #e8dfcf" }} />
+
+      <h2>Rechnungsnummern</h2>
+      <p style={adminHintStyle}>
+        Hier steuerst du, ob neue Rechnungen Test- oder Live-Nummern erhalten.
+        Live-Zähler können bewusst nicht zurückgesetzt werden.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gap: "12px",
+          margin: "16px 0",
+          padding: "16px",
+          borderRadius: "16px",
+          border: "1px solid #e8dfcf",
+          background: "#fffdf8",
+        }}
+      >
+        <strong>Aktueller Modus: {invoiceMode === "live" ? "Live" : "Test"}</strong>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "10px",
+          }}
+        >
+          {[
+            ["Nächste Test-Rechnungsnummer", "test_invoice"],
+            ["Nächste Live-Rechnungsnummer", "live_invoice"],
+            ["Nächste Test-Kundennummer", "test_customer"],
+            ["Nächste Live-Kundennummer", "live_customer"],
+            ["Nächste Test-Bestellnummer", "test_order"],
+            ["Nächste Live-Bestellnummer", "live_order"],
+          ].map(([label, id]) => (
+            <div
+              key={id}
+              style={{
+                border: "1px solid #edf2e8",
+                borderRadius: "12px",
+                padding: "10px 12px",
+                background: "#f8f2e6",
+              }}
+            >
+              <small style={{ display: "block", color: "#637064" }}>{label}</small>
+              <strong>{sequenceLabel(id)}</strong>
+            </div>
+          ))}
+        </div>
+
+        <label style={adminExtraLabelStyle}>Modus für neue Rechnungen</label>
+        <select
+          value={invoiceMode}
+          onChange={(e) => onInvoiceModeChange?.(e.target.value)}
+          disabled={numberSettingsSaving}
+          style={inputStyle}
+        >
+          <option value="test">Testmodus</option>
+          <option value="live">Livemodus</option>
+        </select>
+
+        <button
+          type="button"
+          onClick={onResetTestSequences}
+          disabled={numberSettingsSaving}
+          style={{
+            ...buttonStyle,
+            background: "#f7e7e1",
+            color: "#8a4d32",
+          }}
+        >
+          {numberSettingsSaving ? "Wird gespeichert..." : "Test-Zähler zurücksetzen"}
+        </button>
+
+        {numberSettingsStatus === "mode-success" && (
+          <div style={successBoxStyle}>Rechnungsmodus gespeichert.</div>
+        )}
+
+        {numberSettingsStatus === "reset-success" && (
+          <div style={successBoxStyle}>Test-Zähler wurden zurückgesetzt.</div>
+        )}
+      </div>
     </form>
   );
 }
