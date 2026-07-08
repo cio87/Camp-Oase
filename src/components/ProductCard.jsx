@@ -65,7 +65,15 @@ export default function ProductCard({ product }) {
           <span style={productAvailabilityBadgeStyle}>{availabilityBadge}</span>
         )}
 
-        <img src={product.image} alt={product.title} style={productImageStyle} />
+        <img
+          src={product.image}
+          alt={
+            product.title
+              ? `${product.title} von Camp Oase`
+              : "Camp Oase Produktbild"
+          }
+          style={productImageStyle}
+        />
 
         <div style={productCardContentStyle}>
           <div style={productCardMetaRowStyle}>

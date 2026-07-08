@@ -104,7 +104,7 @@ export default function PublicHeader() {
   return (
     <header style={headerStyle}>
       <Link to="/" style={headerBrandLinkStyle}>
-        <img src="/logo.png" alt="Camp Oase Logo" style={logoStyle} />
+        <img src="/logo.png" alt="Camp Oase" style={logoStyle} />
         <strong style={brandTextStyle}>Camp Oase</strong>
       </Link>
 

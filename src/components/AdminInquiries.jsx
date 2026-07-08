@@ -964,7 +964,7 @@ export default function AdminInquiries({
                     <div>
                       <img
                         src="/logo.png"
-                        alt="Camp Oase Logo"
+                        alt="Camp Oase"
                         style={{
                           width: "82px",
                           maxWidth: "32vw",

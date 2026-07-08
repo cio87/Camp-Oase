@@ -432,7 +432,11 @@ export default function ProductDetailPage() {
               >
                 <img
                   src={displayImage}
-                  alt={product.title}
+                  alt={
+                    product.title
+                      ? `${product.title} Produktbild`
+                      : "Camp Oase Produktbild"
+                  }
                   style={detailImageStyle}
                 />
                 <span
@@ -486,7 +490,11 @@ export default function ProductDetailPage() {
                       >
                         <img
                           src={image}
-                          alt={`${product.title} Ansicht ${index + 1}`}
+                          alt={
+                            product.title
+                              ? `${product.title} Ansicht ${index + 1}`
+                              : `Camp Oase Produktbild Ansicht ${index + 1}`
+                          }
                           style={{
                             width: "100%",
                             height: "100%",
