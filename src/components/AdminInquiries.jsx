@@ -116,6 +116,34 @@ const originalMessageDetailsStyle = {
   fontSize: "13px",
 };
 
+const checkoutDataBoxStyle = {
+  ...adminSelectedExtrasStyle,
+  display: "grid",
+  gap: "12px",
+  marginTop: "16px",
+};
+
+const checkoutDataGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+  gap: "10px",
+};
+
+const checkoutDataPanelStyle = {
+  border: "1px solid #e7dfd0",
+  borderRadius: "14px",
+  background: "#fffdf8",
+  padding: "11px 12px",
+  color: "#4f5d50",
+  lineHeight: 1.5,
+};
+
+const checkoutDataTitleStyle = {
+  display: "block",
+  color: "#435749",
+  marginBottom: "6px",
+};
+
 const replyBoxStyle = {
   ...inquiryMessageStyle,
   display: "grid",
@@ -255,6 +283,57 @@ function getCustomerMessageView(inquiry, hasCartPositions) {
     customerMessage,
     showOriginalMessage: Boolean(originalMessage),
     originalMessage,
+  };
+}
+
+function normalizeAddressForCompare(address) {
+  if (!address) return "";
+
+  return [
+    address.street,
+    address.postal_code || address.zip,
+    address.city,
+    address.country,
+  ]
+    .map((part) => String(part || "").trim().toLowerCase())
+    .join("|");
+}
+
+function formatAddressLine(address) {
+  const postalCode = String(address?.postal_code || address?.zip || "").trim();
+  const city = String(address?.city || "").trim();
+
+  return [postalCode, city].filter(Boolean).join(" ");
+}
+
+function getCheckoutDetails(selectedExtras = {}) {
+  const customer = selectedExtras.customer || null;
+  const billingAddress = selectedExtras.billing_address || null;
+  const shippingAddress = selectedExtras.shipping_address || null;
+
+  if (!customer && !billingAddress && !shippingAddress) return null;
+
+  const firstName = customer?.first_name || selectedExtras.customer_first_name || "";
+  const lastName = customer?.last_name || selectedExtras.customer_last_name || "";
+  const name =
+    customer?.name || [firstName, lastName].filter(Boolean).join(" ").trim();
+  const email = customer?.email || "";
+  const phone = customer?.phone || selectedExtras.customer_phone || "";
+  const effectiveBillingAddress = billingAddress || shippingAddress || {};
+  const effectiveShippingAddress = shippingAddress || billingAddress || {};
+  const shippingMatchesBilling =
+    normalizeAddressForCompare(effectiveBillingAddress) ===
+    normalizeAddressForCompare(effectiveShippingAddress);
+
+  return {
+    customer: {
+      name,
+      email,
+      phone,
+    },
+    billingAddress: effectiveBillingAddress,
+    shippingAddress: effectiveShippingAddress,
+    shippingMatchesBilling,
   };
 }
 
@@ -831,6 +910,7 @@ export default function AdminInquiries({
               inquiry,
               cartPositions.length > 0
             );
+            const checkoutDetails = getCheckoutDetails(inquiry.selected_extras);
 
             return (
               <div
@@ -1080,6 +1160,49 @@ export default function AdminInquiries({
                     </div>
                   )}
 
+
+                  {checkoutDetails && (
+                    <div style={checkoutDataBoxStyle}>
+                      <strong>Checkout-Kundendaten</strong>
+
+                      <div style={checkoutDataGridStyle}>
+                        <div style={checkoutDataPanelStyle}>
+                          <strong style={checkoutDataTitleStyle}>Kundendaten</strong>
+                          <div>Name: {checkoutDetails.customer.name || inquiry.name}</div>
+                          <div>E-Mail: {checkoutDetails.customer.email || inquiry.email}</div>
+                          <div>
+                            Telefon: {checkoutDetails.customer.phone || "Nicht angegeben"}
+                          </div>
+                        </div>
+
+                        <div style={checkoutDataPanelStyle}>
+                          <strong style={checkoutDataTitleStyle}>Rechnungsadresse</strong>
+                          <div>{checkoutDetails.billingAddress.street || "Keine Straße angegeben"}</div>
+                          <div>
+                            {formatAddressLine(checkoutDetails.billingAddress) ||
+                              "Keine PLZ/Ort angegeben"}
+                          </div>
+                          <div>{checkoutDetails.billingAddress.country || "Kein Land angegeben"}</div>
+                        </div>
+
+                        <div style={checkoutDataPanelStyle}>
+                          <strong style={checkoutDataTitleStyle}>Lieferadresse</strong>
+                          {checkoutDetails.shippingMatchesBilling ? (
+                            <div>Entspricht der Rechnungsadresse</div>
+                          ) : (
+                            <>
+                              <div>{checkoutDetails.shippingAddress.street || "Keine Straße angegeben"}</div>
+                              <div>
+                                {formatAddressLine(checkoutDetails.shippingAddress) ||
+                                  "Keine PLZ/Ort angegeben"}
+                              </div>
+                              <div>{checkoutDetails.shippingAddress.country || "Kein Land angegeben"}</div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div style={customerMessageBoxStyle}>
                     <strong>Kundennachricht</strong>
                     <p style={customerMessageTextStyle}>

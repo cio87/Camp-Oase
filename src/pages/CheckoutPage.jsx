@@ -39,6 +39,11 @@ const emptyCheckoutForm = {
   street: "",
   zip: "",
   city: "",
+  useDifferentShippingAddress: false,
+  shippingStreet: "",
+  shippingZip: "",
+  shippingCity: "",
+  shippingCountry: "Deutschland",
   message: "",
 };
 
@@ -49,6 +54,13 @@ const fieldLabels = {
   street: "Bitte gib Straße und Hausnummer ein.",
   zip: "Bitte gib deine PLZ ein.",
   city: "Bitte gib deinen Ort ein.",
+};
+
+const shippingFieldLabels = {
+  shippingStreet: "Bitte gib Straße und Hausnummer der Lieferadresse ein.",
+  shippingZip: "Bitte gib die PLZ der Lieferadresse ein.",
+  shippingCity: "Bitte gib den Ort der Lieferadresse ein.",
+  shippingCountry: "Bitte gib das Land der Lieferadresse ein.",
 };
 
 const formGridStyle = {
@@ -149,6 +161,14 @@ export default function CheckoutPage() {
       }
     });
 
+    if (form.useDifferentShippingAddress) {
+      Object.entries(shippingFieldLabels).forEach(([field, message]) => {
+        if (!String(form[field] || "").trim()) {
+          nextErrors[field] = message;
+        }
+      });
+    }
+
     if (
       form.email.trim() &&
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
@@ -168,7 +188,10 @@ export default function CheckoutPage() {
       `Nachname: ${form.lastName}`,
       `E-Mail: ${form.email}`,
       form.phone ? `Telefon: ${form.phone}` : "",
-      `Adresse: ${form.street}, ${form.zip} ${form.city}`,
+      `Rechnungsadresse: ${form.street}, ${form.zip} ${form.city}`,
+      form.useDifferentShippingAddress
+        ? `Lieferadresse: ${form.shippingStreet}, ${form.shippingZip} ${form.shippingCity}, ${form.shippingCountry}`
+        : "Lieferadresse: entspricht der Rechnungsadresse",
       form.message ? `Nachricht: ${form.message}` : "",
       "",
     ].filter(Boolean);
@@ -201,12 +224,20 @@ export default function CheckoutPage() {
     const postalCode = form.zip.trim();
     const city = form.city.trim();
     const country = "Deutschland";
-    const address = {
+    const billingAddress = {
       street,
       postal_code: postalCode,
       city,
       country,
     };
+    const shippingAddress = form.useDifferentShippingAddress
+      ? {
+          street: form.shippingStreet.trim(),
+          postal_code: form.shippingZip.trim(),
+          city: form.shippingCity.trim(),
+          country: form.shippingCountry.trim(),
+        }
+      : billingAddress;
 
     const { error } = await supabase.from("inquiries").insert([
       {
@@ -224,8 +255,8 @@ export default function CheckoutPage() {
             email,
             phone,
           },
-          billing_address: address,
-          shipping_address: address,
+          billing_address: billingAddress,
+          shipping_address: shippingAddress,
         },
         estimated_total: subtotalLabel,
         status: "offen",
@@ -480,6 +511,45 @@ export default function CheckoutPage() {
                   {renderInput("zip", "PLZ", { required: true })}
                   {renderInput("city", "Ort", { required: true })}
                 </div>
+
+                <label
+                  style={{
+                    ...labelStyle,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    marginTop: "14px",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.useDifferentShippingAddress}
+                    onChange={(e) =>
+                      updateField("useDifferentShippingAddress", e.target.checked)
+                    }
+                    style={{ width: "18px", height: "18px" }}
+                  />
+                  Abweichende Lieferadresse angeben
+                </label>
+
+                {form.useDifferentShippingAddress && (
+                  <div style={{ display: "grid", gap: "12px" }}>
+                    <h3 style={{ margin: "12px 0 0", color: "#435749" }}>
+                      Abweichende Lieferadresse
+                    </h3>
+
+                    {renderInput("shippingStreet", "Straße und Hausnummer", {
+                      required: true,
+                    })}
+
+                    <div style={formGridStyle}>
+                      {renderInput("shippingZip", "PLZ", { required: true })}
+                      {renderInput("shippingCity", "Ort", { required: true })}
+                    </div>
+
+                    {renderInput("shippingCountry", "Land", { required: true })}
+                  </div>
+                )}
 
                 <label style={labelStyle}>
                   Nachricht / Personalisierungswunsch optional
