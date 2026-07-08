@@ -31,9 +31,18 @@ function buildCustomerText(message) {
     ? withoutContactFooter
     : [withoutContactFooter, "", "Viele Grüße", "Camp Oase"].join("\n");
 
-  return [signedMessage, "", "service@camp-oase.de", "www.camp-oase.de"].join(
-    "\n"
-  );
+  return signedMessage;
+}
+
+function buildPlainTextMail(messageText) {
+  return [
+    messageText,
+    "",
+    "--",
+    "Camp Oase",
+    "service@camp-oase.de",
+    "www.camp-oase.de",
+  ].join("\n");
 }
 
 function buildCustomerHtml(text) {
@@ -190,7 +199,7 @@ export default async function handler(request, response) {
       to: cleanTo,
       replyTo: replyAddress,
       subject: cleanSubject,
-      text: customerText,
+      text: buildPlainTextMail(customerText),
       html: buildCustomerHtml(customerText),
     });
 
