@@ -8,6 +8,7 @@ import { supabase } from "../supabaseClient";
 import { getProductBadgeValues } from "../utils/productBadges";
 import { getProductVariants, serializeProductVariant } from "../utils/productVariants";
 import { sortProductsByDisplayOrder } from "../utils/products";
+import { createSlug } from "../utils/slug";
 import {
   clampDiscountPercent,
   getEmptyProduct,
@@ -326,6 +327,7 @@ export default function AdminPage() {
     const productPayload = {
       title: newProduct.title,
       short_description: String(newProduct.short_description || "").trim(),
+      slug: createSlug(newProduct.slug || newProduct.title),
       description: newProduct.description,
       price: newProduct.price,
       image: imageUrl,
@@ -486,6 +488,7 @@ export default function AdminPage() {
     setNewProduct({
       title: product.title,
       short_description: product.short_description || "",
+      slug: product.slug || "",
       description: product.description,
       price: product.price,
       image: product.image,

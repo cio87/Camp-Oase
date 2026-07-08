@@ -10,6 +10,7 @@ import {
   getProductExtras,
   hasActiveDiscount,
 } from "../utils/price";
+import { getProductPath } from "../utils/slug";
 import {
   priceRowStyle,
   productActionPriceStyle,
@@ -38,7 +39,7 @@ export default function ProductCard({ product }) {
 
   return (
     <Link
-      to={`/produkt/${product.id}`}
+      to={getProductPath(product)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{

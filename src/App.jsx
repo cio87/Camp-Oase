@@ -44,7 +44,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={publicPage(<HomePage />)} />
       <Route path="/admin" element={lazyPage(<AdminPage />)} />
-      <Route path="/produkt/:id" element={publicPage(<ProductDetailPage />)} />
+      <Route path="/produkt/:idOrSlug" element={publicPage(<ProductDetailPage />)} />
       <Route path="/ueber-uns" element={publicPage(<AboutPage />)} />
       <Route path="/kontakt" element={publicPage(<ContactPage />)} />
       <Route path="/warenkorb" element={publicPage(<CartPage />)} />

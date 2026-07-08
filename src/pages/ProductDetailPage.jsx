@@ -17,6 +17,7 @@ import {
   getVariantPriceAdjustment,
 } from "../utils/productVariants";
 import { sortProductsByDisplayOrder } from "../utils/products";
+import { createSlug } from "../utils/slug";
 import {
   buildSelectedExtras,
   calculateEstimatedTotal,
@@ -156,6 +157,18 @@ function buildProductJsonLd(product) {
   };
 }
 
+function findProductByIdOrSlug(products, idOrSlug) {
+  const value = decodeURIComponent(String(idOrSlug || "")).trim();
+
+  if (/^\d+$/.test(value)) {
+    return products.find((item) => String(item.id) === value);
+  }
+
+  const slugValue = createSlug(value);
+
+  return products.find((item) => createSlug(item.slug) === slugValue);
+}
+
 export default function ProductDetailPage() {
   const [products, setProducts] = useState([]);
   const [inquiryProduct, setInquiryProduct] = useState(null);
@@ -175,7 +188,7 @@ export default function ProductDetailPage() {
   const [lightboxType, setLightboxType] = useState("product");
   const [brokenPartnerImages, setBrokenPartnerImages] = useState({});
   const [openPartnerExtraIndex, setOpenPartnerExtraIndex] = useState(null);
-  const { id } = useParams();
+  const { idOrSlug } = useParams();
 
   useEffect(() => {
     loadProducts();
@@ -191,10 +204,10 @@ export default function ProductDetailPage() {
     setLightboxType("product");
     setBrokenPartnerImages({});
     setOpenPartnerExtraIndex(null);
-  }, [id]);
+  }, [idOrSlug]);
 
   useEffect(() => {
-    const currentProduct = products.find((item) => String(item.id) === id);
+    const currentProduct = findProductByIdOrSlug(products, idOrSlug);
     const activeVariants = getProductVariants(currentProduct, {
       onlyEnabled: true,
     });
@@ -208,7 +221,7 @@ export default function ProductDetailPage() {
       setSelectedVariantId(activeVariants[0].id);
       setSelectedImage(activeVariants[0].image_url || "");
     }
-  }, [products, id, selectedVariantId]);
+  }, [products, idOrSlug, selectedVariantId]);
 
   useEffect(() => {
     function closeLightboxOnEscape(event) {
@@ -380,7 +393,7 @@ export default function ProductDetailPage() {
     }, 2200);
   }
 
-  const product = products.find((item) => String(item.id) === id);
+  const product = findProductByIdOrSlug(products, idOrSlug);
   const variantSelectId = product ? `variant-select-${product.id}` : undefined;
   const productIntro = getProductIntro(product);
   const shortDescriptionMatchesLongDescription =

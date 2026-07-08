@@ -4,6 +4,7 @@ export function getEmptyProduct() {
   return {
     title: "",
     short_description: "",
+    slug: "",
     description: "",
     price: "",
     image: "",

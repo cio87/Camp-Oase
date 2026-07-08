@@ -256,6 +256,18 @@ export default function AdminProducts({
           style={compactInputStyle}
         />
 
+        <label style={adminExtraLabelStyle}>URL-Slug</label>
+        <input
+          placeholder="z. B. schluesselanhaenger-holz"
+          value={newProduct.slug || ""}
+          onChange={(e) => setNewProduct({ ...newProduct, slug: e.target.value })}
+          style={compactInputStyle}
+        />
+        <p style={compactHintStyle}>
+          Für sprechende Produkt-URLs, z. B. schluesselanhaenger-holz. Wird in
+          der Produkt-URL verwendet.
+        </p>
+
         <label style={adminExtraLabelStyle}>
           Kurzbeschreibung / Verkaufseinstieg
         </label>
