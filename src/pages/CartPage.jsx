@@ -5,7 +5,6 @@ import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
 import { supabase } from "../supabaseClient";
 import {
-  buildCartMessage,
   buildCartSelectedExtras,
   clearCart,
   getCartItems,
@@ -78,8 +77,6 @@ export default function CartPage() {
   }
 
   function openCartInquiry() {
-    const message = buildCartMessage(items, subtotalLabel);
-
     setInquiryStatus("");
     setInquiryProduct({
       title: "Warenkorbanfrage",
@@ -89,7 +86,7 @@ export default function CartPage() {
     });
     setInquiryForm({
       ...getEmptyInquiryForm(),
-      message,
+      message: "",
     });
   }
 
@@ -349,6 +346,8 @@ export default function CartPage() {
           onClose={closeInquiry}
           onSubmit={submitCartInquiry}
           inquiryMode="question"
+          messageRequired={false}
+          messagePlaceholder="Optional: Hast du noch Wünsche, Fragen oder Personalisierungsangaben?"
           summaryContent={
             <div style={extrasBoxStyle}>
               <h3 style={{ marginTop: 0, color: "#435749" }}>

@@ -40,6 +40,8 @@ export default function InquiryModal({
   inquiryMode = "question",
   summaryContent = null,
   submitButtonText = "Frage absenden",
+  messageRequired = true,
+  messagePlaceholder = "Was möchtest du wissen?",
 }) {
   const customExtras = getProductExtras(product);
   const showSelectedExtrasSummary = inquiryMode === "selection" && extrasLocked;
@@ -145,8 +147,8 @@ export default function InquiryModal({
 
           <label style={labelStyle}>Deine Nachricht</label>
           <textarea
-            required
-            placeholder="Was möchtest du wissen?"
+            required={messageRequired}
+            placeholder={messagePlaceholder}
             value={form.message}
             onChange={(e) => setForm({ ...form, message: e.target.value })}
             style={{ ...inputStyle, minHeight: "170px", lineHeight: "1.6" }}

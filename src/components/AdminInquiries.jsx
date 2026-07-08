@@ -94,6 +94,86 @@ const requestExtraRowStyle = {
   color: "#637064",
 };
 
+const customerMessageBoxStyle = {
+  ...inquiryMessageStyle,
+  display: "grid",
+  gap: "8px",
+  marginTop: "16px",
+  whiteSpace: "normal",
+};
+
+const customerMessageTextStyle = {
+  margin: 0,
+  whiteSpace: "pre-wrap",
+  color: "#4f5d50",
+  lineHeight: 1.55,
+};
+
+const originalMessageDetailsStyle = {
+  marginTop: "4px",
+  color: "#637064",
+  fontSize: "13px",
+};
+
+function cleanGeneratedCartMessageTail(value) {
+  return String(value || "")
+    .replace(/\n*\s*Hinweis:\s*Diese Anfrage wurde[\s\S]*$/i, "")
+    .trim();
+}
+
+function hasGeneratedCartSummary(value) {
+  const message = String(value || "");
+
+  return (
+    message.includes("ich möchte meinen Warenkorb unverbindlich anfragen:") ||
+    message.includes("Voraussichtlicher Gesamtbetrag:") ||
+    (message.includes("Meine Nachricht dazu:") &&
+      message.includes("Basispreis:") &&
+      message.includes("Menge:"))
+  );
+}
+
+function getCustomerMessageView(inquiry, hasCartPositions) {
+  const originalMessage = String(inquiry?.message || "").trim();
+
+  if (!hasCartPositions) {
+    return {
+      customerMessage: originalMessage,
+      showOriginalMessage: false,
+      originalMessage,
+    };
+  }
+
+  if (!hasGeneratedCartSummary(originalMessage)) {
+    return {
+      customerMessage: originalMessage,
+      showOriginalMessage: false,
+      originalMessage,
+    };
+  }
+
+  const checkoutMessageMatch = originalMessage.match(/^Nachricht:\s*(.+)$/im);
+  const cartMessageMarker = "Meine Nachricht dazu:";
+  const markerIndex = originalMessage.indexOf(cartMessageMarker);
+  const messageAfterCartSummary =
+    markerIndex >= 0
+      ? cleanGeneratedCartMessageTail(
+          originalMessage.slice(markerIndex + cartMessageMarker.length)
+        )
+      : "";
+  const customerMessage = (
+    messageAfterCartSummary ||
+    checkoutMessageMatch?.[1] ||
+    ""
+  ).trim();
+
+  return {
+    customerMessage,
+    showOriginalMessage: Boolean(originalMessage),
+    originalMessage,
+  };
+}
+
 export default function AdminInquiries({
   inquiries,
   statusFilter,
@@ -440,6 +520,10 @@ export default function AdminInquiries({
             const inquiryStatus = inquiry.status || "offen";
             const isDone = inquiryStatus === "erledigt";
             const selectedVariant = inquiry.selected_extras?.selected_variant;
+            const messageView = getCustomerMessageView(
+              inquiry,
+              cartPositions.length > 0
+            );
 
             return (
               <div
@@ -689,7 +773,30 @@ export default function AdminInquiries({
                     </div>
                   )}
 
-                  <p style={inquiryMessageStyle}>{inquiry.message}</p>
+                  <div style={customerMessageBoxStyle}>
+                    <strong>Kundennachricht</strong>
+                    <p style={customerMessageTextStyle}>
+                      {messageView.customerMessage ||
+                        "Keine zusätzliche Nachricht angegeben."}
+                    </p>
+
+                    {messageView.showOriginalMessage && (
+                      <details style={originalMessageDetailsStyle}>
+                        <summary style={{ cursor: "pointer", fontWeight: "bold" }}>
+                          Originalnachricht anzeigen
+                        </summary>
+                        <p
+                          style={{
+                            margin: "8px 0 0",
+                            whiteSpace: "pre-wrap",
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          {messageView.originalMessage}
+                        </p>
+                      </details>
+                    )}
+                  </div>
 
                   <div style={inquiryActionRowStyle}>
                     <a
