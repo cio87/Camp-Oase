@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { createPortal } from "react-dom";
+import { supabase } from "../supabaseClient";
 import { formatEuro, parsePrice } from "../utils/price";
 import {
   adminSelectedExtrasStyle,
@@ -115,6 +116,40 @@ const originalMessageDetailsStyle = {
   fontSize: "13px",
 };
 
+const replyBoxStyle = {
+  ...inquiryMessageStyle,
+  display: "grid",
+  gap: "10px",
+  marginTop: "14px",
+  whiteSpace: "normal",
+};
+
+const replyLabelStyle = {
+  display: "grid",
+  gap: "5px",
+  color: "#435749",
+  fontSize: "13px",
+  fontWeight: "bold",
+};
+
+const replyInputStyle = {
+  width: "100%",
+  boxSizing: "border-box",
+  border: "1px solid #d8e1d3",
+  borderRadius: "12px",
+  padding: "10px 12px",
+  background: "#fffdf8",
+  color: "#2f3a34",
+  font: "inherit",
+};
+
+const replyStatusStyle = {
+  margin: 0,
+  color: "#435749",
+  fontSize: "14px",
+  fontWeight: "bold",
+};
+
 function cleanGeneratedCartMessageTail(value) {
   return String(value || "")
     .replace(/\n*\s*Hinweis:\s*Diese Anfrage wurde[\s\S]*$/i, "")
@@ -174,6 +209,66 @@ function getCustomerMessageView(inquiry, hasCartPositions) {
   };
 }
 
+function isCartInquiry(inquiry, cartPositions) {
+  return (
+    cartPositions.length > 0 ||
+    String(inquiry?.product_title || "").toLowerCase() === "warenkorbanfrage"
+  );
+}
+
+function buildReplySubject(inquiry, cartPositions) {
+  if (isCartInquiry(inquiry, cartPositions)) {
+    return "Deine Anfrage bei Camp Oase";
+  }
+
+  if (inquiry?.product_title) {
+    return `Deine Anfrage zu ${inquiry.product_title} bei Camp Oase`;
+  }
+
+  return "Deine Anfrage bei Camp Oase";
+}
+
+function buildReplyMessage(inquiry, cartPositions) {
+  const customerName = String(inquiry?.name || "").trim();
+  const greeting = customerName ? `Hallo ${customerName},` : "Hallo,";
+  const lines = [
+    greeting,
+    "",
+    "vielen Dank für deine Anfrage bei Camp Oase.",
+    "",
+    "Wir haben deine Anfrage erhalten und melden uns gern mit weiteren Informationen bei dir.",
+  ];
+
+  if (isCartInquiry(inquiry, cartPositions) && cartPositions.length > 0) {
+    lines.push("", "Deine angefragten Produkte:");
+    cartPositions.forEach((position) => {
+      const quantity = position.quantity ? `${position.quantity}x ` : "";
+      lines.push(`- ${quantity}${position.product_title || "Produkt"}`);
+    });
+
+    if (inquiry?.estimated_total) {
+      lines.push("", `Geschätzter Gesamtpreis: ${inquiry.estimated_total}`);
+    }
+  } else if (inquiry?.product_title) {
+    lines.push("", `Es geht um: ${inquiry.product_title}`);
+  }
+
+  lines.push("", "Viele Grüße", "Camp Oase");
+
+  return lines.join("\n");
+}
+
+function getMailtoFallback(replyDraft) {
+  return (
+    "mailto:" +
+    encodeURIComponent(replyDraft.to || "") +
+    "?subject=" +
+    encodeURIComponent(replyDraft.subject || "") +
+    "&body=" +
+    encodeURIComponent(replyDraft.message || "")
+  );
+}
+
 export default function AdminInquiries({
   inquiries,
   statusFilter,
@@ -182,6 +277,77 @@ export default function AdminInquiries({
   onDeleteInquiry,
 }) {
   const [invoiceInquiry, setInvoiceInquiry] = useState(null);
+  const [replyInquiryId, setReplyInquiryId] = useState(null);
+  const [replyDraft, setReplyDraft] = useState({
+    to: "",
+    subject: "",
+    message: "",
+  });
+  const [replyStatus, setReplyStatus] = useState("");
+  const [replyError, setReplyError] = useState("");
+  const [replySending, setReplySending] = useState(false);
+
+  function openReply(inquiry, cartPositions) {
+    setReplyInquiryId(inquiry.id);
+    setReplyDraft({
+      to: String(inquiry.email || "").trim(),
+      subject: buildReplySubject(inquiry, cartPositions),
+      message: buildReplyMessage(inquiry, cartPositions),
+    });
+    setReplyStatus("");
+    setReplyError("");
+  }
+
+  function closeReply() {
+    setReplyInquiryId(null);
+    setReplyDraft({ to: "", subject: "", message: "" });
+    setReplyStatus("");
+    setReplyError("");
+  }
+
+  async function sendReply(inquiry) {
+    setReplySending(true);
+    setReplyStatus("");
+    setReplyError("");
+
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+
+      if (!token) {
+        setReplyError("Antwort konnte nicht gesendet werden. Bitte neu einloggen.");
+        return;
+      }
+
+      const response = await fetch("/api/send-reply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          to: replyDraft.to,
+          subject: replyDraft.subject,
+          message: replyDraft.message,
+          inquiryId: inquiry.id,
+          customerName: inquiry.name,
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setReplyError(result.error || "Antwort konnte nicht gesendet werden.");
+        return;
+      }
+
+      setReplyStatus("Antwort wurde gesendet.");
+    } catch (_error) {
+      setReplyError("Antwort konnte nicht gesendet werden.");
+    } finally {
+      setReplySending(false);
+    }
+  }
 
   function getInvoiceDate(inquiry) {
     return inquiry?.created_at ? new Date(inquiry.created_at) : new Date();
@@ -798,28 +964,102 @@ export default function AdminInquiries({
                     )}
                   </div>
 
+                  {replyInquiryId === inquiry.id && (
+                    <div style={replyBoxStyle}>
+                      <strong>Antwort schreiben</strong>
+
+                      <label style={replyLabelStyle}>
+                        An
+                        <input
+                          type="email"
+                          value={replyDraft.to}
+                          onChange={(event) =>
+                            setReplyDraft({ ...replyDraft, to: event.target.value })
+                          }
+                          style={replyInputStyle}
+                        />
+                      </label>
+
+                      <label style={replyLabelStyle}>
+                        Betreff
+                        <input
+                          type="text"
+                          value={replyDraft.subject}
+                          onChange={(event) =>
+                            setReplyDraft({
+                              ...replyDraft,
+                              subject: event.target.value,
+                            })
+                          }
+                          style={replyInputStyle}
+                        />
+                      </label>
+
+                      <label style={replyLabelStyle}>
+                        Nachricht
+                        <textarea
+                          value={replyDraft.message}
+                          onChange={(event) =>
+                            setReplyDraft({
+                              ...replyDraft,
+                              message: event.target.value,
+                            })
+                          }
+                          rows={8}
+                          maxLength={5000}
+                          style={{ ...replyInputStyle, resize: "vertical" }}
+                        />
+                      </label>
+
+                      {replyStatus && <p style={replyStatusStyle}>{replyStatus}</p>}
+
+                      {replyError && (
+                        <p style={{ ...replyStatusStyle, color: "#8a4d32" }}>
+                          {replyError}
+                        </p>
+                      )}
+
+                      <div style={inquiryActionRowStyle}>
+                        <button
+                          type="button"
+                          onClick={() => sendReply(inquiry)}
+                          disabled={replySending}
+                          style={completeInquiryButtonStyle}
+                        >
+                          {replySending ? "Wird gesendet..." : "Antwort senden"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={closeReply}
+                          style={reopenInquiryButtonStyle}
+                        >
+                          Abbrechen
+                        </button>
+
+                        {replyError && (
+                          <a
+                            href={getMailtoFallback(replyDraft)}
+                            style={{
+                              ...compactEditButtonStyle,
+                              textDecoration: "none",
+                            }}
+                          >
+                            Mailprogramm öffnen
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div style={inquiryActionRowStyle}>
-                    <a
-                      href={
-                        "mailto:" +
-                        inquiry.email +
-                        "?subject=" +
-                        encodeURIComponent(
-                          "Antwort zu deiner Anfrage: " + inquiry.product_title
-                        ) +
-                        "&body=" +
-                        encodeURIComponent(
-                          "Hallo " +
-                            inquiry.name +
-                            ",\n\nvielen Dank für deine Anfrage zu \"" +
-                            inquiry.product_title +
-                            "\".\n\n"
-                        )
-                      }
-                      style={{ ...compactEditButtonStyle, textDecoration: "none" }}
+                    <button
+                      type="button"
+                      onClick={() => openReply(inquiry, cartPositions)}
+                      style={compactEditButtonStyle}
                     >
                       Antworten
-                    </a>
+                    </button>
 
                     <button
                       type="button"
