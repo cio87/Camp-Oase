@@ -1472,9 +1472,6 @@ export default function AdminInquiries({
                               {position.variant?.name && (
                                 <div style={{ marginTop: "4px", color: "#667" }}>
                                   Variante: {position.variant.name}
-                                  {position.variant.description
-                                    ? " · " + position.variant.description
-                                    : ""}
                                 </div>
                               )}
                             </td>
