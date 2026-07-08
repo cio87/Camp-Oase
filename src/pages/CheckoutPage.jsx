@@ -192,24 +192,40 @@ export default function CheckoutPage() {
     setSending(true);
     setStatus("");
 
-    const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`;
+    const firstName = form.firstName.trim();
+    const lastName = form.lastName.trim();
+    const fullName = `${firstName} ${lastName}`;
+    const email = form.email.trim();
+    const phone = form.phone.trim();
+    const street = form.street.trim();
+    const postalCode = form.zip.trim();
+    const city = form.city.trim();
+    const country = "Deutschland";
+    const address = {
+      street,
+      postal_code: postalCode,
+      city,
+      country,
+    };
+
     const { error } = await supabase.from("inquiries").insert([
       {
         product_title: "Checkout-Anfrage",
         name: fullName,
-        email: form.email.trim(),
+        email,
         message: buildCheckoutMessage(),
         selected_extras: {
           ...buildCartSelectedExtras(items),
           checkout_preview: true,
-          customer_first_name: form.firstName.trim(),
-          customer_last_name: form.lastName.trim(),
-          customer_phone: form.phone.trim(),
-          shipping_address: {
-            street: form.street.trim(),
-            zip: form.zip.trim(),
-            city: form.city.trim(),
+          customer: {
+            first_name: firstName,
+            last_name: lastName,
+            name: fullName,
+            email,
+            phone,
           },
+          billing_address: address,
+          shipping_address: address,
         },
         estimated_total: subtotalLabel,
         status: "offen",

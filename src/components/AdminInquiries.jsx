@@ -452,17 +452,20 @@ export default function AdminInquiries({
 
   function getInvoiceCustomer(inquiry) {
     const selectedExtras = inquiry?.selected_extras || {};
-    const firstName = selectedExtras.customer_first_name || "";
-    const lastName = selectedExtras.customer_last_name || "";
-    const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
-    const address = selectedExtras.shipping_address || {};
+    const customer = selectedExtras.customer || {};
+    const firstName = customer.first_name || selectedExtras.customer_first_name || "";
+    const lastName = customer.last_name || selectedExtras.customer_last_name || "";
+    const fullName =
+      customer.name || [firstName, lastName].filter(Boolean).join(" ").trim();
+    const address = selectedExtras.billing_address || selectedExtras.shipping_address || {};
 
     return {
       name: String(fullName || inquiry?.name || "").trim(),
       street: String(address.street || "").trim(),
-      zip: String(address.zip || "").trim(),
+      zip: String(address.postal_code || address.zip || "").trim(),
       city: String(address.city || "").trim(),
-      email: String(inquiry?.email || "").trim(),
+      country: String(address.country || "").trim(),
+      email: String(customer.email || inquiry?.email || "").trim(),
     };
   }
 
@@ -588,6 +591,16 @@ export default function AdminInquiries({
             margin-bottom: 22px;
           }
 
+          .invoice-recipient-data-grid {
+            align-items: start;
+          }
+
+          .invoice-data-block {
+            justify-self: end;
+            min-width: min(360px, 100%);
+            transform: translateX(28px);
+          }
+
           .invoice-total-box {
             width: min(280px, 100%);
             box-sizing: border-box;
@@ -595,6 +608,16 @@ export default function AdminInquiries({
           }
 
           @media (max-width: 640px) {
+            .invoice-recipient-data-grid {
+              grid-template-columns: 1fr !important;
+            }
+
+            .invoice-data-block {
+              justify-self: stretch;
+              min-width: 0;
+              transform: none;
+            }
+
             .invoice-preview-overlay {
               padding: 10px !important;
             }
@@ -1243,6 +1266,7 @@ export default function AdminInquiries({
             customer.name,
             customer.street,
             customerLocation,
+            customer.country,
           ].filter(Boolean);
 
           return createPortal(
@@ -1374,6 +1398,7 @@ export default function AdminInquiries({
                   </header>
 
                   <section
+                    className="invoice-recipient-data-grid"
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
@@ -1398,25 +1423,37 @@ export default function AdminInquiries({
                       </p>
                     </div>
 
-                    <div>
+                    <div className="invoice-data-block">
                       <h2 style={{ color: "#435749", fontSize: "18px" }}>
                         Rechnungsdaten
                       </h2>
-                      <p style={{ margin: 0 }}>
-                        Kundennummer:{" "}
-                        <strong>{invoiceInquiry.customer_number || "Noch offen"}</strong>
-                        <br />
-                        Bestellnummer:{" "}
-                        <strong>{invoiceInquiry.order_number || "Noch offen"}</strong>
-                        <br />
-                        Rechnungsnummer: <strong>{invoiceNumber}</strong>
-                        <br />
-                        Rechnungsdatum: {invoiceDateLabel}
-                        <br />
-                        Leistungs-/Lieferdatum: {invoiceDateLabel}
-                        <br />
-                        Interne Referenz: Anfrage {invoiceInquiry.id}
-                      </p>
+                      <div style={{ display: "grid", gap: "5px" }}>
+                        <div style={{ fontSize: "16px" }}>
+                          Rechnungsnummer: <strong>{invoiceNumber}</strong>
+                        </div>
+                        <div>Rechnungsdatum: {invoiceDateLabel}</div>
+                        <div>Leistungs-/Lieferdatum: {invoiceDateLabel}</div>
+
+                        <div
+                          style={{
+                            display: "grid",
+                            gap: "4px",
+                            marginTop: "10px",
+                            color: "#637064",
+                            fontSize: "14px",
+                          }}
+                        >
+                          <div>
+                            Bestellnummer:{" "}
+                            <strong>{invoiceInquiry.order_number || "Noch offen"}</strong>
+                          </div>
+                          <div>
+                            Kundennummer:{" "}
+                            <strong>{invoiceInquiry.customer_number || "Noch offen"}</strong>
+                          </div>
+                          <div>Interne Referenz: Anfrage {invoiceInquiry.id}</div>
+                        </div>
+                      </div>
                     </div>
                   </section>
 
