@@ -255,6 +255,11 @@ export default function AdminSiteSettings({
           {numberSettingsSaving ? "Wird gespeichert..." : "Test-Zähler zurücksetzen"}
         </button>
 
+        <p style={{ ...adminHintStyle, margin: "0" }}>
+          Der Reset setzt nur die nächsten Testnummern zurück. Bereits erzeugte
+          Test-Rechnungen behalten ihre gespeicherten Nummern.
+        </p>
+
         {numberSettingsStatus === "mode-success" && (
           <div style={successBoxStyle}>Rechnungsmodus gespeichert.</div>
         )}
