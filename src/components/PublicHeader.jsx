@@ -18,6 +18,32 @@ import {
 
 const DESKTOP_MEDIA_QUERY = "(min-width: 900px)";
 
+const activeCartLinkStyle = {
+  background: "linear-gradient(135deg, #ffe3c7, #f2c49b)",
+  border: "1px solid #e7b982",
+  color: "#2f3f36",
+  fontWeight: 800,
+  boxShadow: "0 8px 18px rgba(92, 65, 38, 0.1)",
+};
+
+const cartBadgeStyle = {
+  position: "absolute",
+  top: "-7px",
+  right: "-7px",
+  minWidth: "23px",
+  height: "23px",
+  padding: "0 7px",
+  borderRadius: "999px",
+  background: "#f2c49b",
+  border: "1px solid #e7b982",
+  color: "#2f3f36",
+  fontSize: "13px",
+  fontWeight: 800,
+  lineHeight: "21px",
+  boxSizing: "border-box",
+  boxShadow: "0 5px 12px rgba(92, 65, 38, 0.14)",
+};
+
 export default function PublicHeader() {
   const [cartCount, setCartCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -100,6 +126,7 @@ export default function PublicHeader() {
       label: `Warenkorb${cartCount > 0 ? ` (${cartCount})` : ""}`,
     },
   ];
+  const hasCartItems = cartCount > 0;
 
   return (
     <header style={headerStyle}>
@@ -110,22 +137,45 @@ export default function PublicHeader() {
 
       {isDesktop ? (
         <nav style={headerNavStyle} aria-label="Hauptnavigation">
-          {menuLinks.map((link) => (
-            <Link key={link.to} to={link.to} style={headerNavLinkStyle}>
-              {link.label}
-            </Link>
-          ))}
+          {menuLinks.map((link) => {
+            const isCartLink = link.to === "/warenkorb";
+
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                style={{
+                  ...headerNavLinkStyle,
+                  ...(isCartLink && hasCartItems ? activeCartLinkStyle : {}),
+                }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
       ) : (
         <button
           ref={menuButtonRef}
           type="button"
-          style={hamburgerButtonStyle}
+          style={{
+            ...hamburgerButtonStyle,
+            position: "relative",
+            ...(hasCartItems ? activeCartLinkStyle : {}),
+          }}
           onClick={() => setMenuOpen(true)}
           aria-label="Menü öffnen"
           aria-expanded={menuOpen}
         >
           ☰
+          {hasCartItems && (
+            <span
+              aria-label={`${cartCount} Artikel im Warenkorb`}
+              style={cartBadgeStyle}
+            >
+              {cartCount}
+            </span>
+          )}
         </button>
       )}
 
@@ -153,16 +203,23 @@ export default function PublicHeader() {
               style={{ display: "grid", gap: "12px", marginTop: "12px" }}
               aria-label="Hauptnavigation"
             >
-              {menuLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  style={menuLinkStyle}
-                  onClick={closeMenu}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {menuLinks.map((link) => {
+                const isCartLink = link.to === "/warenkorb";
+
+                return (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    style={{
+                      ...menuLinkStyle,
+                      ...(isCartLink && hasCartItems ? activeCartLinkStyle : {}),
+                    }}
+                    onClick={closeMenu}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </nav>
           </section>
         </div>
