@@ -14,6 +14,7 @@ import {
   getProductExtras,
   getStockQuantity,
 } from "../utils/price";
+import { usePageSeo } from "../utils/seo";
 import {
   adminShellStyle,
   adminTabActiveStyle,
@@ -54,6 +55,8 @@ export default function AdminPage() {
   });
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaveStatus, setSettingsSaveStatus] = useState("");
+
+  usePageSeo("Admin | Camp Oase", "Adminbereich von Camp Oase.");
 
   useEffect(() => {
     loadProducts();

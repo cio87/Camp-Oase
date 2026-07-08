@@ -13,6 +13,7 @@ import {
   updateCartItemQuantity,
 } from "../utils/cart";
 import { formatEuro, getEmptyInquiryForm } from "../utils/price";
+import { usePageSeo } from "../utils/seo";
 import {
   buttonStyle,
   cartEmptyStyle,
@@ -44,6 +45,11 @@ export default function CartPage() {
 
   const subtotal = useMemo(() => getCartSubtotal(items), [items]);
   const subtotalLabel = formatEuro(subtotal);
+
+  usePageSeo(
+    "Warenkorb | Camp Oase",
+    "Prüfe deine ausgewählten Camp-Oase-Produkte und frage deinen Warenkorb unverbindlich an."
+  );
 
   useEffect(() => {
     setItems(getCartItems());

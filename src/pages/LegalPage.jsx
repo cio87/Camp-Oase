@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SiteFooter from "../components/SiteFooter";
+import { usePageSeo } from "../utils/seo";
 import {
   headerStyle,
   legalContentStyle,
@@ -77,6 +78,13 @@ function ContactMail() {
 
 export default function LegalPage({ type }) {
   const isImpressum = type === "impressum";
+
+  usePageSeo(
+    isImpressum ? "Impressum | Camp Oase" : "Datenschutz | Camp Oase",
+    isImpressum
+      ? "Impressum und Anbieterangaben von Camp Oase."
+      : "Datenschutzerklärung von Camp Oase mit Informationen zur Verarbeitung personenbezogener Daten."
+  );
 
   return (
     <div style={siteStyle}>

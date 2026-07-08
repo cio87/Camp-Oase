@@ -8,6 +8,7 @@ import { supabase } from "../supabaseClient";
 import { isProductVisible } from "../utils/availability";
 import { getEmptyInquiryForm } from "../utils/price";
 import { sortProductsByDisplayOrder } from "../utils/products";
+import { usePageSeo } from "../utils/seo";
 import {
   badgeStyle,
   homeBrandCardGridStyle,
@@ -31,6 +32,11 @@ export default function HomePage() {
   const [inquiryForm, setInquiryForm] = useState(getEmptyInquiryForm());
   const [inquiryStatus, setInquiryStatus] = useState("");
   const [inquirySending, setInquirySending] = useState(false);
+
+  usePageSeo(
+    "Camp Oase | Liebevolle Camping-Produkte & Geschenkideen",
+    "Liebevoll gestaltete Camping-Produkte, Deko und Geschenkideen für Camper, Wohnwagen, Wohnmobil und Vanlife."
+  );
 
   useEffect(() => {
     loadProducts();

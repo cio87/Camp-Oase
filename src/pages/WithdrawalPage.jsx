@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SiteFooter from "../components/SiteFooter";
+import { usePageSeo } from "../utils/seo";
 import {
   headerStyle,
   legalContentStyle,
@@ -76,6 +77,11 @@ function ContactMail() {
 }
 
 export default function WithdrawalPage() {
+  usePageSeo(
+    "Widerruf | Camp Oase",
+    "Informationen zum Widerruf und zu personalisierten Produkten bei Camp Oase."
+  );
+
   return (
     <div style={siteStyle}>
       <header style={headerStyle}>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SiteFooter from "../components/SiteFooter";
+import { usePageSeo } from "../utils/seo";
 import {
   headerStyle,
   legalContentStyle,
@@ -54,6 +55,11 @@ function InfoSection({ title, children }) {
 }
 
 export default function ShippingPaymentPage() {
+  usePageSeo(
+    "Versand & Zahlung | Camp Oase",
+    "Informationen zu Versand, Zahlung und unverbindlichen Anfragen bei Camp Oase."
+  );
+
   return (
     <div style={siteStyle}>
       <header style={headerStyle}>

@@ -28,6 +28,7 @@ import {
   getStockQuantity,
   hasActiveDiscount,
 } from "../utils/price";
+import { createMetaDescription, usePageSeo } from "../utils/seo";
 import {
   availabilityNoticeStyle,
   detailActionRowStyle,
@@ -367,6 +368,14 @@ export default function ProductDetailPage() {
   );
   const cartButtonDisabled = !productIsAvailable;
   const selectedImageIndex = Math.max(0, productImages.indexOf(displayImage));
+
+  usePageSeo(
+    product ? `${product.title} | Camp Oase` : "Produkt | Camp Oase",
+    createMetaDescription(
+      product?.short_description || product?.description,
+      "Entdecke liebevoll gestaltete Camp-Oase-Produkte, Extras und Geschenkideen für Camping, Wohnwagen und Vanlife."
+    )
+  );
 
   function showLightboxImage(direction) {
     if (lightboxType !== "product" || productImages.length <= 1) return;

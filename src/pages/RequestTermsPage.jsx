@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SiteFooter from "../components/SiteFooter";
+import { usePageSeo } from "../utils/seo";
 import {
   headerStyle,
   legalContentStyle,
@@ -58,6 +59,11 @@ function InfoSection({ title, children }) {
 }
 
 export default function RequestTermsPage() {
+  usePageSeo(
+    "AGB / Anfragebedingungen | Camp Oase",
+    "Anfragebedingungen von Camp Oase für unverbindliche Produkt- und Warenkorbanfragen."
+  );
+
   return (
     <div style={siteStyle}>
       <header style={headerStyle}>

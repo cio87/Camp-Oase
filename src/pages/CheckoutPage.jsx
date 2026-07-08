@@ -11,6 +11,7 @@ import {
   getCartSubtotal,
 } from "../utils/cart";
 import { formatEuro } from "../utils/price";
+import { usePageSeo } from "../utils/seo";
 import {
   buttonStyle,
   cartEmptyStyle,
@@ -106,6 +107,11 @@ export default function CheckoutPage() {
   const subtotalLabel = formatEuro(subtotal);
   const paypalClientId = import.meta.env.VITE_PAYPAL_CLIENT_ID || "";
   const paypalConfigured = Boolean(paypalClientId.trim());
+
+  usePageSeo(
+    "Checkout-Vorschau | Camp Oase",
+    "Prüfe deine unverbindliche Camp-Oase-Anfrage. Aktuell wird keine echte Zahlung ausgelöst."
+  );
 
   useEffect(() => {
     setItems(getCartItems());

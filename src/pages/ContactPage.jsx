@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
 import { supabase } from "../supabaseClient";
+import { usePageSeo } from "../utils/seo";
 import {
   aboutCardGridStyle,
   aboutCardIconStyle,
@@ -72,6 +73,11 @@ export default function ContactPage() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
+
+  usePageSeo(
+    "Kontakt | Camp Oase",
+    "Kontaktiere Camp Oase bei Fragen zu Produkten, Personalisierungen, Anfragen oder individuellen Camping-Geschenkideen."
+  );
 
   function updateField(field, value) {
     setForm({ ...form, [field]: value });

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
+import { usePageSeo } from "../utils/seo";
 import {
   aboutCardGridStyle,
   aboutCardIconStyle,
@@ -34,6 +35,11 @@ const aboutCards = [
 ];
 
 export default function AboutPage() {
+  usePageSeo(
+    "Über uns | Camp Oase",
+    "Erfahre mehr über Camp Oase, liebevoll gestaltete Camping-Produkte und persönliche Geschenkideen für Camper."
+  );
+
   return (
     <div style={siteStyle}>
       <PublicHeader />
