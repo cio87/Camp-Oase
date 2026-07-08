@@ -150,6 +150,55 @@ const replyStatusStyle = {
   fontWeight: "bold",
 };
 
+const replyActionRowStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+  gap: "10px",
+  alignItems: "stretch",
+};
+
+const replyButtonBaseStyle = {
+  border: "none",
+  borderRadius: "999px",
+  padding: "10px 14px",
+  fontSize: "14px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  width: "100%",
+  minHeight: "42px",
+};
+
+const replySendButtonStyle = {
+  ...replyButtonBaseStyle,
+  background: "#6f856f",
+  color: "#fffaf3",
+};
+
+const replySendDoneButtonStyle = {
+  ...replyButtonBaseStyle,
+  background: "#435f49",
+  color: "#fffaf3",
+};
+
+const replyCancelButtonStyle = {
+  ...replyButtonBaseStyle,
+  background: "#f7e7e1",
+  border: "1px solid #e6c7ba",
+  color: "#8a4d32",
+};
+
+const replyFallbackLinkStyle = {
+  ...replyButtonBaseStyle,
+  boxSizing: "border-box",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "#fffdf8",
+  border: "1px solid #d8e1d3",
+  color: "#435749",
+  textDecoration: "none",
+};
+
 function cleanGeneratedCartMessageTail(value) {
   return String(value || "")
     .replace(/\n*\s*Hinweis:\s*Diese Anfrage wurde[\s\S]*$/i, "")
@@ -1035,12 +1084,16 @@ export default function AdminInquiries({
                         </p>
                       )}
 
-                      <div style={inquiryActionRowStyle}>
+                      <div style={replyActionRowStyle}>
                         <button
                           type="button"
                           onClick={() => sendReply(inquiry)}
                           disabled={replySending}
-                          style={completeInquiryButtonStyle}
+                          style={{
+                            ...replySendButtonStyle,
+                            opacity: replySending ? 0.72 : 1,
+                            cursor: replySending ? "not-allowed" : "pointer",
+                          }}
                         >
                           {replySending ? "Wird gesendet..." : "Antwort senden"}
                         </button>
@@ -1049,7 +1102,12 @@ export default function AdminInquiries({
                           type="button"
                           onClick={() => sendReply(inquiry, true)}
                           disabled={replySending || isDone}
-                          style={compactEditButtonStyle}
+                          style={{
+                            ...replySendDoneButtonStyle,
+                            opacity: replySending || isDone ? 0.72 : 1,
+                            cursor:
+                              replySending || isDone ? "not-allowed" : "pointer",
+                          }}
                         >
                           Antwort senden & als erledigt markieren
                         </button>
@@ -1057,7 +1115,7 @@ export default function AdminInquiries({
                         <button
                           type="button"
                           onClick={closeReply}
-                          style={reopenInquiryButtonStyle}
+                          style={replyCancelButtonStyle}
                         >
                           Abbrechen
                         </button>
@@ -1065,10 +1123,7 @@ export default function AdminInquiries({
                         {replyError && (
                           <a
                             href={getMailtoFallback(replyDraft)}
-                            style={{
-                              ...compactEditButtonStyle,
-                              textDecoration: "none",
-                            }}
+                            style={replyFallbackLinkStyle}
                           >
                             Mailprogramm öffnen
                           </a>
