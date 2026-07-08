@@ -305,7 +305,7 @@ export default function AdminInquiries({
     setReplyError("");
   }
 
-  async function sendReply(inquiry) {
+  async function sendReply(inquiry, markDoneAfterSend = false) {
     setReplySending(true);
     setReplyStatus("");
     setReplyError("");
@@ -338,6 +338,22 @@ export default function AdminInquiries({
 
       if (!response.ok) {
         setReplyError(result.error || "Antwort konnte nicht gesendet werden.");
+        return;
+      }
+
+      if (markDoneAfterSend) {
+        const statusUpdated = await onUpdateStatus(inquiry.id, "erledigt");
+
+        if (!statusUpdated) {
+          setReplyError(
+            "Antwort wurde gesendet, aber die Anfrage konnte nicht als erledigt markiert werden."
+          );
+          return;
+        }
+
+        setReplyStatus(
+          "Antwort wurde gesendet und die Anfrage als erledigt markiert."
+        );
         return;
       }
 
@@ -1027,6 +1043,15 @@ export default function AdminInquiries({
                           style={completeInquiryButtonStyle}
                         >
                           {replySending ? "Wird gesendet..." : "Antwort senden"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => sendReply(inquiry, true)}
+                          disabled={replySending || isDone}
+                          style={compactEditButtonStyle}
+                        >
+                          Antwort senden & als erledigt markieren
                         </button>
 
                         <button

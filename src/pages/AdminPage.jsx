@@ -446,10 +446,11 @@ export default function AdminPage() {
 
     if (error) {
       alert("Status konnte nicht aktualisiert werden: " + error.message);
-      return;
+      return false;
     }
 
     await loadInquiries();
+    return true;
   }
 
   async function updateContactMessageStatus(id, status) {
