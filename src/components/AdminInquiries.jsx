@@ -1283,7 +1283,7 @@ export default function AdminInquiries({
                     lineHeight: "1.5",
                   }}
                 >
-                  Diese Rechnungsvorlage ist eine technische Vorbereitung. Bitte
+                  Diese Rechnungsvorschau ist eine technische Vorbereitung. Bitte
                   Rechnungsdaten vor Versand prüfen.
                 </div>
 
@@ -1354,7 +1354,7 @@ export default function AdminInquiries({
                         Rechnung
                       </h1>
                       <p className="invoice-no-print" style={{ margin: 0, color: "#667" }}>
-                        Rechnungsvorlage aus Anfrage
+                        Vorschau auf Basis der Anfrage
                       </p>
                     </div>
 
@@ -1415,7 +1415,7 @@ export default function AdminInquiries({
                         <br />
                         Leistungs-/Lieferdatum: {invoiceDateLabel}
                         <br />
-                        Interne Referenz: {invoiceInquiry.id}
+                        Interne Referenz: Anfrage {invoiceInquiry.id}
                       </p>
                     </div>
                   </section>
@@ -1623,7 +1623,7 @@ export default function AdminInquiries({
                       color: "#667",
                     }}
                   >
-                    Vielen Dank für deine Anfrage / Bestellung bei Camp Oase.
+                    Vielen Dank für deine Anfrage bei Camp Oase.
                   </footer>
                 </article>
               </div>
