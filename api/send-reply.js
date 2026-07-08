@@ -9,6 +9,63 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function buildCustomerText(message) {
+  const cleanMessage = String(message || "").trim();
+  const withoutContactFooter = cleanMessage
+    .replace(/(\n|\s)*(service@camp-oase\.de|www\.camp-oase\.de)\s*$/gi, "")
+    .replace(/(\n|\s)*(service@camp-oase\.de|www\.camp-oase\.de)\s*$/gi, "")
+    .trim();
+  const hasCampOaseSignature = /(^|\n)\s*Camp Oase\s*$/i.test(
+    withoutContactFooter
+  );
+  const signedMessage = hasCampOaseSignature
+    ? withoutContactFooter
+    : [withoutContactFooter, "", "Viele Grüße", "Camp Oase"].join("\n");
+
+  return [signedMessage, "", "service@camp-oase.de", "www.camp-oase.de"].join(
+    "\n"
+  );
+}
+
+function buildCustomerHtml(text) {
+  const escapedText = escapeHtml(text).replace(/\n/g, "<br />");
+
+  return `<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Camp Oase</title>
+  </head>
+  <body style="margin:0; padding:0; background:#f5f1e8; color:#2f3f36; font-family:Arial, sans-serif;">
+    <div style="max-width:640px; margin:0 auto; padding:28px 18px;">
+      <div style="background:#ffffff; border:1px solid #edf4ef; border-radius:18px; overflow:hidden;">
+        <div style="background:#edf4ef; padding:18px 22px;">
+          <strong style="font-size:20px; color:#2f3f36;">Camp Oase</strong>
+        </div>
+        <div style="padding:24px 22px; font-size:16px; line-height:1.65;">
+          ${escapedText}
+        </div>
+        <div style="border-top:1px solid #edf4ef; padding:18px 22px; background:#fbf8f1; font-size:14px; line-height:1.6; color:#526158;">
+          <strong>Camp Oase</strong><br />
+          <a href="mailto:service@camp-oase.de" style="color:#2f3f36;">service@camp-oase.de</a><br />
+          <a href="https://www.camp-oase.de" style="color:#2f3f36;">www.camp-oase.de</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>`;
+}
+
 function getSupabaseConfig() {
   return {
     url: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -79,12 +136,10 @@ export default async function handler(request, response) {
     });
   }
 
-  const { to, subject, message, inquiryId, customerName } = request.body || {};
+  const { to, subject, message } = request.body || {};
   const cleanTo = String(to || "").trim();
   const cleanSubject = String(subject || "").trim();
   const cleanMessage = String(message || "").trim();
-  const cleanInquiryId = String(inquiryId || "").trim();
-  const cleanCustomerName = String(customerName || "").trim();
 
   if (!isValidEmail(cleanTo)) {
     return sendJson(response, 400, { error: "Empfaenger-Adresse ist ungueltig." });
@@ -128,22 +183,15 @@ export default async function handler(request, response) {
       },
     });
 
-    const internalFooter = [
-      "",
-      "",
-      "---",
-      cleanInquiryId ? `Referenz Anfrage-ID: ${cleanInquiryId}` : "",
-      cleanCustomerName ? `Kunde: ${cleanCustomerName}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const customerText = buildCustomerText(cleanMessage);
 
     await transporter.sendMail({
       from: smtpUser,
       to: cleanTo,
       replyTo: replyAddress,
       subject: cleanSubject,
-      text: cleanMessage + internalFooter,
+      text: customerText,
+      html: buildCustomerHtml(customerText),
     });
 
     return sendJson(response, 200, { ok: true });
