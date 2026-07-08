@@ -374,7 +374,11 @@ export default function ProductDetailPage() {
     createMetaDescription(
       product?.short_description || product?.description,
       "Entdecke liebevoll gestaltete Camp-Oase-Produkte, Extras und Geschenkideen für Camping, Wohnwagen und Vanlife."
-    )
+    ),
+    {
+      type: "product",
+      image: product?.image,
+    }
   );
 
   function showLightboxImage(direction) {
