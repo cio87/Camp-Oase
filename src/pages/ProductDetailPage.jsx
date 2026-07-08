@@ -24,11 +24,17 @@ import {
   getDiscountLabel,
   getDiscountedBasePrice,
   getEmptyInquiryForm,
+  getProductBasePrice,
   getProductExtras,
   getStockQuantity,
   hasActiveDiscount,
 } from "../utils/price";
-import { createMetaDescription, usePageSeo } from "../utils/seo";
+import {
+  createAbsoluteUrl,
+  createMetaDescription,
+  useJsonLd,
+  usePageSeo,
+} from "../utils/seo";
 import {
   availabilityNoticeStyle,
   detailActionRowStyle,
@@ -99,6 +105,55 @@ function getProductIntro(product) {
 
 function normalizeProductText(value) {
   return stripMarkdown(value || "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function getSchemaAvailability(product) {
+  const status = getAvailabilityStatus(product);
+
+  if (status === "hidden") return "";
+  if (status === "sold_out") return "https://schema.org/OutOfStock";
+  if (status === "coming_soon" || status === "preorder") {
+    return "https://schema.org/PreOrder";
+  }
+  if (status === "available" && getStockQuantity(product) <= 0) {
+    return "https://schema.org/OutOfStock";
+  }
+
+  return "https://schema.org/InStock";
+}
+
+function getSchemaPrice(product) {
+  return getProductBasePrice(product).toFixed(2);
+}
+
+function buildProductJsonLd(product) {
+  if (!product || getAvailabilityStatus(product) === "hidden") return null;
+
+  const description = createMetaDescription(
+    product.short_description || product.description,
+    "Liebevoll gestaltetes Produkt von Camp Oase."
+  );
+  const availability = getSchemaAvailability(product);
+  const productImage = createAbsoluteUrl(product.image);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description,
+    ...(productImage ? { image: productImage } : {}),
+    brand: {
+      "@type": "Brand",
+      name: "Camp Oase",
+    },
+    offers: {
+      "@type": "Offer",
+      url: typeof window !== "undefined" ? window.location.href : "",
+      priceCurrency: "EUR",
+      price: getSchemaPrice(product),
+      availability: availability || "https://schema.org/InStock",
+    },
+  };
 }
 
 export default function ProductDetailPage() {
@@ -368,6 +423,7 @@ export default function ProductDetailPage() {
   );
   const cartButtonDisabled = !productIsAvailable;
   const selectedImageIndex = Math.max(0, productImages.indexOf(displayImage));
+  const productJsonLd = buildProductJsonLd(product);
 
   usePageSeo(
     product ? `${product.title} | Camp Oase` : "Produkt | Camp Oase",
@@ -380,6 +436,7 @@ export default function ProductDetailPage() {
       image: product?.image,
     }
   );
+  useJsonLd("product", productJsonLd);
 
   function showLightboxImage(direction) {
     if (lightboxType !== "product" || productImages.length <= 1) return;

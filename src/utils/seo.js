@@ -50,6 +50,20 @@ function toAbsoluteUrl(value) {
   return new URL(url, window.location.origin).href;
 }
 
+function getJsonLdTag(id) {
+  const scriptId = `json-ld-${id}`;
+  let tag = document.getElementById(scriptId);
+
+  if (!tag) {
+    tag = document.createElement("script");
+    tag.id = scriptId;
+    tag.type = "application/ld+json";
+    document.head.appendChild(tag);
+  }
+
+  return tag;
+}
+
 function stripBasicMarkdown(value) {
   return String(value || "")
     .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
@@ -70,6 +84,22 @@ export function createMetaDescription(value, fallback = DEFAULT_DESCRIPTION) {
   const lastSpace = shortened.lastIndexOf(" ");
 
   return (lastSpace > 120 ? shortened.slice(0, lastSpace) : shortened).trim();
+}
+
+export function createAbsoluteUrl(value) {
+  return toAbsoluteUrl(value);
+}
+
+export function setJsonLd(id, data) {
+  if (typeof document === "undefined" || !id || !data) return;
+
+  getJsonLdTag(id).textContent = JSON.stringify(data);
+}
+
+export function removeJsonLd(id) {
+  if (typeof document === "undefined" || !id) return;
+
+  document.getElementById(`json-ld-${id}`)?.remove();
 }
 
 export function setPageSeo({
@@ -109,4 +139,19 @@ export function usePageSeo(title, description, options = {}) {
   useEffect(() => {
     setPageSeo({ title, description, ...options });
   }, [title, description, options.type, options.image, options.url, options.social]);
+}
+
+export function useJsonLd(id, data) {
+  const serializedData = data ? JSON.stringify(data) : "";
+
+  useEffect(() => {
+    if (!serializedData) {
+      removeJsonLd(id);
+      return undefined;
+    }
+
+    setJsonLd(id, JSON.parse(serializedData));
+
+    return () => removeJsonLd(id);
+  }, [id, serializedData]);
 }
