@@ -16,11 +16,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/warenkorb</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://camp-oase.de/versand-zahlung</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
