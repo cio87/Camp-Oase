@@ -322,6 +322,8 @@ export default function AdminInquiries({
   inquiries,
   statusFilter,
   setStatusFilter,
+  searchValue,
+  setSearchValue,
   onUpdateStatus,
   onDeleteInquiry,
   onPrepareInvoice,
@@ -738,6 +740,35 @@ export default function AdminInquiries({
       </style>
 
       <h2 style={{ marginTop: "40px" }}>Kundenanfragen</h2>
+
+      <label
+        style={{
+          display: "grid",
+          gap: "6px",
+          margin: "16px 0 12px",
+          color: "#435749",
+          fontSize: "14px",
+          fontWeight: "bold",
+        }}
+      >
+        Anfragen durchsuchen
+        <input
+          type="search"
+          value={searchValue || ""}
+          onChange={(event) => setSearchValue?.(event.target.value)}
+          placeholder="Name, E-Mail, Nachricht, Produkt, Rechnungsnummer..."
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            border: "1px solid #d8e1d3",
+            borderRadius: "999px",
+            padding: "11px 14px",
+            background: "#fffdf8",
+            color: "#2f3a34",
+            font: "inherit",
+          }}
+        />
+      </label>
 
       <div style={statusFilterRowStyle}>
         {[

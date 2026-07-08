@@ -36,6 +36,7 @@ export default function AdminPage() {
   const [contactMessages, setContactMessages] = useState([]);
   const [adminTab, setAdminTab] = useState("products");
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState("all");
+  const [inquirySearch, setInquirySearch] = useState("");
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -737,8 +738,28 @@ export default function AdminPage() {
   }
 
   const filteredInquiries = inquiries.filter((inquiry) => {
-    if (inquiryStatusFilter === "all") return true;
-    return (inquiry.status || "offen") === inquiryStatusFilter;
+    const matchesStatus =
+      inquiryStatusFilter === "all" ||
+      (inquiry.status || "offen") === inquiryStatusFilter;
+    const searchTerm = inquirySearch.trim().toLowerCase();
+
+    if (!matchesStatus) return false;
+    if (!searchTerm) return true;
+
+    const searchableParts = [
+      inquiry.name,
+      inquiry.email,
+      inquiry.message,
+      inquiry.product_title,
+      inquiry.invoice_number,
+      inquiry.customer_number,
+      inquiry.order_number,
+      JSON.stringify(inquiry.selected_extras || {}),
+    ];
+
+    return searchableParts
+      .filter(Boolean)
+      .some((part) => String(part).toLowerCase().includes(searchTerm));
   });
 
   return (
@@ -860,6 +881,8 @@ export default function AdminPage() {
                 inquiries={filteredInquiries}
                 statusFilter={inquiryStatusFilter}
                 setStatusFilter={setInquiryStatusFilter}
+                searchValue={inquirySearch}
+                setSearchValue={setInquirySearch}
                 onUpdateStatus={updateInquiryStatus}
                 onDeleteInquiry={deleteInquiry}
                 onPrepareInvoice={prepareInvoiceNumbers}
