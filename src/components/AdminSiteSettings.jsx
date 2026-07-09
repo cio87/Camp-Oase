@@ -67,6 +67,22 @@ export default function AdminSiteSettings({
         style={{ ...inputStyle, minHeight: "90px" }}
       />
 
+      <label style={adminExtraLabelStyle}>Vorschau-Passwort</label>
+      <input
+        type="password"
+        placeholder="Leer lassen, wenn kein Vorschau-Zugang möglich sein soll"
+        value={settings.maintenance_password || ""}
+        onChange={(e) =>
+          setSettings({ ...settings, maintenance_password: e.target.value })
+        }
+        autoComplete="new-password"
+        style={inputStyle}
+      />
+      <p style={adminHintStyle}>
+        Wenn ein Passwort gesetzt ist, kann die öffentliche Webseite im
+        Wartungsmodus über den Vorschau-Zugang angesehen werden.
+      </p>
+
       <hr style={{ margin: "28px 0", border: "none", borderTop: "1px solid #e8dfcf" }} />
 
       <h2>Hinweis-Banner</h2>

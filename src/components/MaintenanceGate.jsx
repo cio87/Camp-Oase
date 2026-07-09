@@ -3,10 +3,13 @@ import SiteFooter from "./SiteFooter";
 import { supabase } from "../supabaseClient";
 import {
   buttonStyle,
+  inputStyle,
   pageStyle,
   sectionTitleStyle,
   siteStyle,
 } from "../styles";
+
+const PREVIEW_STORAGE_KEY = "campoase_maintenance_preview_password";
 
 const maintenanceCardStyle = {
   maxWidth: "760px",
@@ -33,8 +36,20 @@ const maintenanceBadgeStyle = {
   marginBottom: "16px",
 };
 
+const previewBoxStyle = {
+  maxWidth: "420px",
+  margin: "26px auto 0",
+  padding: "18px",
+  borderRadius: "18px",
+  border: "1px solid #e8dfcf",
+  background: "#fffdf8",
+};
+
 export default function MaintenanceGate({ children }) {
   const [settings, setSettings] = useState(null);
+  const [previewPassword, setPreviewPassword] = useState("");
+  const [previewError, setPreviewError] = useState("");
+  const [previewUnlocked, setPreviewUnlocked] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -42,7 +57,9 @@ export default function MaintenanceGate({ children }) {
     async function loadMaintenanceSettings() {
       const { data, error } = await supabase
         .from("site_settings")
-        .select("maintenance_enabled,maintenance_title,maintenance_text")
+        .select(
+          "maintenance_enabled,maintenance_title,maintenance_text,maintenance_password"
+        )
         .eq("id", "main")
         .maybeSingle();
 
@@ -63,7 +80,22 @@ export default function MaintenanceGate({ children }) {
     };
   }, []);
 
-  if (!settings || !settings.maintenance_enabled) {
+  useEffect(() => {
+    const password = String(settings?.maintenance_password || "").trim();
+
+    if (!settings?.maintenance_enabled || !password) {
+      setPreviewUnlocked(false);
+      return;
+    }
+
+    try {
+      setPreviewUnlocked(sessionStorage.getItem(PREVIEW_STORAGE_KEY) === password);
+    } catch {
+      setPreviewUnlocked(false);
+    }
+  }, [settings]);
+
+  if (!settings || !settings.maintenance_enabled || previewUnlocked) {
     return children;
   }
 
@@ -71,7 +103,27 @@ export default function MaintenanceGate({ children }) {
     settings.maintenance_title?.trim() || "Camp Oase macht kurz Pause";
   const text =
     settings.maintenance_text?.trim() ||
-    "Wir arbeiten gerade an der Webseite, damit hier bald alles wieder ruhig, schön und zuverlässig funktioniert. Schau gern später noch einmal vorbei.";
+    "Wir arbeiten gerade an der Seite. Bitte sp\u00e4ter wieder vorbeischauen.";
+  const configuredPassword = String(settings.maintenance_password || "").trim();
+  const hasPreviewAccess = Boolean(configuredPassword);
+
+  function unlockPreview(event) {
+    event.preventDefault();
+    setPreviewError("");
+
+    if (!configuredPassword || previewPassword.trim() !== configuredPassword) {
+      setPreviewError("Das Passwort stimmt leider nicht.");
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(PREVIEW_STORAGE_KEY, configuredPassword);
+    } catch {
+      // If sessionStorage is unavailable, the current render can still be unlocked.
+    }
+
+    setPreviewUnlocked(true);
+  }
 
   return (
     <div style={siteStyle}>
@@ -88,6 +140,36 @@ export default function MaintenanceGate({ children }) {
           >
             Kontakt per E-Mail
           </a>
+
+          {hasPreviewAccess && (
+            <form onSubmit={unlockPreview} style={previewBoxStyle}>
+              <h2
+                style={{
+                  margin: "0 0 10px",
+                  color: "#435749",
+                  fontSize: "18px",
+                }}
+              >
+                Vorschau-Zugang
+              </h2>
+              <input
+                type="password"
+                value={previewPassword}
+                onChange={(event) => setPreviewPassword(event.target.value)}
+                placeholder="Passwort"
+                autoComplete="current-password"
+                style={{ ...inputStyle, marginBottom: "10px" }}
+              />
+              <button type="submit" style={{ ...buttonStyle, width: "100%" }}>
+                Webseite ansehen
+              </button>
+              {previewError && (
+                <p style={{ margin: "10px 0 0", color: "#8a4d32", fontWeight: "bold" }}>
+                  {previewError}
+                </p>
+              )}
+            </form>
+          )}
         </section>
       </main>
 

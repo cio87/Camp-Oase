@@ -54,6 +54,7 @@ export default function AdminPage() {
     maintenance_enabled: false,
     maintenance_title: "",
     maintenance_text: "",
+    maintenance_password: "",
   });
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaveStatus, setSettingsSaveStatus] = useState("");
@@ -132,6 +133,7 @@ export default function AdminPage() {
         maintenance_enabled: Boolean(data.maintenance_enabled),
         maintenance_title: data.maintenance_title || "",
         maintenance_text: data.maintenance_text || "",
+        maintenance_password: data.maintenance_password || "",
       });
     }
   }
@@ -353,6 +355,7 @@ export default function AdminPage() {
       maintenance_enabled: Boolean(siteSettings.maintenance_enabled),
       maintenance_title: siteSettings.maintenance_title || "",
       maintenance_text: siteSettings.maintenance_text || "",
+      maintenance_password: siteSettings.maintenance_password || "",
       updated_at: new Date().toISOString(),
     });
 
