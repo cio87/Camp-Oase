@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://camp-oase.de/</loc>
+    <loc>https://www.camp-oase.de/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/ueber-uns</loc>
+    <loc>https://www.camp-oase.de/ueber-uns</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/kontakt</loc>
+    <loc>https://www.camp-oase.de/kontakt</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/versand-zahlung</loc>
+    <loc>https://www.camp-oase.de/versand-zahlung</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/widerruf</loc>
+    <loc>https://www.camp-oase.de/widerruf</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/datenschutz</loc>
+    <loc>https://www.camp-oase.de/datenschutz</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/impressum</loc>
+    <loc>https://www.camp-oase.de/impressum</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://camp-oase.de/agb</loc>
+    <loc>https://www.camp-oase.de/agb</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
