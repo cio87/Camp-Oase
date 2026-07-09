@@ -699,6 +699,9 @@ export const cartQuantityRowStyle = {
 };
 
 export const cartQuantityButtonStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
   width: "40px",
   height: "40px",
   border: "1px solid #D8E0D2",
@@ -708,6 +711,7 @@ export const cartQuantityButtonStyle = {
   cursor: "pointer",
   fontSize: "18px",
   fontWeight: "bold",
+  lineHeight: 1,
 };
 
 export const cartSummaryStyle = {

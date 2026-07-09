@@ -26,7 +26,6 @@ import {
   deleteButtonStyle,
   extraChoiceCardStyle,
   extrasBoxStyle,
-  inputStyle,
   pageStyle,
   pillBackLinkStyle,
   productCardHintStyle,
@@ -45,6 +44,32 @@ export default function CartPage() {
 
   const subtotal = useMemo(() => getCartSubtotal(items), [items]);
   const subtotalLabel = formatEuro(subtotal);
+  const cartActionGroupStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+    gap: "10px",
+    width: "100%",
+    maxWidth: "760px",
+  };
+  const cartActionButtonStyle = {
+    ...buttonStyle,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "46px",
+    width: "100%",
+    boxSizing: "border-box",
+    textAlign: "center",
+    textDecoration: "none",
+    whiteSpace: "nowrap",
+  };
+  const cartSecondaryActionButtonStyle = {
+    ...cartActionButtonStyle,
+    background: "#E8F1EF",
+    color: "#2F3A34",
+    border: "1px solid #D8E0D2",
+    boxShadow: "0 8px 18px rgba(47, 58, 52, 0.08)",
+  };
 
   usePageSeo(
     "Warenkorb | Camp Oase",
@@ -259,14 +284,27 @@ export default function CartPage() {
                             -
                           </button>
 
-                          <input
-                            type="number"
-                            min="1"
-                            max={item.stockQuantity > 0 ? item.stockQuantity : undefined}
-                            value={item.quantity || 1}
-                            onChange={(e) => changeQuantity(item.id, e.target.value)}
-                            style={{ ...inputStyle, width: "74px", margin: 0 }}
-                          />
+                          <span
+                            aria-live="polite"
+                            aria-label={`Aktuelle Menge: ${item.quantity || 1}`}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "56px",
+                              height: "40px",
+                              borderRadius: "12px",
+                              border: "1px solid #D8E0D2",
+                              background: "#E8F1EF",
+                              color: "#2F3A34",
+                              fontWeight: "bold",
+                              lineHeight: 1,
+                              textAlign: "center",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
+                            {item.quantity || 1}
+                          </span>
 
                           <button
                             type="button"
@@ -315,23 +353,24 @@ export default function CartPage() {
                     </p>
                   </div>
 
-                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <div style={cartActionGroupStyle}>
                     {checkoutEnabled && (
-                      <Link
-                        to="/checkout"
-                        style={{
-                          ...buttonStyle,
-                          display: "inline-block",
-                          textDecoration: "none",
-                        }}
-                      >
+                      <Link to="/checkout" style={cartActionButtonStyle}>
                         Zur Kasse
                       </Link>
                     )}
 
-                    <button type="button" onClick={openCartInquiry} style={buttonStyle}>
+                    <button
+                      type="button"
+                      onClick={openCartInquiry}
+                      style={cartActionButtonStyle}
+                    >
                       Warenkorb unverbindlich anfragen
                     </button>
+
+                    <Link to="/#produkte" style={cartSecondaryActionButtonStyle}>
+                      Weiter shoppen
+                    </Link>
                   </div>
                 </aside>
               </>

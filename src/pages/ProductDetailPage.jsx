@@ -1,6 +1,7 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import InquiryModal from "../components/InquiryModal";
+import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
 import { supabase } from "../supabaseClient";
 import {
@@ -62,7 +63,6 @@ import {
   detailTrustRowStyle,
   detailTotalBoxStyle,
   extrasPreviewBoxStyle,
-  headerStyle,
   inputStyle,
   pageStyle,
   pillBackLinkStyle,
@@ -180,6 +180,7 @@ export default function ProductDetailPage() {
   const [inquiryMode, setInquiryMode] = useState("question");
   const [isDesktopDetailLayout, setIsDesktopDetailLayout] = useState(false);
   const [cartStatus, setCartStatus] = useState("");
+  const [cartQuantity, setCartQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState("");
   const [selectedVariantId, setSelectedVariantId] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -331,19 +332,55 @@ export default function ProductDetailPage() {
     openInquiry(product, {}, false, "question");
   }
 
-  function addSelectionToCart(product) {
-    if (!productIsAvailable) return;
+  function updateDetailCartQuantity(nextQuantity) {
+    const requestedQuantity = Number(nextQuantity || 1);
+    const safeQuantity = Number.isNaN(requestedQuantity)
+      ? 1
+      : Math.max(1, Math.floor(requestedQuantity));
 
-    const item = addProductToCart(
+    setCartQuantity(
+      maxDetailCartQuantity
+        ? Math.min(maxDetailCartQuantity, safeQuantity)
+        : safeQuantity
+    );
+  }
+
+  function getCartStatusMessage(result) {
+    const quantityAdded = Number(result?.quantityAdded || 0);
+
+    if (result?.status === "created") {
+      return quantityAdded > 1
+        ? `${quantityAdded} Stück wurden in den Warenkorb gelegt.`
+        : "Das Produkt wurde in den Warenkorb gelegt.";
+    }
+
+    if (result?.status === "increased") {
+      return quantityAdded > 1
+        ? `Menge im Warenkorb wurde um ${quantityAdded} erhöht.`
+        : "Menge im Warenkorb wurde erhöht.";
+    }
+
+    if (result?.status === "max_reached") {
+      return "Maximale verfügbare Menge ist bereits im Warenkorb.";
+    }
+
+    return "Dieses Produkt ist aktuell nicht verfügbar.";
+  }
+
+  function addSelectionToCart(product) {
+    if (!productIsAvailable) {
+      setCartStatus("Dieses Produkt ist aktuell nicht verfügbar.");
+      return;
+    }
+
+    const result = addProductToCart(
       product,
       selectedDetailExtras,
-      selectedVariant
+      selectedVariant,
+      safeDetailCartQuantity
     );
-    setCartStatus(
-      item
-        ? "Das Produkt wurde in den Warenkorb gelegt."
-        : "Dieses Produkt ist aktuell nicht verfügbar."
-    );
+
+    setCartStatus(getCartStatusMessage(result));
 
     setTimeout(() => {
       setCartStatus("");
@@ -435,6 +472,13 @@ export default function ProductDetailPage() {
     (extra) => extra?.selected
   );
   const cartButtonDisabled = !productIsAvailable;
+  const maxDetailCartQuantity =
+    productIsAvailable && !isPreorder && stockQuantity > 0
+      ? Number(stockQuantity)
+      : null;
+  const safeDetailCartQuantity = maxDetailCartQuantity
+    ? Math.min(maxDetailCartQuantity, Math.max(1, Number(cartQuantity || 1)))
+    : Math.max(1, Number(cartQuantity || 1));
   const selectedImageIndex = Math.max(0, productImages.indexOf(displayImage));
   const productJsonLd = buildProductJsonLd(product);
 
@@ -476,13 +520,15 @@ export default function ProductDetailPage() {
   return (
     <>
       <div style={siteStyle}>
-        <header style={headerStyle}>
-          <Link to="/" style={pillBackLinkStyle}>
-            Zur Produktübersicht
-          </Link>
-        </header>
+        <PublicHeader />
 
         <section style={detailSectionStyle}>
+          <div style={{ marginBottom: "18px" }}>
+            <Link to="/" style={pillBackLinkStyle}>
+              Zur Produktübersicht
+            </Link>
+          </div>
+
           <div style={detailLayoutStyle}>
             <div
               style={{
@@ -1089,6 +1135,125 @@ export default function ProductDetailPage() {
                   <div style={detailTotalBoxStyle}>
                     <span>Voraussichtlicher Gesamtpreis</span>
                     <strong>{detailEstimatedTotal}</strong>
+                  </div>
+                </div>
+              )}
+
+              {productIsAvailable && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "12px",
+                    flexWrap: "wrap",
+                    marginTop: "16px",
+                    padding: "12px 14px",
+                    borderRadius: "18px",
+                    border: "1px solid #D8E0D2",
+                    background: "#F7F1E8",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#2F3A34",
+                      fontWeight: "bold",
+                      fontSize: isDesktopDetailLayout ? "15px" : "14px",
+                    }}
+                  >
+                    Menge
+                  </span>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      borderRadius: "999px",
+                      border: "1px solid #D8E0D2",
+                      background: "#fffaf3",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateDetailCartQuantity(safeDetailCartQuantity - 1)
+                      }
+                      disabled={safeDetailCartQuantity <= 1}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "38px",
+                        height: "38px",
+                        border: "none",
+                        background: "transparent",
+                        color: "#2F3A34",
+                        fontWeight: "bold",
+                        lineHeight: 1,
+                        cursor:
+                          safeDetailCartQuantity <= 1 ? "not-allowed" : "pointer",
+                        opacity: safeDetailCartQuantity <= 1 ? 0.45 : 1,
+                      }}
+                      aria-label="Menge verringern"
+                    >
+                      -
+                    </button>
+                    <span
+                      aria-live="polite"
+                      aria-label={`Aktuelle Menge: ${safeDetailCartQuantity}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "54px",
+                        height: "38px",
+                        borderLeft: "1px solid #D8E0D2",
+                        borderRight: "1px solid #D8E0D2",
+                        background: "#fffaf3",
+                        color: "#2F3A34",
+                        fontWeight: "bold",
+                        lineHeight: 1,
+                        textAlign: "center",
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {safeDetailCartQuantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateDetailCartQuantity(safeDetailCartQuantity + 1)
+                      }
+                      disabled={
+                        Boolean(maxDetailCartQuantity) &&
+                        safeDetailCartQuantity >= maxDetailCartQuantity
+                      }
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "38px",
+                        height: "38px",
+                        border: "none",
+                        background: "transparent",
+                        color: "#2F3A34",
+                        fontWeight: "bold",
+                        lineHeight: 1,
+                        cursor:
+                          maxDetailCartQuantity &&
+                          safeDetailCartQuantity >= maxDetailCartQuantity
+                            ? "not-allowed"
+                            : "pointer",
+                        opacity:
+                          maxDetailCartQuantity &&
+                          safeDetailCartQuantity >= maxDetailCartQuantity
+                            ? 0.45
+                            : 1,
+                      }}
+                      aria-label="Menge erhöhen"
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               )}

@@ -58,13 +58,59 @@ export function getCartSubtotal(items = getCartItems()) {
   );
 }
 
-export function addProductToCart(product, selectedExtras = {}, selectedVariant = null) {
+function normalizeCartQuantity(quantity) {
+  const requestedQuantity = Number(quantity || 1);
+
+  if (Number.isNaN(requestedQuantity)) return 1;
+
+  return Math.max(1, Math.floor(requestedQuantity));
+}
+
+function buildCartSelectionKey(item) {
+  return JSON.stringify({
+    productId: String(item.productId || ""),
+    selectedVariant: item.selectedVariant
+      ? {
+          id: item.selectedVariant.id || "",
+          name: item.selectedVariant.name || "",
+          price_adjustment: Number(item.selectedVariant.price_adjustment || 0),
+          image_url: item.selectedVariant.image_url || "",
+        }
+      : null,
+    selectedExtras: Array.isArray(item.selectedExtras)
+      ? item.selectedExtras.map((extra) => ({
+          name: extra.name || "",
+          description: extra.description || "",
+          price: Number(extra.price || 0),
+          original_price: Number(extra.original_price ?? extra.price ?? 0),
+          discount_percent: Number(extra.discount_percent || 0),
+          discount_label: extra.discount_label || "",
+          has_discount: Boolean(extra.has_discount),
+          note: extra.note || "",
+        }))
+      : [],
+    unitTotal: Number(item.unitTotal || 0),
+  });
+}
+
+export function addProductToCart(
+  product,
+  selectedExtras = {},
+  selectedVariant = null,
+  quantity = 1
+) {
+  const requestedQuantity = normalizeCartQuantity(quantity);
   const stockQuantity = getStockQuantity(product);
   const availabilityStatus = getAvailabilityStatus(product);
   const isPreorder = availabilityStatus === "preorder";
 
-  if (availabilityStatus !== "available" && !isPreorder) return null;
-  if (!isPreorder && stockQuantity <= 0) return null;
+  if (availabilityStatus !== "available" && !isPreorder) {
+    return { status: "unavailable", item: null, quantityAdded: 0 };
+  }
+
+  if (!isPreorder && stockQuantity <= 0) {
+    return { status: "unavailable", item: null, quantityAdded: 0 };
+  }
 
   const customExtras = getProductExtras(product);
   const selectedItems = customExtras
@@ -94,6 +140,7 @@ export function addProductToCart(product, selectedExtras = {}, selectedVariant =
     0
   );
   const unitTotal = basePrice + extrasTotal;
+  const maxQuantity = !isPreorder && stockQuantity > 0 ? Number(stockQuantity) : Infinity;
 
   const nextItem = {
     id: createCartId(),
@@ -114,14 +161,65 @@ export function addProductToCart(product, selectedExtras = {}, selectedVariant =
     selectedExtras: selectedItems,
     unitTotal,
     unitTotalLabel: formatEuro(unitTotal),
-    quantity: 1,
+    quantity: Math.min(requestedQuantity, maxQuantity),
   };
 
-  saveCartItems([...getCartItems(), nextItem]);
+  const currentItems = getCartItems();
+  const nextItemKey = buildCartSelectionKey(nextItem);
+  const existingIndex = currentItems.findIndex(
+    (item) => buildCartSelectionKey(item) === nextItemKey
+  );
 
-  return nextItem;
+  if (existingIndex >= 0) {
+    const existingItem = currentItems[existingIndex];
+    const currentQuantity = normalizeCartQuantity(existingItem.quantity);
+
+    if (currentQuantity >= maxQuantity) {
+      return {
+        status: "max_reached",
+        item: existingItem,
+        quantityAdded: 0,
+      };
+    }
+
+    const nextQuantity = Math.min(maxQuantity, currentQuantity + requestedQuantity);
+    const quantityAdded = nextQuantity - currentQuantity;
+
+    if (quantityAdded <= 0) {
+      return {
+        status: "max_reached",
+        item: existingItem,
+        quantityAdded: 0,
+      };
+    }
+
+    const updatedItem = {
+      ...existingItem,
+      availabilityStatus,
+      isPreorder,
+      stockQuantity,
+      quantity: nextQuantity,
+    };
+    const updatedItems = [...currentItems];
+    updatedItems[existingIndex] = updatedItem;
+
+    saveCartItems(updatedItems);
+
+    return {
+      status: "increased",
+      item: updatedItem,
+      quantityAdded,
+    };
+  }
+
+  saveCartItems([...currentItems, nextItem]);
+
+  return {
+    status: "created",
+    item: nextItem,
+    quantityAdded: nextItem.quantity,
+  };
 }
-
 export function updateCartItemQuantity(itemId, quantity) {
   const requestedQuantity = Number(quantity || 1);
   const safeQuantity = Number.isNaN(requestedQuantity)
