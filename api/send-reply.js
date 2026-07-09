@@ -195,7 +195,8 @@ export default async function handler(request, response) {
     const customerText = buildCustomerText(cleanMessage);
 
     await transporter.sendMail({
-      from: smtpUser,
+      from: `"Camp Oase" <${smtpUser}>`,
+      sender: smtpUser,
       to: cleanTo,
       replyTo: replyAddress,
       subject: cleanSubject,
