@@ -55,22 +55,37 @@ function buildCustomerHtml(text) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Camp Oase</title>
   </head>
-  <body style="margin:0; padding:0; background:#f5f1e8; color:#2f3f36; font-family:Arial, sans-serif;">
-    <div style="max-width:640px; margin:0 auto; padding:28px 18px;">
-      <div style="background:#ffffff; border:1px solid #edf4ef; border-radius:18px; overflow:hidden;">
-        <div style="background:#edf4ef; padding:18px 22px;">
-          <strong style="font-size:20px; color:#2f3f36;">Camp Oase</strong>
-        </div>
-        <div style="padding:24px 22px; font-size:16px; line-height:1.65;">
-          ${escapedText}
-        </div>
-        <div style="border-top:1px solid #edf4ef; padding:18px 22px; background:#fbf8f1; font-size:14px; line-height:1.6; color:#526158;">
-          <strong>Camp Oase</strong><br />
-          <a href="mailto:service@camp-oase.de" style="color:#2f3f36;">service@camp-oase.de</a><br />
-          <a href="https://www.camp-oase.de" style="color:#2f3f36;">www.camp-oase.de</a>
-        </div>
-      </div>
-    </div>
+  <body style="margin:0; padding:0; background:#f5f1e8; color:#2f3a34; font-family:Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; margin:0; padding:0; background:#f5f1e8;">
+      <tr>
+        <td align="center" style="padding:28px 14px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; max-width:640px; border-collapse:separate; background:#fffdf8; border:1px solid #d8e1d3; border-radius:22px; overflow:hidden;">
+            <tr>
+              <td style="padding:22px 24px; background:#eef3ea; border-bottom:1px solid #d8e1d3;">
+                <div style="font-size:22px; line-height:1.2; color:#556b5d; font-weight:700; letter-spacing:0.2px;">
+                  Camp Oase
+                </div>
+                <div style="margin-top:6px; font-size:13px; line-height:1.4; color:#6f856f;">
+                  Liebevolle Camping-Produkte & persönliche Geschenkideen
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:26px 24px; background:#fffdf8; color:#2f3a34; font-size:16px; line-height:1.72;">
+                ${escapedText}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 24px; background:#f7f2e7; border-top:1px solid #d8e1d3; color:#556b5d; font-size:14px; line-height:1.65;">
+                <strong style="color:#556b5d; font-weight:700;">Camp Oase</strong><br />
+                <a href="mailto:service@camp-oase.de" style="color:#6f856f; text-decoration:none;">service@camp-oase.de</a><br />
+                <a href="https://www.camp-oase.de" style="color:#6f856f; text-decoration:none;">www.camp-oase.de</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>`;
 }
