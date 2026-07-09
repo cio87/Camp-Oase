@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { CART_UPDATED_EVENT, getCartItemCount } from "../utils/cart";
 import {
@@ -128,102 +129,110 @@ export default function PublicHeader() {
   ];
   const hasCartItems = cartCount > 0;
 
+  const mobileMenu =
+    menuOpen && !isDesktop && typeof document !== "undefined"
+      ? createPortal(
+          <div style={menuOverlayStyle} onClick={closeMenu}>
+            <section
+              style={menuPanelStyle}
+              onClick={(event) => event.stopPropagation()}
+              aria-label="Mobiles Hauptmenü"
+            >
+              <div style={menuHeaderStyle}>
+                <strong style={brandTextStyle}>Menü</strong>
+                <button
+                  ref={menuCloseButtonRef}
+                  type="button"
+                  style={menuCloseButtonStyle}
+                  onClick={closeMenu}
+                  aria-label="Menü schließen"
+                >
+                  ×
+                </button>
+              </div>
+
+              <nav
+                style={{ display: "grid", gap: "12px", marginTop: "12px" }}
+                aria-label="Hauptnavigation"
+              >
+                {menuLinks.map((link) => {
+                  const isCartLink = link.to === "/warenkorb";
+
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      style={{
+                        ...menuLinkStyle,
+                        ...(isCartLink && hasCartItems ? activeCartLinkStyle : {}),
+                      }}
+                      onClick={closeMenu}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </section>
+          </div>,
+          document.body
+        )
+      : null;
+
   return (
-    <header style={headerStyle}>
-      <Link to="/" style={headerBrandLinkStyle}>
-        <img src="/logo.png" alt="Camp Oase" style={logoStyle} />
-        <strong style={brandTextStyle}>Camp Oase</strong>
-      </Link>
+    <>
+      <header style={headerStyle}>
+        <Link to="/" style={headerBrandLinkStyle}>
+          <img src="/logo.png" alt="Camp Oase" style={logoStyle} />
+          <strong style={brandTextStyle}>Camp Oase</strong>
+        </Link>
 
-      {isDesktop ? (
-        <nav style={headerNavStyle} aria-label="Hauptnavigation">
-          {menuLinks.map((link) => {
-            const isCartLink = link.to === "/warenkorb";
+        {isDesktop ? (
+          <nav style={headerNavStyle} aria-label="Hauptnavigation">
+            {menuLinks.map((link) => {
+              const isCartLink = link.to === "/warenkorb";
 
-            return (
-              <Link
-                key={link.to}
-                to={link.to}
-                style={{
-                  ...headerNavLinkStyle,
-                  ...(isCartLink && hasCartItems ? activeCartLinkStyle : {}),
-                }}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-      ) : (
-        <button
-          ref={menuButtonRef}
-          type="button"
-          style={{
-            ...hamburgerButtonStyle,
-            position: "relative",
-            ...(hasCartItems ? activeCartLinkStyle : {}),
-          }}
-          onClick={() => setMenuOpen(true)}
-          aria-label="Menü öffnen"
-          aria-expanded={menuOpen}
-        >
-          ☰
-          {hasCartItems && (
-            <span
-              aria-label={`${cartCount} Artikel im Warenkorb`}
-              style={cartBadgeStyle}
-            >
-              {cartCount}
-            </span>
-          )}
-        </button>
-      )}
-
-      {menuOpen && !isDesktop && (
-        <div style={menuOverlayStyle} onClick={closeMenu}>
-          <section
-            style={menuPanelStyle}
-            onClick={(event) => event.stopPropagation()}
-            aria-label="Mobiles Hauptmenü"
+              return (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  style={{
+                    ...headerNavLinkStyle,
+                    ...(isCartLink && hasCartItems ? activeCartLinkStyle : {}),
+                  }}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        ) : (
+          <button
+            ref={menuButtonRef}
+            type="button"
+            style={{
+              ...hamburgerButtonStyle,
+              position: "relative",
+              ...(hasCartItems ? activeCartLinkStyle : {}),
+            }}
+            onClick={() => setMenuOpen(true)}
+            aria-label="Menü öffnen"
+            aria-expanded={menuOpen}
           >
-            <div style={menuHeaderStyle}>
-              <strong style={brandTextStyle}>Menü</strong>
-              <button
-                ref={menuCloseButtonRef}
-                type="button"
-                style={menuCloseButtonStyle}
-                onClick={closeMenu}
-                aria-label="Menü schließen"
+            ☰
+            {hasCartItems && (
+              <span
+                aria-label={`${cartCount} Artikel im Warenkorb`}
+                style={cartBadgeStyle}
               >
-                ×
-              </button>
-            </div>
+                {cartCount}
+              </span>
+            )}
+          </button>
+        )}
+      </header>
 
-            <nav
-              style={{ display: "grid", gap: "12px", marginTop: "12px" }}
-              aria-label="Hauptnavigation"
-            >
-              {menuLinks.map((link) => {
-                const isCartLink = link.to === "/warenkorb";
-
-                return (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    style={{
-                      ...menuLinkStyle,
-                      ...(isCartLink && hasCartItems ? activeCartLinkStyle : {}),
-                    }}
-                    onClick={closeMenu}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </section>
-        </div>
-      )}
-    </header>
+      {mobileMenu}
+    </>
   );
 }

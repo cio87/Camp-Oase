@@ -86,7 +86,7 @@ export const hamburgerButtonStyle = {
 export const menuOverlayStyle = {
   position: "fixed",
   inset: 0,
-  zIndex: 9998,
+  zIndex: 30000,
   background: "rgba(47, 58, 52, 0.3)",
   backdropFilter: "blur(4px)",
   display: "flex",
@@ -94,8 +94,9 @@ export const menuOverlayStyle = {
   justifyContent: "center",
   padding: "clamp(96px, 18vh, 128px) 18px 24px",
 };
-
 export const menuPanelStyle = {
+  position: "relative",
+  zIndex: 30001,
   width: "min(430px, 100%)",
   maxHeight: "calc(100vh - 124px)",
   overflowY: "auto",
