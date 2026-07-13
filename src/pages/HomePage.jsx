@@ -157,7 +157,7 @@ export default function HomePage() {
         </section>
 
         <section id="produkte" style={sectionStyle}>
-          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
             <p style={{ color: "#6f8069", fontWeight: "bold" }}>
               Produktübersicht
             </p>

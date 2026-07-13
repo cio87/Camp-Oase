@@ -5,6 +5,8 @@ export const siteStyle = {
   color: "#3b3329",
 };
 
+const publicContentMaxWidth = "1280px";
+
 export const pageStyle = {
   ...siteStyle,
   padding: "clamp(24px, 5vw, 40px)",
@@ -17,7 +19,7 @@ export const adminShellStyle = {
 };
 
 export const headerStyle = {
-  padding: "clamp(14px, 3vw, 20px) max(18px, calc((100vw - 1200px) / 2))",
+  padding: `clamp(14px, 3vw, 20px) max(18px, calc((100vw - ${publicContentMaxWidth}) / 2))`,
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
@@ -144,7 +146,7 @@ export const menuLinkStyle = {
 };
 
 export const announcementBannerStyle = {
-  maxWidth: "1120px",
+  maxWidth: publicContentMaxWidth,
   margin: "clamp(18px, 4vw, 30px) auto 0",
   padding: "0 clamp(14px, 5vw, 32px)",
   color: "#2F3A34",
@@ -253,7 +255,7 @@ export const heroTextStyle = {
 };
 
 export const homeBrandSectionStyle = {
-  maxWidth: "1120px",
+  maxWidth: publicContentMaxWidth,
   margin: "clamp(16px, 5vw, 38px) auto 0",
   padding: "0 clamp(14px, 5vw, 32px)",
   display: "grid",
@@ -1374,6 +1376,10 @@ export const errorBoxStyle = {
 };
 
 export const footerStyle = {
+  width: "100%",
+  maxWidth: publicContentMaxWidth,
+  boxSizing: "border-box",
+  margin: "0 auto",
   padding: "clamp(22px, 6vw, 28px) 18px",
   textAlign: "center",
   color: "#7f8f82",
