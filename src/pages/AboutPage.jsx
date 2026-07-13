@@ -18,19 +18,19 @@ import {
 
 const aboutCards = [
   {
-    icon: "🏕️",
-    title: "Handmade mit Herz",
-    text: "Kleine Details, ruhige Farben und eine Gestaltung, die sich nach Camping, Zuhause und Lieblingsplatz anfühlt.",
+    icon: "✦",
+    title: "Persönlich für dich gestaltet",
+    text: "Viele Produkte lassen sich anpassen, damit sie zu deinem Camper, einem besonderen Anlass oder deiner Geschenkidee passen.",
   },
   {
-    icon: "✨",
-    title: "Persönlich statt Massenware",
-    text: "Viele Ideen lassen sich anpassen, damit sie zu deinem Camper, deinem Geschenk oder deiner kleinen Auszeit passen.",
+    icon: "⌂",
+    title: "Für Camper und kleine Auszeiten",
+    text: "Entdecke liebevolle Details für Wohnwagen, Wohnmobil und Vanlife – für unterwegs, den Stellplatz und dein kleines Zuhause auf Rädern.",
   },
   {
-    icon: "🚐",
-    title: "Für Camper, Vanlife & kleine Auszeiten",
-    text: "Für Wohnwagen, Wohnmobil, Vanlife und alle, die unterwegs gern ein Stück Persönlichkeit dabeihaben.",
+    icon: "✧",
+    title: "Mit Blick fürs Detail",
+    text: "Ruhige Farben, stimmige Motive und sorgfältig ausgewählte Extras machen aus kleinen Dingen persönliche Lieblingsstücke.",
   },
 ];
 

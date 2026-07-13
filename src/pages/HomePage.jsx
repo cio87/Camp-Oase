@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import AnnouncementBanner from "../components/AnnouncementBanner";
 import InquiryModal from "../components/InquiryModal";
 import ProductCard from "../components/ProductCard";
@@ -10,17 +11,9 @@ import { getEmptyInquiryForm } from "../utils/price";
 import { sortProductsByDisplayOrder } from "../utils/products";
 import { usePageSeo } from "../utils/seo";
 import {
-  badgeStyle,
-  homeBrandCardGridStyle,
-  homeBrandCardStyle,
-  homeBrandIntroStyle,
-  homeBrandSectionStyle,
-  homeBrandTextStyle,
-  homeBrandTitleStyle,
-  heroStyle,
-  heroTextStyle,
-  heroTitleStyle,
+  buttonStyle,
   productGridStyle,
+  secondaryButtonStyle,
   sectionStyle,
   sectionTitleStyle,
   siteStyle,
@@ -110,51 +103,42 @@ export default function HomePage() {
       <div style={siteStyle}>
         <PublicHeader />
 
-        <section style={heroStyle}>
-          <p style={badgeStyle}>Camping • Caravan • Handmade</p>
+        <section className="home-hero">
+          <div className="home-hero__inner">
+            <div className="home-hero__content">
+              <p className="home-hero__eyebrow">Camp Oase für unterwegs</p>
+              <h1>Persönliche Camping-Produkte für deine kleine Oase</h1>
+              <p className="home-hero__text">
+                Entdecke personalisierbare Geschenkideen und besondere Details für
+                Wohnwagen, Wohnmobil und Vanlife – passend für dich gestaltet.
+              </p>
 
-          <h1 style={heroTitleStyle}>Willkommen bei Camp Oase</h1>
+              <div className="home-hero__actions">
+                <a href="#produkte" style={buttonStyle}>
+                  Produkte entdecken
+                </a>
+                <Link to="/ueber-uns" style={secondaryButtonStyle}>
+                  Mehr über Camp Oase
+                </Link>
+              </div>
 
-          <p style={heroTextStyle}>
-            Liebevoll gestaltete Camping-Produkte, Deko und Zubehör für dein
-            persönliches Zuhause auf Rädern.
-          </p>
+              <p className="home-hero__trust">
+                Personalisierbar <span aria-hidden="true">·</span> Mit Liebe gestaltet{" "}
+                <span aria-hidden="true">·</span> Für Camper
+              </p>
+            </div>
+
+            <div className="home-hero__image-wrap">
+              <img
+                src="/images/hero-camping.png"
+                alt="Gemütlicher Campingplatz am See bei Sonnenuntergang"
+                className="home-hero__image"
+              />
+            </div>
+          </div>
         </section>
 
         <AnnouncementBanner />
-
-        <section style={homeBrandSectionStyle}>
-          <div style={homeBrandIntroStyle}>
-            <p style={{ color: "#6f8069", fontWeight: "bold", margin: 0 }}>
-              Kleine Dinge, die unterwegs Freude machen
-            </p>
-
-            <h2 style={homeBrandTitleStyle}>Mit Liebe gemacht für deine Oase</h2>
-
-            <p style={homeBrandTextStyle}>
-              Camp Oase steht für liebevoll gestaltete Camping-Produkte,
-              personalisierte Details und kleine Geschenkideen für Wohnwagen,
-              Wohnmobil und Vanlife.
-            </p>
-          </div>
-
-          <div style={homeBrandCardGridStyle}>
-            <div style={homeBrandCardStyle}>
-              <strong>Handmade & persönlich</strong>
-              <p>Viele Produkte entstehen mit Blick fürs Detail und einem warmen, handgemachten Gefühl.</p>
-            </div>
-
-            <div style={homeBrandCardStyle}>
-              <strong>Für Camper, Vanlife & Wohnwagen</strong>
-              <p>Kleine Lieblingsstücke für unterwegs, den Stellplatz oder als Geschenk für Campingmenschen.</p>
-            </div>
-
-            <div style={homeBrandCardStyle}>
-              <strong>Extras nach Wunsch</strong>
-              <p>Personalisierungen und passende Ergänzungen können direkt auf der Produktseite angefragt werden.</p>
-            </div>
-          </div>
-        </section>
 
         <section id="produkte" style={sectionStyle}>
           <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
