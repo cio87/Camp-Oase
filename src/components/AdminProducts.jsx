@@ -145,10 +145,10 @@ export default function AdminProducts({
     ? newProduct.product_badges
     : [];
   const galleryImages = Array.isArray(newProduct.gallery_images)
-    ? newProduct.gallery_images.slice(0, 3)
+    ? newProduct.gallery_images.slice(0, 5)
     : [];
   const galleryFiles = Array.isArray(newProduct.galleryFiles)
-    ? newProduct.galleryFiles.slice(0, 3)
+    ? newProduct.galleryFiles.slice(0, 5)
     : [];
   const productVariants = Array.isArray(newProduct.product_variants)
     ? newProduct.product_variants
@@ -192,7 +192,7 @@ export default function AdminProducts({
 
     setNewProduct({
       ...newProduct,
-      gallery_images: nextImages.filter(Boolean).slice(0, 3),
+      gallery_images: nextImages.filter(Boolean).slice(0, 5),
       galleryFiles: nextFiles,
     });
   }
@@ -219,7 +219,7 @@ export default function AdminProducts({
   }
 
   const galleryCount = Math.min(
-    3,
+    5,
     galleryImages.filter(Boolean).length + galleryFiles.filter(Boolean).length
   );
   const extrasCount = (newProduct.custom_extras || []).filter((extra) =>
@@ -458,7 +458,7 @@ export default function AdminProducts({
 
         <AccordionSection
           title="Bilder & Galerie"
-          meta={`${galleryCount}/3`}
+          meta={`${galleryCount}/5`}
           resetKey={accordionResetKey}
         >
         {editingId && newProduct.image && (
@@ -508,12 +508,12 @@ export default function AdminProducts({
         <div style={compactBoxStyle}>
           <strong style={{ color: "#435749" }}>Produktgalerie</strong>
           <p style={compactHintStyle}>
-            Optional bis zu 3 zusätzliche Bilder. Das Hauptbild bleibt weiterhin
+            Optional bis zu 5 zusätzliche Bilder. Das Hauptbild bleibt weiterhin
             das Bild für Produktkarten und Übersicht.
           </p>
 
           <div style={{ display: "grid", gap: "12px" }}>
-            {[0, 1, 2].map((index) => {
+            {Array.from({ length: 5 }, (_, index) => index).map((index) => {
               const image = galleryImages[index];
               const file = galleryFiles[index];
 

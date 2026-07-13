@@ -444,7 +444,7 @@ export default function ProductDetailPage() {
     null;
   const selectedVariantAdjustment = getVariantPriceAdjustment(selectedVariant);
   const productGalleryImages = Array.isArray(product?.gallery_images)
-    ? product.gallery_images.filter(Boolean).slice(0, 3)
+    ? product.gallery_images.filter(Boolean).slice(0, 5)
     : [];
   const variantImage = selectedVariant?.image_url || "";
   const productImages = product

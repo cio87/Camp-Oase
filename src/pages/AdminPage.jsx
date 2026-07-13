@@ -417,7 +417,7 @@ export default function AdminPage() {
     setAdminTab("products");
   }
 
-  async function uploadProductImage(file) {
+  async function uploadProductImage(file, uploadedImageUrls = []) {
     const cleanFileName = file.name
       .toLowerCase()
       .replaceAll("ä", "ae")
@@ -442,17 +442,82 @@ export default function AdminPage() {
       return "";
     }
 
-    return supabase.storage.from("products").getPublicUrl(fileName).data
+    const publicUrl = supabase.storage.from("products").getPublicUrl(fileName).data
       .publicUrl;
+
+    uploadedImageUrls.push(publicUrl);
+    return publicUrl;
   }
 
   function getGalleryImages(product) {
     return Array.isArray(product?.gallery_images)
-      ? product.gallery_images.filter(Boolean).slice(0, 3)
+      ? product.gallery_images.filter(Boolean).slice(0, 5)
       : [];
   }
 
-  async function getCleanedProductVariants() {
+  function getProductImageUrls(product) {
+    const galleryImages = Array.isArray(product?.gallery_images)
+      ? product.gallery_images
+      : [];
+    const variants = Array.isArray(product?.product_variants)
+      ? product.product_variants
+      : [];
+    const extras = Array.isArray(product?.custom_extras)
+      ? product.custom_extras
+      : [];
+
+    return [...new Set([
+      product?.image,
+      ...galleryImages,
+      ...variants.map((variant) => variant?.image_url),
+      ...extras.map((extra) => extra?.partner_image_url),
+    ].filter(Boolean))];
+  }
+
+  function getProductsStoragePath(imageUrl) {
+    if (!imageUrl) return "";
+
+    try {
+      const probeUrl = new URL(
+        supabase.storage
+          .from("products")
+          .getPublicUrl("__camp_oase_storage_probe__").data.publicUrl
+      );
+      const url = new URL(imageUrl);
+      const bucketPath = probeUrl.pathname.replace(
+        /\/__camp_oase_storage_probe__$/,
+        ""
+      );
+      const pathPrefix = bucketPath + "/";
+
+      if (url.origin !== probeUrl.origin || !url.pathname.startsWith(pathPrefix)) {
+        return "";
+      }
+
+      return decodeURIComponent(url.pathname.slice(pathPrefix.length));
+    } catch {
+      return "";
+    }
+  }
+
+  async function removeUnusedProductStorageImages(imageUrls, excludedProductId = null) {
+    const referencedByOtherProducts = new Set(
+      products
+        .filter((product) => String(product.id) !== String(excludedProductId))
+        .flatMap((product) => getProductImageUrls(product))
+    );
+    const storagePaths = [...new Set(imageUrls)]
+      .filter((imageUrl) => !referencedByOtherProducts.has(imageUrl))
+      .map(getProductsStoragePath)
+      .filter(Boolean);
+
+    if (storagePaths.length === 0) return { error: null, count: 0 };
+
+    const { error } = await supabase.storage.from("products").remove(storagePaths);
+    return { error, count: storagePaths.length };
+  }
+
+  async function getCleanedProductVariants(uploadedImageUrls) {
     const variants = Array.isArray(newProduct.product_variants)
       ? newProduct.product_variants
       : [];
@@ -463,7 +528,7 @@ export default function AdminPage() {
       if (!cleanedVariant.name) continue;
 
       if (variant.image_file) {
-        const uploadedImage = await uploadProductImage(variant.image_file);
+        const uploadedImage = await uploadProductImage(variant.image_file, uploadedImageUrls);
         if (!uploadedImage) return null;
         cleanedVariant.image_url = uploadedImage;
       }
@@ -477,11 +542,27 @@ export default function AdminPage() {
   async function addProduct(e) {
     e.preventDefault();
 
+    const uploadedImageUrls = [];
+    const existingProduct = editingId
+      ? products.find((product) => String(product.id) === String(editingId))
+      : null;
+
+    async function cleanupAbortedUploads() {
+      const cleanupResult = await removeUnusedProductStorageImages(uploadedImageUrls);
+
+      if (cleanupResult.error) {
+        console.warn("Neue Bild-Uploads konnten nicht komplett bereinigt werden.");
+      }
+    }
+
     let imageUrl = newProduct.image;
 
     if (newProduct.file) {
-      imageUrl = await uploadProductImage(newProduct.file);
-      if (!imageUrl) return;
+      imageUrl = await uploadProductImage(newProduct.file, uploadedImageUrls);
+      if (!imageUrl) {
+        await cleanupAbortedUploads();
+        return;
+      }
     }
 
     if (!imageUrl) {
@@ -495,10 +576,13 @@ export default function AdminPage() {
       ? newProduct.galleryFiles
       : [];
 
-    for (let index = 0; index < 3; index += 1) {
+    for (let index = 0; index < 5; index += 1) {
       if (galleryFiles[index]) {
-        const uploadedImage = await uploadProductImage(galleryFiles[index]);
-        if (!uploadedImage) return;
+        const uploadedImage = await uploadProductImage(galleryFiles[index], uploadedImageUrls);
+        if (!uploadedImage) {
+          await cleanupAbortedUploads();
+          return;
+        }
         galleryImages.push(uploadedImage);
       } else if (existingGalleryImages[index]) {
         galleryImages.push(existingGalleryImages[index]);
@@ -513,8 +597,11 @@ export default function AdminPage() {
       let partnerImageUrl = String(extra.partner_image_url || "").trim();
 
       if (extra.partner_image_file) {
-        partnerImageUrl = await uploadProductImage(extra.partner_image_file);
-        if (!partnerImageUrl) return;
+        partnerImageUrl = await uploadProductImage(extra.partner_image_file, uploadedImageUrls);
+        if (!partnerImageUrl) {
+          await cleanupAbortedUploads();
+          return;
+        }
       }
 
       cleanedExtras.push({
@@ -532,9 +619,12 @@ export default function AdminPage() {
         partner_link_label: String(extra.partner_link_label || "").trim(),
       });
     }
-    const cleanedVariants = await getCleanedProductVariants();
+    const cleanedVariants = await getCleanedProductVariants(uploadedImageUrls);
 
-    if (!cleanedVariants) return;
+    if (!cleanedVariants) {
+      await cleanupAbortedUploads();
+      return;
+    }
 
     const productPayload = {
       title: newProduct.title,
@@ -571,8 +661,26 @@ export default function AdminPage() {
     }
 
     if (error) {
+      await cleanupAbortedUploads();
       alert("Produkt konnte nicht gespeichert werden: " + error.message);
       return;
+    }
+
+    const finalImageUrls = getProductImageUrls(productPayload);
+    const replacedImageUrls = existingProduct
+      ? getProductImageUrls(existingProduct).filter(
+          (imageUrl) => !finalImageUrls.includes(imageUrl)
+        )
+      : [];
+    const cleanupResult = await removeUnusedProductStorageImages(
+      replacedImageUrls,
+      editingId
+    );
+
+    if (cleanupResult.error) {
+      alert(
+        "Produkt wurde gespeichert, aber nicht mehr verwendete Bilder konnten nicht vollst\u00e4ndig aus dem Storage entfernt werden."
+      );
     }
 
     resetProductForm();
@@ -626,11 +734,26 @@ export default function AdminPage() {
     const ok = confirm("Produkt wirklich löschen?");
     if (!ok) return;
 
+    const productToDelete = products.find(
+      (product) => String(product.id) === String(id)
+    );
+
     const { error } = await supabase.from("products").delete().eq("id", id);
 
     if (error) {
       alert("Produkt konnte nicht gelöscht werden: " + error.message);
       return;
+    }
+
+    const cleanupResult = await removeUnusedProductStorageImages(
+      getProductImageUrls(productToDelete),
+      id
+    );
+
+    if (cleanupResult.error) {
+      alert(
+        "Produkt wurde gel\u00f6scht, aber zugeh\u00f6rige Bilder konnten nicht vollst\u00e4ndig aus dem Storage entfernt werden."
+      );
     }
 
     await loadProducts();
