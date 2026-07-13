@@ -106,7 +106,6 @@ export default function HomePage() {
         <section className="home-hero">
           <div className="home-hero__inner">
             <div className="home-hero__content">
-              <p className="home-hero__eyebrow">Camp Oase für unterwegs</p>
               <h1>Persönliche Camping-Produkte für deine kleine Oase</h1>
               <p className="home-hero__text">
                 Entdecke personalisierbare Geschenkideen und besondere Details für
