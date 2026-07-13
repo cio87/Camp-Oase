@@ -1420,7 +1420,7 @@ export const legalTitleStyle = {
 };
 
 export const aboutPageStyle = {
-  maxWidth: "980px",
+  maxWidth: "1100px",
   margin: "0 auto",
   background: "linear-gradient(135deg, #ffffff 0%, #fbf7ed 100%)",
   padding: "clamp(24px, 5vw, 48px)",
@@ -1453,9 +1453,14 @@ export const aboutCardGridStyle = {
   gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
   gap: "18px",
   marginTop: "30px",
+  alignItems: "stretch",
 };
 
 export const aboutCardStyle = {
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  boxSizing: "border-box",
   background: "rgba(255,255,255,0.82)",
   border: "1px solid #E8F1EF",
   borderRadius: "20px",
@@ -1498,3 +1503,70 @@ export const contactInfoStyle = {
   lineHeight: "1.7",
 };
 
+
+
+export const aboutKickerStyle = {
+  margin: 0,
+  color: "#6F856F",
+  fontSize: "14px",
+  fontWeight: "bold",
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+};
+
+export const aboutHeadingStyle = {
+  maxWidth: "800px",
+  margin: "12px 0 0",
+  color: "#2F3A34",
+  fontSize: "clamp(32px, 6vw, 54px)",
+  lineHeight: "1.08",
+};
+
+export const aboutHeroMediaStyle = {
+  marginTop: "clamp(22px, 4vw, 32px)",
+  overflow: "hidden",
+  borderRadius: "24px",
+  background: "#E8F1EF",
+  boxShadow: "0 14px 30px rgba(47, 58, 52, 0.08)",
+};
+
+export const aboutHeroImageStyle = {
+  display: "block",
+  width: "100%",
+  height: "clamp(180px, 32vw, 280px)",
+  objectFit: "cover",
+  objectPosition: "78% center",
+};
+
+export const aboutStoryMessageStyle = {
+  maxWidth: "780px",
+  margin: "clamp(24px, 4vw, 34px) 0 0",
+  padding: "0 0 0 clamp(16px, 3vw, 22px)",
+  borderLeft: "3px solid #D8E0D2",
+  color: "#556057",
+  lineHeight: "1.8",
+  fontSize: "clamp(16px, 3vw, 18px)",
+};
+
+export const aboutCardTitleStyle = {
+  margin: 0,
+  color: "#2F3A34",
+  fontSize: "clamp(19px, 3.5vw, 23px)",
+  lineHeight: "1.2",
+};
+
+export const aboutActionStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "min(100%, 280px)",
+  marginTop: "22px",
+  background: "#6F8069",
+  color: "#FFFAF3",
+  borderRadius: "14px",
+  padding: "13px 18px",
+  textDecoration: "none",
+  fontSize: "16px",
+  fontWeight: "bold",
+  boxSizing: "border-box",
+};
