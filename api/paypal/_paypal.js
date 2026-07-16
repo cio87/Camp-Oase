@@ -25,9 +25,26 @@ export async function assertPaymentEnabled(supabase) {
   if (error || !data?.checkout_enabled || !data?.payment_enabled) throw publicError("Die Online-Zahlung ist derzeit nicht verfügbar.", 403);
 }
 
-function toCents(value) {
-  const number = Number(String(value ?? "").replace(",", "."));
-  return Number.isFinite(number) ? Math.round(number * 100) : 0;
+export function toCents(value, label = "Preis") {
+  if ((typeof value !== "string" && typeof value !== "number") || (typeof value === "number" && !Number.isFinite(value))) {
+    throw publicError(`${label} ist ungültig.`);
+  }
+
+  let input = String(value).trim();
+  if (input.endsWith("€")) input = input.slice(0, -1).trim();
+  if (!input || input.includes("€")) throw publicError(`${label} ist ungültig.`);
+
+  const german = input.match(/^([+-]?)(?:(\d{1,3}(?:\.\d{3})+)|(\d+))(?:,(\d{1,2}))?$/);
+  const english = input.match(/^([+-]?)(\d+)(?:\.(\d{1,2}))?$/);
+  const match = german || english;
+  if (!match) throw publicError(`${label} ist ungültig.`);
+
+  const sign = match[1] === "-" ? -1 : 1;
+  const euros = german ? (match[2] || match[3]).replaceAll(".", "") : match[2];
+  const cents = german ? (match[4] || "") : (match[3] || "");
+  const amount = Number(euros) * 100 + Number(cents.padEnd(2, "0") || 0);
+  if (!Number.isSafeInteger(amount)) throw publicError(`${label} ist ungültig.`);
+  return sign * amount;
 }
 function money(cents) { return (cents / 100).toFixed(2); }
 function discountPercent(value) { const percent = Number(value || 0); return Number.isFinite(percent) ? Math.min(100, Math.max(0, percent)) : 0; }
@@ -54,7 +71,7 @@ export function validateCustomer(customer) {
 function getProductExtras(product) {
   if (!product?.extras_enabled || !Array.isArray(product.custom_extras)) return [];
   return product.custom_extras.filter((extra) => cleanText(extra?.name, 160)).map((extra) => {
-    const originalCents = toCents(extra.price);
+    const originalCents = toCents(extra.price, "Der Preis eines Extras");
     const percent = extra.discount_enabled ? discountPercent(extra.discount_percent) : 0;
     return { name: cleanText(extra.name, 160), description: cleanText(extra.description, 1000), cents: Math.max(0, Math.round(originalCents * (1 - percent / 100))) };
   });
@@ -66,7 +83,7 @@ function getProductVariant(product, selectedVariant) {
   const variants = Array.isArray(product.product_variants) ? product.product_variants : [];
   const variant = variants.find((candidate) => String(candidate?.id || "") === id);
   if (!variant || variant.enabled === false || !cleanText(variant.name, 160)) throw publicError("Eine ausgewählte Produktvariante ist nicht mehr verfügbar.");
-  return { id, name: cleanText(variant.name, 160), description: cleanText(variant.description, 1000), cents: toCents(variant.price_adjustment) };
+  return { id, name: cleanText(variant.name, 160), description: cleanText(variant.description, 1000), cents: toCents(variant.price_adjustment, "Der Preisaufschlag einer Variante") };
 }
 
 export async function priceCartFromProducts(supabase, rawItems) {
@@ -87,19 +104,19 @@ export async function priceCartFromProducts(supabase, rawItems) {
     if (availability !== "available" && availability !== "preorder") throw publicError("Mindestens ein Produkt ist nicht mehr bestellbar.");
     if (availability !== "preorder" && quantity > stock) throw publicError("Mindestens ein Produkt ist nicht mehr in ausreichender Menge verfügbar.");
     const variant = getProductVariant(product, rawItem.selectedVariant);
-    const baseCents = Math.max(0, Math.round(toCents(product.price) * (1 - (product.discount_enabled ? discountPercent(product.discount_percent) : 0) / 100)));
+    const baseCents = Math.max(0, Math.round(toCents(product.price, "Der Grundpreis") * (1 - (product.discount_enabled ? discountPercent(product.discount_percent) : 0) / 100)));
     const selectedExtras = Array.isArray(rawItem.selectedExtras) ? rawItem.selectedExtras : [];
     const availableExtras = getProductExtras(product);
     const extras = selectedExtras.map((selected) => {
       const extra = availableExtras.find((candidate) => candidate.name === cleanText(selected?.name, 160));
       if (!extra) throw publicError("Ein ausgewähltes Extra ist nicht mehr verfügbar.");
-      return { name: extra.name, description: extra.description, price: money(extra.cents), note: cleanText(selected?.note, 1000) };
+      return { name: extra.name, description: extra.description, cents: extra.cents, note: cleanText(selected?.note, 1000) };
     });
     if (new Set(extras.map((extra) => extra.name)).size !== extras.length) throw publicError("Ein Extra wurde mehrfach ausgewählt.");
-    const unitCents = baseCents + (variant?.cents || 0) + extras.reduce((sum, extra) => sum + toCents(extra.price), 0);
+    const unitCents = baseCents + (variant?.cents || 0) + extras.reduce((sum, extra) => sum + extra.cents, 0);
     if (unitCents < 0) throw publicError("Ein Produktpreis ist ungültig.");
     const lineCents = unitCents * quantity; subtotalCents += lineCents;
-    return { product_id: String(product.id), title: cleanText(product.title, 240), quantity, availability_status: availability, variant: variant ? { id: variant.id, name: variant.name, description: variant.description, price_adjustment: money(variant.cents) } : null, extras, unit_price: money(unitCents), line_total: money(lineCents) };
+    return { product_id: String(product.id), title: cleanText(product.title, 240), quantity, availability_status: availability, variant: variant ? { id: variant.id, name: variant.name, description: variant.description, price_adjustment: money(variant.cents) } : null, extras: extras.map(({ cents, ...extra }) => ({ ...extra, price: money(cents) })), unit_price: money(unitCents), line_total: money(lineCents) };
   });
   if (subtotalCents <= 0) throw publicError("Der Gesamtbetrag muss größer als 0 € sein.");
   return { items, subtotal: money(subtotalCents), shippingCost: "0.00", total: money(subtotalCents) };
