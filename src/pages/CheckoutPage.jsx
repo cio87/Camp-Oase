@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import PublicHeader from "../components/PublicHeader";
 import SiteFooter from "../components/SiteFooter";
@@ -141,6 +141,12 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
+  const [paypalReady, setPaypalReady] = useState(false);
+  const paypalButtonContainerRef = useRef(null);
+  const formRef = useRef(form);
+  const itemsRef = useRef(items);
+  formRef.current = form;
+  itemsRef.current = items;
 
   const subtotal = useMemo(() => getCartSubtotal(items), [items]);
   const subtotalLabel = formatEuro(subtotal);
@@ -181,34 +187,35 @@ export default function CheckoutPage() {
 
   function validateForm() {
     const nextErrors = {};
+    const currentForm = formRef.current;
 
     Object.entries(fieldLabels).forEach(([field, message]) => {
-      if (!String(form[field] || "").trim()) {
+      if (!String(currentForm[field] || "").trim()) {
         nextErrors[field] = message;
       }
     });
 
-    if (form.useDifferentShippingAddress) {
+    if (currentForm.useDifferentShippingAddress) {
       Object.entries(shippingFieldLabels).forEach(([field, message]) => {
-        if (!String(form[field] || "").trim()) {
+        if (!String(currentForm[field] || "").trim()) {
           nextErrors[field] = message;
         }
       });
     }
 
     if (
-      form.email.trim() &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
+      currentForm.email.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(currentForm.email.trim())
     ) {
       nextErrors.email = "Bitte gib eine gültige E-Mail-Adresse ein.";
     }
 
-    if (!form.acceptedTerms) {
+    if (!currentForm.acceptedTerms) {
       nextErrors.acceptedTerms =
         "Bitte akzeptiere die AGB / Anfragebedingungen.";
     }
 
-    if (!form.acceptedWithdrawal) {
+    if (!currentForm.acceptedWithdrawal) {
       nextErrors.acceptedWithdrawal =
         "Bitte bestätige, dass du die Widerrufsbelehrung zur Kenntnis genommen hast.";
     }
@@ -313,6 +320,70 @@ export default function CheckoutPage() {
     setItems([]);
   }
 
+  function buildPaymentPayload() {
+    const currentForm = formRef.current;
+    const billingAddress = { street: currentForm.street.trim(), postal_code: currentForm.zip.trim(), city: currentForm.city.trim(), country: "Deutschland" };
+    const shippingAddress = currentForm.useDifferentShippingAddress
+      ? { street: currentForm.shippingStreet.trim(), postal_code: currentForm.shippingZip.trim(), city: currentForm.shippingCity.trim(), country: currentForm.shippingCountry.trim() }
+      : billingAddress;
+    return {
+      items: itemsRef.current,
+      customer: {
+        first_name: currentForm.firstName.trim(), last_name: currentForm.lastName.trim(), email: currentForm.email.trim(), phone: currentForm.phone.trim(),
+        billing_address: billingAddress, shipping_address: shippingAddress,
+        accepted_terms: currentForm.acceptedTerms, accepted_withdrawal: currentForm.acceptedWithdrawal,
+      },
+    };
+  }
+
+  async function postPaymentRequest(url, body) {
+    const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Die Zahlung konnte nicht verarbeitet werden.");
+    return data;
+  }
+
+  useEffect(() => {
+    if (!settings.checkout_enabled || !settings.payment_enabled || !paypalConfigured) { setPaypalReady(false); return undefined; }
+    let cancelled = false;
+    const scriptId = "paypal-sdk";
+    let script = document.getElementById(scriptId);
+    const loadSdk = script
+      ? new Promise((resolve, reject) => {
+          if (window.paypal) resolve();
+          else { script.addEventListener("load", resolve, { once: true }); script.addEventListener("error", reject, { once: true }); }
+        })
+      : new Promise((resolve, reject) => {
+          script = document.createElement("script"); script.id = scriptId;
+          script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(paypalClientId)}&currency=EUR&intent=capture&components=buttons`;
+          script.async = true; script.onload = resolve; script.onerror = reject; document.head.appendChild(script);
+        });
+    loadSdk.then(() => {
+      if (cancelled || !window.paypal || !paypalButtonContainerRef.current) return;
+      paypalButtonContainerRef.current.replaceChildren();
+      const buttons = window.paypal.Buttons({
+        createOrder: async () => {
+          if (!validateForm()) { setStatus("validation"); throw new Error("Bitte vervollständige das Formular."); }
+          setSending(true); setStatus("");
+          try { return (await postPaymentRequest("/api/paypal/create-order", buildPaymentPayload())).id; }
+          catch (error) { setStatus(error.message || "payment-error"); throw error; }
+          finally { setSending(false); }
+        },
+        onApprove: async (data) => {
+          setSending(true); setStatus("");
+          try { await postPaymentRequest("/api/paypal/capture-order", { paypalOrderId: data.orderID }); clearCart(); setItems([]); setStatus("payment-success"); }
+          catch (error) { setStatus(error.message || "payment-error"); }
+          finally { setSending(false); }
+        },
+        onCancel: () => setStatus("payment-cancelled"),
+        onError: () => { setSending(false); setStatus((current) => current || "payment-error"); },
+        style: { layout: "vertical", shape: "rect", label: "paypal" },
+      });
+      buttons.render(paypalButtonContainerRef.current); setPaypalReady(true);
+    }).catch(() => { if (!cancelled) setStatus("payment-sdk-error"); });
+    return () => { cancelled = true; };
+  }, [settings.checkout_enabled, settings.payment_enabled, paypalClientId, paypalConfigured]);
+
   function renderInput(field, label, options = {}) {
     return (
       <div>
@@ -387,8 +458,9 @@ export default function CheckoutPage() {
               Bestellung prüfen
             </h1>
             <p style={{ color: "#667", lineHeight: "1.6", maxWidth: "760px" }}>
-              Dies ist aktuell noch kein Live-Kauf. Deine Bestellung wird
-              unverbindlich angefragt.
+              {settings.payment_enabled
+                ? "Bezahle sicher mit PayPal. Die Bestellung wird erst nach erfolgreicher Zahlungsbestätigung ausgelöst."
+                : "Deine Bestellung wird unverbindlich angefragt. Es wird keine Zahlung ausgelöst."}
             </p>
           </div>
 
@@ -505,7 +577,7 @@ export default function CheckoutPage() {
                 </div>
                 <p style={{ maxWidth: "520px", margin: 0 }}>
                   {settings.payment_enabled
-                    ? "PayPal Checkout ist technisch vorbereitet, aber noch nicht live aktiv."
+                    ? "Sichere Zahlung per PayPal ist verfügbar."
                     : "Zahlung ist aktuell noch nicht aktiviert. Es wird keine echte Zahlung ausgelöst."}
                 </p>
               </aside>
@@ -670,19 +742,20 @@ export default function CheckoutPage() {
                 {settings.payment_enabled && paypalConfigured && (
                   <div style={paymentPreparationBoxStyle}>
                     <strong style={paymentPreparationTitleStyle}>
-                      PayPal Checkout vorbereitet
+                      Sicher mit PayPal bezahlen
                     </strong>
-                    Der PayPal-Bereich kann später mit der Client ID aus
-                    <code> VITE_PAYPAL_CLIENT_ID </code>
-                    eingebunden werden. Bis eine serverseitige Prüfung ergänzt
-                    ist, wird hier keine echte Zahlung ausgelöst und keine
-                    Bestellung als bezahlt markiert.
+                    Nach der Bestätigung bei PayPal wird deine Bestellung sicher
+                    erfasst. Der Warenkorb wird erst danach geleert.
+                    <div ref={paypalButtonContainerRef} style={{ marginTop: "14px" }} />
+                    {!paypalReady && status !== "payment-sdk-error" && <small>PayPal wird geladen …</small>}
                   </div>
                 )}
 
-                <button disabled={sending} style={buttonStyle}>
-                  {sending ? "Wird gesendet..." : "Bestellung unverbindlich anfragen"}
-                </button>
+                {(!settings.payment_enabled || !paypalConfigured) && (
+                  <button disabled={sending} style={buttonStyle}>
+                    {sending ? "Wird gesendet..." : "Bestellung unverbindlich anfragen"}
+                  </button>
+                )}
 
                 {status === "success" && (
                   <div style={successBoxStyle}>
@@ -695,6 +768,10 @@ export default function CheckoutPage() {
                     Die Anfrage konnte leider nicht gesendet werden.
                   </div>
                 )}
+                {status === "payment-success" && <div style={successBoxStyle}>Zahlung erfolgreich. Deine Bestellung wurde erfasst.</div>}
+                {status === "payment-cancelled" && <div style={errorBoxStyle}>Die PayPal-Zahlung wurde abgebrochen. Dein Warenkorb bleibt erhalten.</div>}
+                {status === "payment-sdk-error" && <div style={errorBoxStyle}>PayPal konnte nicht geladen werden. Bitte versuche es später erneut.</div>}
+                {status && !["validation", "success", "error", "payment-success", "payment-cancelled", "payment-sdk-error"].includes(status) && <div style={errorBoxStyle}>{status}</div>}
               </form>
             </div>
           )}
