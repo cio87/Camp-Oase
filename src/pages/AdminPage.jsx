@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminContactMessages from "../components/AdminContactMessages";
 import AdminInquiries from "../components/AdminInquiries";
+import AdminOrders from "../components/AdminOrders";
 import AdminProducts from "../components/AdminProducts";
 import AdminSiteSettings from "../components/AdminSiteSettings";
 import { supabase } from "../supabaseClient";
@@ -34,6 +35,9 @@ export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [contactMessages, setContactMessages] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState("");
   const [adminTab, setAdminTab] = useState("products");
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState("all");
   const [inquirySearch, setInquirySearch] = useState("");
@@ -77,6 +81,7 @@ export default function AdminPage() {
       if (data.session) {
         loadInquiries();
         loadContactMessages();
+        loadOrders();
         loadSiteSettings();
         loadInvoiceNumberSettings();
       }
@@ -90,6 +95,7 @@ export default function AdminPage() {
       if (session) {
         loadInquiries();
         loadContactMessages();
+        loadOrders();
         loadSiteSettings();
         loadInvoiceNumberSettings();
       }
@@ -398,6 +404,47 @@ export default function AdminPage() {
     setContactMessages(data || []);
   }
 
+  async function loadOrders() {
+    setOrdersLoading(true);
+    setOrdersError("");
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    setOrdersLoading(false);
+
+    if (error) {
+      console.log(error);
+      setOrdersError("Bestellungen konnten nicht geladen werden. Bitte erneut versuchen.");
+      return;
+    }
+
+    setOrders(data || []);
+  }
+
+  async function updateOrderStatus(order, orderStatus) {
+    const { error } = await supabase
+      .from("orders")
+      .update({ order_status: orderStatus })
+      .eq("id", order.id);
+
+    if (error) {
+      alert("Bestellstatus konnte nicht gespeichert werden: " + error.message);
+      return false;
+    }
+
+    setOrders((currentOrders) =>
+      currentOrders.map((currentOrder) =>
+        currentOrder.id === order.id
+          ? { ...currentOrder, order_status: orderStatus }
+          : currentOrder
+      )
+    );
+    return true;
+  }
+
   async function login(e) {
     e.preventDefault();
 
@@ -407,6 +454,7 @@ export default function AdminPage() {
     else {
       await loadInquiries();
       await loadContactMessages();
+      await loadOrders();
     }
   }
 
@@ -414,6 +462,8 @@ export default function AdminPage() {
     await supabase.auth.signOut();
     setInquiries([]);
     setContactMessages([]);
+    setOrders([]);
+    setOrdersError("");
     setAdminTab("products");
   }
 
@@ -957,6 +1007,25 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={() => {
+                  setAdminTab("orders");
+                  loadOrders();
+                }}
+                style={{
+                  ...adminTabButtonStyle,
+                  ...(adminTab === "orders" ? adminTabActiveStyle : {}),
+                }}
+              >
+                Bestellungen{" "}
+                {orders.filter((order) => order.payment_status === "paid" && order.order_status === "new").length > 0 && (
+                  <span style={inquiryBadgeStyle}>
+                    {orders.filter((order) => order.payment_status === "paid" && order.order_status === "new").length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setAdminTab("contact");
                   loadContactMessages();
                 }}
@@ -1012,6 +1081,16 @@ export default function AdminPage() {
                 onUpdateStatus={updateInquiryStatus}
                 onDeleteInquiry={deleteInquiry}
                 onPrepareInvoice={prepareInvoiceNumbers}
+              />
+            )}
+
+            {adminTab === "orders" && (
+              <AdminOrders
+                orders={orders}
+                loading={ordersLoading}
+                error={ordersError}
+                onRetry={loadOrders}
+                onUpdateStatus={updateOrderStatus}
               />
             )}
 

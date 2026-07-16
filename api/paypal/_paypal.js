@@ -116,7 +116,7 @@ export async function priceCartFromProducts(supabase, rawItems) {
     const unitCents = baseCents + (variant?.cents || 0) + extras.reduce((sum, extra) => sum + extra.cents, 0);
     if (unitCents < 0) throw publicError("Ein Produktpreis ist ungültig.");
     const lineCents = unitCents * quantity; subtotalCents += lineCents;
-    return { product_id: String(product.id), title: cleanText(product.title, 240), quantity, availability_status: availability, variant: variant ? { id: variant.id, name: variant.name, description: variant.description, price_adjustment: money(variant.cents) } : null, extras: extras.map(({ cents, ...extra }) => ({ ...extra, price: money(cents) })), unit_price: money(unitCents), line_total: money(lineCents) };
+    return { product_id: String(product.id), title: cleanText(product.title, 240), quantity, availability_status: availability, base_price: money(baseCents), variant: variant ? { id: variant.id, name: variant.name, description: variant.description, price_adjustment: money(variant.cents) } : null, extras: extras.map(({ cents, ...extra }) => ({ ...extra, price: money(cents) })), unit_price: money(unitCents), line_total: money(lineCents) };
   });
   if (subtotalCents <= 0) throw publicError("Der Gesamtbetrag muss größer als 0 € sein.");
   return { items, subtotal: money(subtotalCents), shippingCost: "0.00", total: money(subtotalCents) };
