@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import AdminContactMessages from "../components/AdminContactMessages";
 import AdminInquiries from "../components/AdminInquiries";
-import AdminOrders from "../components/AdminOrders";
+import AdminOrders, { OrderInvoicePreview } from "../components/AdminOrders";
+import AdminInvoices from "../components/AdminInvoices";
 import AdminProducts from "../components/AdminProducts";
 import AdminSiteSettings from "../components/AdminSiteSettings";
 import { supabase } from "../supabaseClient";
@@ -38,6 +39,8 @@ export default function AdminPage() {
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState("");
+  const [invoicePreviewOrder, setInvoicePreviewOrder] = useState(null);
+  const [highlightedOrderId, setHighlightedOrderId] = useState("");
   const [adminTab, setAdminTab] = useState("products");
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState("all");
   const [inquirySearch, setInquirySearch] = useState("");
@@ -288,6 +291,83 @@ export default function AdminPage() {
       }
 
       await loadInquiries();
+      await loadInvoiceNumberSettings();
+      return data;
+    } catch (error) {
+      alert("Rechnungsnummern konnten nicht erstellt werden: " + error.message);
+      await loadInvoiceNumberSettings();
+      return null;
+    }
+  }
+
+  async function prepareOrderInvoiceNumbers(order) {
+    if (order.payment_status !== "paid" || order.order_status === "cancelled") {
+      alert("Eine Rechnung darf erst nach erfolgreicher Zahlung erstellt werden.");
+      return null;
+    }
+
+    const { data: existingOrder, error: loadError } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", order.id)
+      .maybeSingle();
+
+    if (loadError || !existingOrder) {
+      alert("Bestellung konnte nicht geladen werden.");
+      return null;
+    }
+
+    if (existingOrder.payment_status !== "paid" || existingOrder.order_status === "cancelled") {
+      alert("Die Bestellung ist nicht als bezahlt markiert.");
+      return null;
+    }
+
+    if (existingOrder.invoice_number) return existingOrder;
+
+    if (existingOrder.customer_number || existingOrder.order_number) {
+      alert("Für diese Bestellung sind bereits unvollständige Rechnungsdaten hinterlegt. Bitte vor einer erneuten Nummernvergabe prüfen.");
+      return null;
+    }
+
+    const mode = invoiceSettings.invoice_mode === "live" ? "live" : "test";
+    const year = new Date().getFullYear();
+
+    try {
+      const invoiceNumber = await allocateSequenceNumber(`${mode}_invoice`, year);
+      const customerNumber = await allocateSequenceNumber(`${mode}_customer`, year);
+      const orderNumber = await allocateSequenceNumber(`${mode}_order`, year);
+      const createdAt = new Date().toISOString();
+
+      const { data, error } = await supabase
+        .from("orders")
+        .update({
+          invoice_number: invoiceNumber,
+          customer_number: customerNumber,
+          order_number: orderNumber,
+          invoice_created_at: createdAt,
+        })
+        .eq("id", existingOrder.id)
+        .eq("payment_status", "paid")
+        .is("invoice_number", null)
+        .select("*")
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        const { data: currentOrder } = await supabase
+          .from("orders")
+          .select("*")
+          .eq("id", existingOrder.id)
+          .maybeSingle();
+        return currentOrder?.invoice_number ? currentOrder : null;
+      }
+
+      setOrders((currentOrders) =>
+        currentOrders.map((currentOrder) =>
+          currentOrder.id === data.id ? data : currentOrder
+        )
+      );
       await loadInvoiceNumberSettings();
       return data;
     } catch (error) {
@@ -941,6 +1021,7 @@ export default function AdminPage() {
   return (
     <div style={pageStyle}>
       <div style={adminShellStyle}>
+        <style>{`@media (max-width: 700px) { .admin-tabs-navigation { gap: 8px !important; justify-content: center !important; } .admin-tabs-navigation button { padding: 10px 13px !important; font-size: 14px !important; } }`}</style>
         <Link to="/" style={pillBackLinkStyle}>
           ← Zur Webseite
         </Link>
@@ -975,7 +1056,7 @@ export default function AdminPage() {
               Ausloggen
             </button>
 
-            <div style={adminTabsStyle}>
+            <div className="admin-tabs-navigation" style={adminTabsStyle}>
               <button
                 type="button"
                 onClick={() => setAdminTab("products")}
@@ -1002,6 +1083,20 @@ export default function AdminPage() {
                 {inquiries.length > 0 && (
                   <span style={inquiryBadgeStyle}>{inquiries.length}</span>
                 )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminTab("invoices");
+                  loadOrders();
+                }}
+                style={{
+                  ...adminTabButtonStyle,
+                  ...(adminTab === "invoices" ? adminTabActiveStyle : {}),
+                }}
+              >
+                Rechnungen {orders.filter((order) => order.invoice_number).length > 0 && <span style={inquiryBadgeStyle}>{orders.filter((order) => order.invoice_number).length}</span>}
               </button>
 
               <button
@@ -1091,6 +1186,20 @@ export default function AdminPage() {
                 error={ordersError}
                 onRetry={loadOrders}
                 onUpdateStatus={updateOrderStatus}
+                onPrepareInvoice={prepareOrderInvoiceNumbers}
+                highlightedOrderId={highlightedOrderId}
+              />
+            )}
+
+            {adminTab === "invoices" && (
+              <AdminInvoices
+                orders={orders}
+                onOpenInvoice={setInvoicePreviewOrder}
+                onGoToOrder={(orderId) => {
+                  setHighlightedOrderId(orderId);
+                  setAdminTab("orders");
+                  loadOrders();
+                }}
               />
             )}
 
@@ -1118,6 +1227,7 @@ export default function AdminPage() {
                 onResetTestSequences={resetTestNumberSequences}
               />
             )}
+            {invoicePreviewOrder && <OrderInvoicePreview order={invoicePreviewOrder} onClose={() => setInvoicePreviewOrder(null)} />}
           </>
         )}
       </div>
