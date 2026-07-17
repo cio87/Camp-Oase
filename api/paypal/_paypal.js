@@ -204,3 +204,51 @@ export async function sendAdminOrderNotification(supabase, orderId, paidAt = new
     if (releaseError) console.error("Could not release admin order notification", releaseError);
   }
 }
+
+export async function getCustomerOrderSummary(supabase, orderId) {
+  const { data, error } = await supabase.from("orders").select("id,customer_name,customer_email,shipping_address,items,subtotal,shipping_cost,total,payment_status,payment_provider,order_number,created_at").eq("id", orderId).maybeSingle();
+  if (error || !data || data.payment_status !== "paid") return null;
+  return {
+    reference: data.order_number || "Deine Bestellung bei Camp Oase",
+    orderNumber: data.order_number || "",
+    customerName: data.customer_name || "",
+    customerEmail: data.customer_email || "",
+    shippingAddress: data.shipping_address || null,
+    items: Array.isArray(data.items) ? data.items : [],
+    subtotal: data.subtotal,
+    shippingCost: data.shipping_cost,
+    total: data.total,
+    paymentProvider: data.payment_provider === "paypal" ? "PayPal" : "PayPal",
+    createdAt: data.created_at,
+  };
+}
+
+export async function sendCustomerOrderConfirmation(supabase, orderId, paidAt = new Date()) {
+  const { data: order, error: orderError } = await supabase.from("orders").select("*").eq("id", orderId).maybeSingle();
+  if (orderError || !order || order.payment_status !== "paid" || !order.customer_email) return false;
+  if (order.customer_confirmation_sent_at) return true;
+
+  const claimTime = new Date().toISOString();
+  const staleBefore = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data: claimed, error: claimError } = await supabase.from("orders").update({ customer_confirmation_sending_at: claimTime }).eq("id", order.id).is("customer_confirmation_sent_at", null).or(`customer_confirmation_sending_at.is.null,customer_confirmation_sending_at.lt.${staleBefore}`).select("*").maybeSingle();
+  if (claimError) { console.error("Could not reserve customer order confirmation", claimError); return false; }
+  if (!claimed) return false;
+
+  try {
+    const smtp = getSmtpTransport();
+    const orderTime = new Date(paidAt).toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
+    const orderReference = claimed.order_number || "Deine Bestellung bei Camp Oase";
+    const greetingName = String(claimed.customer_name || "").trim() || "liebe Kundin, lieber Kunde";
+    const text = [`Hallo ${greetingName},`, "", "vielen Dank für deine Bestellung bei Camp Oase.", "Deine Zahlung war erfolgreich und deine Bestellung ist bei uns eingegangen.", "", `Bestellung: ${orderReference}`, `Bestelldatum: ${orderTime}`, "", "Artikel:", orderItemsText(claimed.items), "", `Gesamtbetrag: ${formatEuro(claimed.total)}`, `Rechnungsadresse: ${formatAddress(claimed.billing_address)}`, `Lieferadresse: ${formatAddress(claimed.shipping_address)}`, "Zahlungsart: PayPal", "", "Wir prüfen und bearbeiten deine Bestellung nun. Sobald es zum Versand Neuigkeiten gibt, melden wir uns bei dir.", "Bei Fragen erreichst du uns unter service@camp-oase.de.", "", "Herzliche Grüße", "Brian von Camp Oase"].join("\n");
+    const html = `<!doctype html><html><body style="margin:0;background:#f7f1e8;color:#25332a;font-family:Arial,sans-serif"><div style="max-width:680px;margin:0 auto;padding:24px"><div style="background:#fff;border-radius:14px;overflow:hidden"><div style="padding:22px 24px;background:#435749;color:#fff"><h1 style="margin:0;font-size:22px">Deine Bestellung bei Camp Oase</h1><p style="margin:7px 0 0">Zahlung erfolgreich · Bestellung eingegangen</p></div><div style="padding:24px"><p>Hallo ${escapeHtml(greetingName)},</p><p>vielen Dank für deine Bestellung bei Camp Oase. Deine Zahlung war erfolgreich und deine Bestellung ist bei uns eingegangen.</p><p><strong>Bestellung:</strong> ${escapeHtml(orderReference)}<br><strong>Bestelldatum:</strong> ${escapeHtml(orderTime)}</p><table role="presentation" style="width:100%;border-collapse:collapse"><thead><tr style="background:#eef3ea;color:#435749"><th style="padding:10px;text-align:left">Position</th><th style="padding:10px;text-align:right">Menge</th><th style="padding:10px;text-align:right">Einzelpreis</th><th style="padding:10px;text-align:right">Summe</th></tr></thead><tbody>${orderItemsHtml(claimed.items)}</tbody></table><p style="text-align:right;font-size:18px"><strong>Gesamtbetrag: ${escapeHtml(formatEuro(claimed.total))}</strong></p><p><strong>Rechnungsadresse</strong><br>${escapeHtml(formatAddress(claimed.billing_address))}</p><p><strong>Lieferadresse</strong><br>${escapeHtml(formatAddress(claimed.shipping_address))}</p><p>Zahlungsart: PayPal</p><p>Wir prüfen und bearbeiten deine Bestellung nun. Sobald es zum Versand Neuigkeiten gibt, melden wir uns bei dir.</p><p>Bei Fragen erreichst du uns unter <a href="mailto:service@camp-oase.de" style="color:#435749">service@camp-oase.de</a>.</p><p>Herzliche Grüße<br>Brian von Camp Oase</p></div></div></div></body></html>`;
+    await smtp.transporter.sendMail({ from: smtp.from, to: claimed.customer_email, subject: "Deine Bestellung bei Camp Oase", text, html });
+    const { error: sentError } = await supabase.from("orders").update({ customer_confirmation_sent_at: new Date().toISOString(), customer_confirmation_sending_at: null }).eq("id", claimed.id).eq("customer_confirmation_sending_at", claimed.customer_confirmation_sending_at);
+    if (sentError) console.error("Could not record sent customer order confirmation", sentError);
+    return true;
+  } catch (error) {
+    console.error("Could not send customer order confirmation", error);
+    const { error: releaseError } = await supabase.from("orders").update({ customer_confirmation_sending_at: null }).eq("id", claimed.id).eq("customer_confirmation_sending_at", claimed.customer_confirmation_sending_at);
+    if (releaseError) console.error("Could not release customer order confirmation", releaseError);
+    return false;
+  }
+}

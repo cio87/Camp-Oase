@@ -130,6 +130,18 @@ const legalLinkStyle = {
   textUnderlineOffset: "3px",
 };
 
+const PAYMENT_CONFIRMATION_STORAGE_KEY = "campoase_payment_confirmation";
+
+function addressLines(address) {
+  if (!address || typeof address !== "object") return [];
+  return [address.street, [address.postal_code, address.city].filter(Boolean).join(" "), address.country].filter(Boolean);
+}
+
+function PaymentConfirmation({ order }) {
+  const reference = order.orderNumber || "Deine Bestellung bei Camp Oase";
+  return <div style={siteStyle}><PublicHeader /><main style={pageStyle}><div style={cartPageStyle}><section style={{ ...cartEmptyStyle, display: "grid", gap: "20px" }}><div style={successBoxStyle}><h1 style={{ ...sectionTitleStyle, margin: "0 0 8px" }}>Vielen Dank für deine Bestellung!</h1><p style={{ margin: 0 }}>Deine Zahlung war erfolgreich.</p></div><div><h2 style={{ margin: "0 0 8px", color: "#435749" }}>Bestellübersicht</h2><p style={{ margin: 0, color: "#556b5d" }}>{order.orderNumber ? <>Bestellnummer: <strong>{reference}</strong></> : reference}</p></div><div style={formGridStyle}><div style={addressHintStyle}><strong>Kundendaten</strong><br />{order.customerName}<br />{order.customerEmail}</div><div style={addressHintStyle}><strong>Lieferadresse</strong><br />{addressLines(order.shippingAddress).map((line) => <div key={line}>{line}</div>)}</div></div><div style={{ display: "grid", gap: "12px" }}>{(order.items || []).map((item, index) => <article key={`${item.product_id || item.title}-${index}`} style={cartItemStyle}><div><h3 style={{ margin: "0 0 8px", color: "#435749" }}>{item.title || "Produkt"}</h3>{item.variant?.name && <p style={{ margin: "4px 0", color: "#556b5d" }}>Variante: {item.variant.name}{Number(item.variant?.price_adjustment) ? ` (${formatEuro(item.variant.price_adjustment)})` : ""}</p>}{(item.extras || []).map((extra, extraIndex) => <p key={`${extra.name}-${extraIndex}`} style={{ margin: "4px 0", color: "#556b5d" }}>Extra: {extra.name || "Extra"} ({formatEuro(extra.price)})</p>)}<p style={{ margin: "8px 0 0", color: "#555" }}>Menge: {item.quantity || 1}<br />Einzelpreis: {formatEuro(item.unit_price)}<br /><strong>Positionssumme: {formatEuro(item.line_total)}</strong></p></div></article>)}</div><aside style={cartSummaryStyle}><span style={{ color: "#667", fontWeight: "bold" }}>Gesamtbetrag</span><strong style={{ display: "block", fontSize: "28px" }}>{formatEuro(order.total)}</strong><p style={{ margin: "12px 0 0" }}>Zahlungsart: PayPal</p></aside><div style={paymentPreparationBoxStyle}>{order.customerConfirmationSent === false ? <>Deine Bestellung ist bei uns eingegangen. Falls du keine Bestellbestätigung erhältst, kontaktiere uns bitte unter service@camp-oase.de.</> : <>Eine Bestellbestätigung wurde an <strong>{order.customerEmail}</strong> gesendet.</>}<br /><span style={{ fontSize: "14px" }}>Wir prüfen und bearbeiten deine Bestellung nun. Sobald es zum Versand Neuigkeiten gibt, melden wir uns bei dir.</span></div><div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}><Link to="/#produkte" style={{ ...buttonStyle, textDecoration: "none" }}>Weiter einkaufen</Link><Link to="/" style={{ ...pillBackLinkStyle, padding: "11px 14px" }}>Zur Startseite</Link></div></section></div></main><SiteFooter /></div>;
+}
+
 export default function CheckoutPage() {
   const [settings, setSettings] = useState({
     checkout_enabled: false,
@@ -142,6 +154,7 @@ export default function CheckoutPage() {
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
   const [paypalReady, setPaypalReady] = useState(false);
+  const [paymentConfirmation, setPaymentConfirmation] = useState(null);
   const paypalButtonContainerRef = useRef(null);
   const formRef = useRef(form);
   const itemsRef = useRef(items);
@@ -160,6 +173,10 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setItems(getCartItems());
+    try {
+      const storedConfirmation = window.sessionStorage.getItem(PAYMENT_CONFIRMATION_STORAGE_KEY);
+      if (storedConfirmation) setPaymentConfirmation(JSON.parse(storedConfirmation));
+    } catch { /* Ignore unavailable or invalid browser storage. */ }
     loadSettings();
   }, []);
 
@@ -344,7 +361,7 @@ export default function CheckoutPage() {
   }
 
   useEffect(() => {
-    if (!settings.checkout_enabled || !settings.payment_enabled || !paypalConfigured) { setPaypalReady(false); return undefined; }
+    if (paymentConfirmation || !settings.checkout_enabled || !settings.payment_enabled || !paypalConfigured) { setPaypalReady(false); return undefined; }
     let cancelled = false;
     const scriptId = "paypal-sdk";
     let script = document.getElementById(scriptId);
@@ -371,7 +388,13 @@ export default function CheckoutPage() {
         },
         onApprove: async (data) => {
           setSending(true); setStatus("");
-          try { await postPaymentRequest("/api/paypal/capture-order", { paypalOrderId: data.orderID }); clearCart(); setItems([]); setStatus("payment-success"); }
+          try {
+            const result = await postPaymentRequest("/api/paypal/capture-order", { paypalOrderId: data.orderID });
+            if (!result.order) throw new Error("Die Zahlung war erfolgreich, aber die Bestellübersicht konnte nicht geladen werden.");
+            const confirmation = { ...result.order, customerConfirmationSent: result.customerConfirmationSent };
+            window.sessionStorage.setItem(PAYMENT_CONFIRMATION_STORAGE_KEY, JSON.stringify(confirmation));
+            clearCart(); setItems([]); setPaymentConfirmation(confirmation); setStatus("payment-success");
+          }
           catch (error) { setStatus(error.message || "payment-error"); }
           finally { setSending(false); }
         },
@@ -382,7 +405,7 @@ export default function CheckoutPage() {
       buttons.render(paypalButtonContainerRef.current); setPaypalReady(true);
     }).catch(() => { if (!cancelled) setStatus("payment-sdk-error"); });
     return () => { cancelled = true; };
-  }, [settings.checkout_enabled, settings.payment_enabled, paypalClientId, paypalConfigured]);
+  }, [paymentConfirmation, settings.checkout_enabled, settings.payment_enabled, paypalClientId, paypalConfigured]);
 
   function renderInput(field, label, options = {}) {
     return (
@@ -408,6 +431,8 @@ export default function CheckoutPage() {
   const notice =
     settings.checkout_notice ||
     "Der Checkout ist aktuell noch nicht aktiviert. Du kannst deinen Warenkorb weiterhin unverbindlich anfragen.";
+
+  if (paymentConfirmation) return <PaymentConfirmation order={paymentConfirmation} />;
 
   if (!settings.checkout_enabled) {
     return (
