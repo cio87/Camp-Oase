@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { getSmtpTransport } from "./_mail.js";
 
 // Required Vercel environment variables:
 // SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
@@ -43,15 +43,7 @@ export default async function handler(request, response) {
     });
   }
 
-  const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465,
-    auth: {
-      user: smtpUser,
-      pass: smtpPass,
-    },
-  });
+  const { transporter } = getSmtpTransport();
 
   const submittedAt = new Date().toLocaleString("de-DE", {
     dateStyle: "medium",

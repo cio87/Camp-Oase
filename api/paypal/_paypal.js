@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "node:crypto";
+import { getInternalOrderReceiver, getSmtpTransport } from "../_mail.js";
 
 const PAYPAL_SANDBOX_URL = "https://api-m.sandbox.paypal.com";
 const MAX_ITEMS = 25;
@@ -145,4 +146,61 @@ export async function createPayPalOrder(total) {
 export function captureMatchesOrder(capture, expectedTotal) {
   const unit = capture?.purchase_units?.[0]; const completed = unit?.payments?.captures?.find((entry) => entry.status === "COMPLETED");
   return capture?.status === "COMPLETED" && unit?.amount?.currency_code === "EUR" && unit?.amount?.value === expectedTotal && completed?.amount?.currency_code === "EUR" && completed?.amount?.value === expectedTotal;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
+
+function formatEuro(value) {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(amount) : "–";
+}
+
+function formatAddress(address) {
+  if (!address || typeof address !== "object") return "Nicht hinterlegt";
+  return [address.street, [address.postal_code, address.city].filter(Boolean).join(" "), address.country].filter(Boolean).join(", ") || "Nicht hinterlegt";
+}
+
+function itemDetails(item) {
+  return [item.variant?.name ? `Variante: ${item.variant.name}${Number(item.variant?.price_adjustment) ? ` (${formatEuro(item.variant.price_adjustment)})` : ""}` : "", ...(Array.isArray(item.extras) ? item.extras.map((extra) => `Extra: ${extra.name || "Extra"} (${formatEuro(extra.price)})`) : [])].filter(Boolean);
+}
+
+function orderItemsText(items) {
+  if (!Array.isArray(items) || !items.length) return "Keine Positionen hinterlegt.";
+  return items.map((item) => [`${item.quantity || 1} × ${item.title || "Produkt"}`, `Einzelpreis: ${formatEuro(item.unit_price)}`, `Positionssumme: ${formatEuro(item.line_total)}`, ...itemDetails(item)].join("\n")).join("\n\n");
+}
+
+function orderItemsHtml(items) {
+  if (!Array.isArray(items) || !items.length) return "<p>Keine Positionen hinterlegt.</p>";
+  return items.map((item) => {
+    const details = itemDetails(item).map(escapeHtml).join("<br>");
+    return `<tr><td style="padding:12px;border-bottom:1px solid #e7e2d8"><strong>${escapeHtml(item.title || "Produkt")}</strong>${details ? `<br><span style="color:#667;font-size:13px">${details}</span>` : ""}</td><td style="padding:12px;border-bottom:1px solid #e7e2d8;text-align:right">${escapeHtml(item.quantity || 1)}</td><td style="padding:12px;border-bottom:1px solid #e7e2d8;text-align:right">${escapeHtml(formatEuro(item.unit_price))}</td><td style="padding:12px;border-bottom:1px solid #e7e2d8;text-align:right">${escapeHtml(formatEuro(item.line_total))}</td></tr>`;
+  }).join("");
+}
+
+export async function sendAdminOrderNotification(supabase, orderId, paidAt = new Date()) {
+  const { data: order, error: orderError } = await supabase.from("orders").select("*").eq("id", orderId).maybeSingle();
+  if (orderError || !order || order.payment_status !== "paid" || order.admin_notification_sent_at) return;
+
+  const claimTime = new Date().toISOString();
+  const staleBefore = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data: claimed, error: claimError } = await supabase.from("orders").update({ admin_notification_sending_at: claimTime }).eq("id", order.id).is("admin_notification_sent_at", null).or(`admin_notification_sending_at.is.null,admin_notification_sending_at.lt.${staleBefore}`).select("*").maybeSingle();
+  if (claimError) { console.error("Could not reserve admin order notification", claimError); return; }
+  if (!claimed) return;
+
+  try {
+    const smtp = getSmtpTransport();
+    const paymentTime = new Date(paidAt).toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
+    const subject = `Neue bezahlte Bestellung bei Camp Oase – ${formatEuro(claimed.total)}`;
+    const text = ["Zahlung erfolgreich", "", `Kunde: ${claimed.customer_name || "–"}`, `E-Mail: ${claimed.customer_email || "–"}`, `Rechnungsadresse: ${formatAddress(claimed.billing_address)}`, `Lieferadresse: ${formatAddress(claimed.shipping_address)}`, "", "Bestellte Artikel:", orderItemsText(claimed.items), "", `Gesamtbetrag: ${formatEuro(claimed.total)}`, "Zahlungsart: PayPal", `PayPal-Referenz: ${claimed.payment_reference || "–"}`, `Interne Order-ID: ${claimed.id}`, `Bestellnummer: ${claimed.order_number || "Noch nicht vergeben"}`, `Zahlung bestätigt am: ${paymentTime}`, "", "Bitte die Bestellung im Adminbereich prüfen:", "https://www.camp-oase.de/admin"].join("\n");
+    const html = `<!doctype html><html><body style="margin:0;background:#f7f1e8;color:#25332a;font-family:Arial,sans-serif"><div style="max-width:680px;margin:0 auto;padding:24px"><div style="background:#fff;border-radius:14px;overflow:hidden"><div style="padding:22px 24px;background:#435749;color:#fff"><h1 style="margin:0;font-size:22px">Zahlung erfolgreich</h1><p style="margin:7px 0 0">Neue bezahlte Bestellung bei Camp Oase</p></div><div style="padding:24px"><p><strong>${escapeHtml(claimed.customer_name || "–")}</strong><br>${escapeHtml(claimed.customer_email || "–")}</p><p><strong>Rechnungsadresse</strong><br>${escapeHtml(formatAddress(claimed.billing_address))}</p><p><strong>Lieferadresse</strong><br>${escapeHtml(formatAddress(claimed.shipping_address))}</p><table role="presentation" style="width:100%;border-collapse:collapse"><thead><tr style="background:#eef3ea;color:#435749"><th style="padding:10px;text-align:left">Position</th><th style="padding:10px;text-align:right">Menge</th><th style="padding:10px;text-align:right">Einzelpreis</th><th style="padding:10px;text-align:right">Summe</th></tr></thead><tbody>${orderItemsHtml(claimed.items)}</tbody></table><p style="text-align:right;font-size:18px"><strong>Gesamtbetrag: ${escapeHtml(formatEuro(claimed.total))}</strong></p><p>Zahlungsart: PayPal<br>PayPal-Referenz: ${escapeHtml(claimed.payment_reference || "–")}<br>Interne Order-ID: ${escapeHtml(claimed.id)}<br>Bestellnummer: ${escapeHtml(claimed.order_number || "Noch nicht vergeben")}<br>Zahlung bestätigt am: ${escapeHtml(paymentTime)}</p><p style="margin:24px 0 0"><a href="https://www.camp-oase.de/admin" style="display:inline-block;background:#435749;color:#fff;padding:12px 16px;border-radius:8px;text-decoration:none">Bestellung im Adminbereich prüfen</a></p></div></div></div></body></html>`;
+    await smtp.transporter.sendMail({ from: smtp.from, to: getInternalOrderReceiver(), replyTo: claimed.customer_email || undefined, subject, text, html });
+    const { error: sentError } = await supabase.from("orders").update({ admin_notification_sent_at: new Date().toISOString(), admin_notification_sending_at: null }).eq("id", claimed.id).eq("admin_notification_sending_at", claimed.admin_notification_sending_at);
+    if (sentError) console.error("Could not record sent admin order notification", sentError);
+  } catch (error) {
+    console.error("Could not send admin order notification", error);
+    const { error: releaseError } = await supabase.from("orders").update({ admin_notification_sending_at: null }).eq("id", claimed.id).eq("admin_notification_sending_at", claimed.admin_notification_sending_at);
+    if (releaseError) console.error("Could not release admin order notification", releaseError);
+  }
 }
