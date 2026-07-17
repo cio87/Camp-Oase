@@ -1,6 +1,15 @@
 import { Fragment, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
+  orderPositionCardStyle,
+  orderPositionChipStyle,
+  orderPositionExtraStyle,
+  orderPositionExtrasStyle,
+  orderPositionHeaderStyle,
+  orderPositionMetaStyle,
+  orderPositionPriceStyle,
+} from "../utils/positionCardStyles";
+import {
   emptyBoxStyle,
   inquiryActionRowStyle,
   inquiryCardStyle,
@@ -129,13 +138,38 @@ function OrderProducts({ items }) {
   })}</div>;
 }
 
+function OrderInvoicePositionCards({ items }) {
+  return <div className="order-invoice-screen-cards">{(items || []).map((item, index) => {
+    const quantity = Number(item.quantity || 1);
+    const basePrice = getBasePrice(item);
+    const variantAdjustment = Number(item.variant?.price_adjustment);
+    const variantLabel = item.variant?.name ? `Variante: ${item.variant.name}${Number.isFinite(variantAdjustment) && variantAdjustment !== 0 ? ` (${formatAdjustment(variantAdjustment)})` : ""}` : "";
+    return <article key={`${item.product_id || item.title}-${index}`} style={orderPositionCardStyle}><div style={orderPositionHeaderStyle}><div><strong>{item.title || "Produkt"}</strong><div style={orderPositionMetaStyle}><span style={orderPositionChipStyle}>Menge: {quantity}</span>{variantLabel && <span style={orderPositionChipStyle}>{variantLabel}</span>}</div></div><div style={orderPositionPriceStyle}><span>Einzelpreis: {formatMoney(item.unit_price)}</span><strong>Positionssumme: {formatMoney(item.line_total)}</strong></div></div>{Array.isArray(item.extras) && item.extras.length > 0 && <div style={orderPositionExtrasStyle}>{item.extras.map((extra, extraIndex) => <div key={`${extra.name || "extra"}-${extraIndex}`} style={orderPositionExtraStyle}><span><strong>Extra:</strong> {extra.name || "Extra"}{extra.note && <><br /><small>Hinweis: {extra.note}</small></>}</span><strong>{formatMoney(extra.price)}</strong></div>)}</div>}<div style={{ marginTop: "10px", color: "#637064", fontSize: "13px" }}>Grundpreis: {formatMoney(basePrice)}</div></article>;
+  })}</div>;
+}
+
 export function OrderInvoicePreview({ order, onClose }) {
   const invoiceDate = new Date(order.invoice_created_at || order.created_at);
   const invoiceDateLabel = Number.isNaN(invoiceDate.getTime()) ? "–" : invoiceDate.toLocaleDateString("de-DE");
   const shippingDiffers = JSON.stringify(order.billing_address || {}) !== JSON.stringify(order.shipping_address || {});
 
   return createPortal(<div className="order-invoice-print-portal">
-    <style>{`@media print {
+    <style>{`
+      .order-invoice-preview-inner { width: 100%; max-width: 960px; min-width: 0; box-sizing: border-box; }
+      .order-invoice-print { width: 100%; max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
+      .order-invoice-screen-cards { display: none; }
+      @media (max-width: 700px) {
+        .order-invoice-print-portal .invoice-preview-overlay { padding: 10px !important; }
+        .order-invoice-print-portal .invoice-preview-inner { max-width: 100% !important; }
+        .order-invoice-print { min-height: auto !important; padding: 18px 14px !important; border-radius: 16px !important; }
+        .order-invoice-print header { gap: 16px !important; margin-bottom: 18px !important; padding-bottom: 16px !important; }
+        .order-invoice-print header > div:last-child { text-align: left !important; overflow-wrap: anywhere; }
+        .order-invoice-print section { grid-template-columns: 1fr !important; gap: 16px !important; margin-bottom: 18px !important; }
+        .order-invoice-screen-table { display: none !important; }
+        .order-invoice-screen-cards { display: grid; gap: 12px; margin-bottom: 18px; }
+        .order-invoice-footer { margin-top: 24px !important; }
+      }
+      @media print {
       @page { size: A4 portrait; margin: 11mm; }
       html, body { margin: 0 !important; padding: 0 !important; width: auto !important; min-height: 0 !important; background: white !important; overflow: visible !important; }
       body > * { display: none !important; }
@@ -148,6 +182,8 @@ export function OrderInvoicePreview({ order, onClose }) {
       .order-invoice-print header { margin-bottom: 16px !important; padding-bottom: 14px !important; }
       .order-invoice-print section { margin-bottom: 16px !important; }
       .order-invoice-print table { width: 100% !important; table-layout: fixed !important; font-size: 9.5pt !important; }
+      .order-invoice-screen-cards { display: none !important; }
+      .order-invoice-screen-table { display: table !important; }
       .order-invoice-print th, .order-invoice-print td { padding: 7px 5px !important; overflow-wrap: anywhere !important; word-break: normal !important; }
       .order-invoice-print th:first-child, .order-invoice-print td:first-child { width: 47% !important; }
       .order-invoice-print th:nth-child(2), .order-invoice-print td:nth-child(2) { width: 11% !important; }
@@ -156,7 +192,7 @@ export function OrderInvoicePreview({ order, onClose }) {
       .order-invoice-footer { margin-top: auto !important; break-inside: avoid !important; page-break-inside: avoid !important; }
     }`}</style>
     <div className="invoice-preview-overlay" style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(47, 62, 52, 0.62)", padding: "clamp(14px, 4vw, 32px)", overflowY: "auto" }} onClick={onClose} role="presentation">
-    <div style={{ maxWidth: "960px", margin: "0 auto" }} onClick={(event) => event.stopPropagation()}>
+    <div className="order-invoice-preview-inner" style={{ maxWidth: "960px", margin: "0 auto" }} onClick={(event) => event.stopPropagation()}>
       <div className="invoice-no-print" style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginBottom: "14px" }}>
         <button type="button" onClick={() => window.print()} style={{ border: "none", borderRadius: "12px", padding: "11px 14px", background: "#435749", color: "white", cursor: "pointer" }}>Rechnung drucken</button>
         <button type="button" onClick={onClose} style={{ border: "none", borderRadius: "12px", padding: "11px 14px", background: "#E8F1EF", color: "#2F3A34", cursor: "pointer" }}>Schließen</button>
@@ -171,7 +207,7 @@ export function OrderInvoicePreview({ order, onClose }) {
           <div><h2 style={{ color: "#435749", fontSize: "18px" }}>Rechnungsempfänger</h2><p style={{ margin: 0 }}><strong>{order.customer_name}</strong><br />{addressLines(order.billing_address).map((line, index) => <Fragment key={index}>{line}<br /></Fragment>)}{order.customer_email && <>E-Mail: {order.customer_email}</>}</p>{shippingDiffers && <><h2 style={{ color: "#435749", fontSize: "18px", marginTop: "20px" }}>Lieferadresse</h2><p style={{ margin: 0 }}>{addressLines(order.shipping_address).map((line, index) => <Fragment key={index}>{line}<br /></Fragment>)}</p></>}</div>
           <div><h2 style={{ color: "#435749", fontSize: "18px" }}>Rechnungsdaten</h2><div style={{ display: "grid", gap: "5px" }}><div>Rechnungsnummer: <strong>{order.invoice_number}</strong></div><div>Rechnungsdatum: {invoiceDateLabel}</div><div>Bestellnummer: <strong>{order.order_number}</strong></div><div>Zahlungsart: PayPal</div><div>Zahlungsstatus: <strong>Bezahlt</strong></div></div></div>
         </section>
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "22px" }}><thead><tr style={{ background: "#eef3ea", color: "#435749" }}><th style={{ textAlign: "left", padding: "10px" }}>Position</th><th style={{ textAlign: "right", padding: "10px" }}>Menge</th><th style={{ textAlign: "right", padding: "10px" }}>Einzelpreis</th><th style={{ textAlign: "right", padding: "10px" }}>Summe</th></tr></thead><tbody>{(order.items || []).map((item, index) => {
+        <table className="order-invoice-screen-table" style={{ width: "100%", borderCollapse: "collapse", marginBottom: "22px" }}><thead><tr style={{ background: "#eef3ea", color: "#435749" }}><th style={{ textAlign: "left", padding: "10px" }}>Position</th><th style={{ textAlign: "right", padding: "10px" }}>Menge</th><th style={{ textAlign: "right", padding: "10px" }}>Einzelpreis</th><th style={{ textAlign: "right", padding: "10px" }}>Summe</th></tr></thead><tbody>{(order.items || []).map((item, index) => {
           const quantity = Number(item.quantity || 1);
           const basePrice = getBasePrice(item);
           const variantAdjustment = Number(item.variant?.price_adjustment);
@@ -181,7 +217,7 @@ export function OrderInvoicePreview({ order, onClose }) {
             {hasVariantAdjustment && <tr><td style={{ padding: "8px 10px 8px 26px", borderBottom: "1px solid #f1eadf", color: "#667" }}>Variante: {item.variant.name}</td><td style={{ textAlign: "right", padding: "8px 10px", borderBottom: "1px solid #f1eadf" }}>{quantity}</td><td style={{ textAlign: "right", padding: "8px 10px", borderBottom: "1px solid #f1eadf" }}>{formatMoney(variantAdjustment)}</td><td style={{ textAlign: "right", padding: "8px 10px", borderBottom: "1px solid #f1eadf" }}>{formatMoney(variantAdjustment * quantity)}</td></tr>}
             {(item.extras || []).map((extra, extraIndex) => <tr key={`${extra.name}-${extraIndex}`}><td style={{ padding: "8px 10px 8px 26px", borderBottom: "1px solid #f1eadf", color: "#667" }}>Extra: {extra.name}{extra.note ? ` – ${extra.note}` : ""}</td><td style={{ textAlign: "right", padding: "8px 10px", borderBottom: "1px solid #f1eadf" }}>{quantity}</td><td style={{ textAlign: "right", padding: "8px 10px", borderBottom: "1px solid #f1eadf" }}>{formatMoney(extra.price)}</td><td style={{ textAlign: "right", padding: "8px 10px", borderBottom: "1px solid #f1eadf" }}>{formatMoney(Number(extra.price) * quantity)}</td></tr>)}
           </Fragment>;
-        })}</tbody></table>
+        })}</tbody></table><OrderInvoicePositionCards items={order.items} />
         <section style={{ marginLeft: "auto", maxWidth: "360px", background: "#f5f1e8", border: "1px solid #e4dac7", borderRadius: "14px", padding: "14px 16px", display: "grid", gap: "7px" }}><div style={totalRowStyle}><span>Zwischensumme</span><strong>{formatMoney(order.subtotal)}</strong></div><div style={totalRowStyle}><span>Versandkosten</span><strong>{formatMoney(order.shipping_cost)}</strong></div><div style={{ ...totalRowStyle, fontSize: "18px" }}><span>Gesamtbetrag</span><strong>{formatMoney(order.total)}</strong></div></section>
         </div>
         <footer className="order-invoice-footer" style={{ marginTop: "auto", paddingTop: "24px", borderTop: "1px solid #e4dac7", color: "#435749" }}><p style={{ margin: 0, fontSize: "15px", lineHeight: "1.65" }}>Herzlichen Dank für deinen Einkauf bei Camp Oase!<br />Wir wünschen dir ganz viel Freude mit deinem persönlichen Lieblingsstück.</p><p style={{ margin: "16px 0 0", color: "#637064", fontSize: "14px" }}>Liebe Grüße<br />Brian von Camp Oase</p><p style={{ margin: "20px 0 0", color: "#637064", fontSize: "13px", lineHeight: "1.55" }}>Für diesen Umsatz gilt die Steuerbefreiung für Kleinunternehmer gemäß § 19 UStG.<br />Umsatzsteuer wird daher nicht ausgewiesen.</p></footer>
